@@ -23,7 +23,7 @@
 #include "errorhandling.hpp"
 #include "grid.hpp"
 #include "domain_decomposition.hpp"
-
+#include "gb.hpp"
 
 using namespace std;
 
@@ -200,10 +200,24 @@ void detect_collision(Particle* p1, Particle* p2)
   // Obtain distance between particles
   double dist_betw_part = sqrt(distance2vec(p1->r.p, p2->r.p, vec21));
   //TRACE(printf("%d: Distance between particles %lf %lf %lf, Scalar: %f\n",this_node,vec21[0],vec21[1],vec21[2], dist_betw_part));
-  if (dist_betw_part > collision_params.distance)
+ //it might be an error here, try with distance  
+ //if (dist_betw_part > max_cut_nonbonded)
+  if (dist_betw_part > collision_params.distance) 
     return;
 
-  //TRACE(printf("%d: particles %d and %d within bonding distance %lf\n", this_node, p1->p.identity, p2->p.identity, dist_betw_part));
+
+// Calculate here Gay-Berne nonbonded enenergy (code in gb.hpp)
+
+double gb_en;
+IA_parameters *ia_params = get_ia_param(p1->p.type, p2->p.type);
+gb_en = gb_pair_energy(p1, p2, ia_params,
+                       vec21, dist_betw_part*dist_betw_part);
+
+if (gb_en >= 0.0001 and gb_en <= -0.0001)
+  return;
+
+
+  TRACE(printf("%d: particles %d and %d within bonding distance %lf\n", this_node, p1->p.identity, p2->p.identity, dist_betw_part));
   // If we are in the glue to surface mode, check that the particles
   // are of the right type
   if (collision_params.mode & COLLISION_MODE_GLUE_TO_SURF) {

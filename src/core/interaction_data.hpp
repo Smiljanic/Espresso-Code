@@ -449,6 +449,27 @@ typedef struct {
   /*@}*/  
 #endif
 
+/*MILENA: GAY-BERNE for three_axial ellipsoid
+*/
+#ifdef GAY_BERNE_threeaxial
+  /** \name Gay-Berne potential */
+  /*@{*/
+  double GB_eps_1;
+  double GB_eps_2;
+  double GB_eps_3;
+  double GB_sig_1;
+  double GB_sig_2;
+  double GB_sig_3;
+  double GB_cut;
+  double GB_mu;
+  double GB_nu;
+  double GB_chi1;
+  double GB_chi2;
+  /*@}*/
+#endif
+
+
+
 #ifdef TABULATED
   /** \name Tabulated potential */
   /*@{*/

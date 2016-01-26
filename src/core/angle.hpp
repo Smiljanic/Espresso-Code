@@ -62,6 +62,7 @@ inline int calc_angle_force(Particle *p_mid, Particle *p_left, Particle *p_right
   /* vector from p_left to p_mid */
   get_mi_vector(vec1, p_mid->r.p, p_left->r.p);
   dist2 = sqrlen(vec1);
+  /* inverse vector */
   d1i = 1.0 / sqrt(dist2);
   for(j=0;j<3;j++) vec1[j] *= d1i;
   /* vector from p_mid to p_right */

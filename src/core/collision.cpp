@@ -205,7 +205,7 @@ void detect_collision(Particle* p1, Particle* p2)
     return;
 
 
-// Calculate here Gay-Berne nonbonded enenergy (code in gb.hpp)
+// Calculate here Gay-Berne nonbonded energy (code in gb.hpp)
 
 double gb_en;
 IA_parameters *ia_params = get_ia_param(p1->p.type, p2->p.type);
@@ -470,6 +470,10 @@ void bind_at_poc_create_bond_between_vs(int i)
      bondG[2] = collision_queue[i].pp2;
      local_change_bond(max_seen_particle,   bondG, 0);
      local_change_bond(max_seen_particle-1, bondG, 0);
+     //HACK: Zero length bond of id 3 between virtual sites
+     bondG[0] = 3;
+     bondG[1] = max_seen_particle-1;
+     local_change_bond(max_seen_particle,   bondG, 0);
      break;
    }
   }

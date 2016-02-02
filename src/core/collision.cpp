@@ -471,6 +471,8 @@ void bind_at_poc_create_bond_between_vs(int i)
      local_change_bond(max_seen_particle,   bondG, 0);
      local_change_bond(max_seen_particle-1, bondG, 0);
      //HACK: Zero length bond of id 3 between virtual sites
+ //case 3:{//define new variable only for type of bonds where VS's centers are connected with bond of zero length, instead of using const char 3
+ 
      bondG[0] = 3;
      bondG[1] = max_seen_particle-1;
      local_change_bond(max_seen_particle,   bondG, 0);

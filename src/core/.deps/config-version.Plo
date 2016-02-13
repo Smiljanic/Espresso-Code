@@ -1,0 +1,3 @@
+config-version.lo: config-version.cpp /usr/include/stdc-predef.h
+
+/usr/include/stdc-predef.h:

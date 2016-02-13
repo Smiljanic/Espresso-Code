@@ -90,7 +90,7 @@ int convert_quatu_to_quat(double d[3], double quat[4])
     d_xy = sqrt(d[0]*d[0] + d[1]*d[1]);
     // If dipole points along z axis:
     if (d_xy == 0){
-      // We need to distinguish between (0,0,d_z) and (0,0,d_z)
+      // We need to distinguish between (0,0,d_z) and (0,0,-d_z)
       if (d[2]>0)
        theta2 = 0;
       else

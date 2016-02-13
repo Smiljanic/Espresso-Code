@@ -48,6 +48,9 @@
 #define COLLISION_MODE_GLUE_TO_SURF    8
 /// Three particle binding mode
 #define COLLISION_MODE_BIND_THREE_PARTICLES 16 
+// Triangle particle binding mechanism which fixes two partiles in space
+#define COLLISION_MODE_TRIANGLE_BINDING     32
+
 /*@}*/
 
 typedef struct {
@@ -75,6 +78,9 @@ typedef struct {
   /// different angle bonds with different equilibrium angles
   /// Are expected to have ids immediately following to bond_three_particles
   int three_particle_angle_resolution;
+  /// parameter to define corners of triangle where additional 3 pairs of virtual sites
+  /// are set in order to fix touching particle in the space 
+  double triangle_size;
 } Collision_parameters;
 
 /// Parameters for collision detection
@@ -104,7 +110,7 @@ void handle_collisions();
     @param bond_three_particles is the three-particle-bond parameter
     @param angle_resolution is the three_particle_angle_resolution parameter in order to define different angle bonds
  */
-int collision_detection_set_params(int mode, double d, int bond_centers, int bond_vs,int t,int d2, int tg, int tv, int ta, int bond_three_particles, int angle_resolution);
+int collision_detection_set_params(int mode, double d, int bond_centers, int bond_vs,int t,int d2, int tg, int tv, int ta, int bond_three_particles, int angle_resolution, double triangle_size);
 
 #endif
 

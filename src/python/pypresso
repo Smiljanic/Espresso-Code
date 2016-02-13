@@ -12,4 +12,4 @@ else
     PYTHONPATH=/home/itvms/PHD/CODE/Espresso-Rudolf/espresso-gb
 fi
 export PYTHONPATH
-exec /usr/bin/python -B $@
+exec /usr/bin/python $@

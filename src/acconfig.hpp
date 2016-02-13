@@ -164,7 +164,7 @@
 #define PACKAGE_VERSION "3.4-dev-1521-g09ec05f"
 
 /* Whether Python is available */
-/* #undef PYTHON_DEV */
+#define PYTHON_DEV /**/
 
 /* Define to the type of arg 1 for `select'. */
 #define SELECT_TYPE_ARG1 int

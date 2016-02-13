@@ -55,11 +55,11 @@ static int number_of_collisions, total_collisions;
 /// Parameters for collision detection
 Collision_parameters collision_params = { 0, };
 
-int collision_detection_set_params(int mode, double d, int bond_centers, int bond_vs,int t,int d2, int tg, int tv, int ta, int bond_three_particles, int angle_resolution)
+int collision_detection_set_params(int mode, double d, int bond_centers, int bond_vs,int t,int d2, int tg, int tv, int ta, int bond_three_particles, int angle_resolution, double triangle_size)
 {
-  // The collision modes involving virutal istes also requires the creation of a bond between the colliding 
+  // The collision modes involving virutal sites also require the creation of a bond between the colliding 
   // particles, hence, we turn that on.
-  if ((mode & COLLISION_MODE_VS) ||(mode & COLLISION_MODE_GLUE_TO_SURF))
+  if ((mode & COLLISION_MODE_VS) ||(mode & COLLISION_MODE_GLUE_TO_SURF) || (mode & COLLISION_MODE_TRIANGLE_BINDING))
     mode |= COLLISION_MODE_BOND;
 
   if (mode & COLLISION_MODE_BIND_THREE_PARTICLES)
@@ -67,7 +67,7 @@ int collision_detection_set_params(int mode, double d, int bond_centers, int bon
 
   // If we don't have virtual sites, virtual site binding isn't possible.
 #ifndef VIRTUAL_SITES_RELATIVE
-  if ((mode & COLLISION_MODE_VS) || (mode & COLLISION_MODE_GLUE_TO_SURF))
+  if ((mode & COLLISION_MODE_VS) || (mode & COLLISION_MODE_GLUE_TO_SURF) || (mode & COLLISION_MODE_TRIANGLE_BINDING))
     return 1;
 #endif
 
@@ -115,10 +115,11 @@ int collision_detection_set_params(int mode, double d, int bond_centers, int bon
   collision_params.part_type_to_be_glued =tg;
   collision_params.part_type_to_attach_vs_to =tv;
   collision_params.part_type_after_glueing =ta;
-  collision_params.bond_three_particles=bond_three_particles;
-  collision_params.three_particle_angle_resolution=angle_resolution;
+  collision_params.bond_three_particles =bond_three_particles;
+  collision_params.three_particle_angle_resolution =angle_resolution;
+  collision_params.triangle_size = triangle_size;
 
-  if (mode & COLLISION_MODE_VS)
+  if (mode & COLLISION_MODE_VS || COLLISION_MODE_TRIANGLE_BINDING)
     make_particle_type_exist(t);
   
   
@@ -139,6 +140,7 @@ int collision_detection_set_params(int mode, double d, int bond_centers, int bon
 
   return 0;
 }
+
 
 //* Allocate memory for the collision queue /
 void prepare_collision_queue()
@@ -179,6 +181,7 @@ void queue_collision(int part1,int part2, double* point_of_collision) {
     // Save the collision      
     collision_queue[number_of_collisions-1].pp1 = part1;
     collision_queue[number_of_collisions-1].pp2 = part2;
+    // The C library function void *memcpy(void *str1, const void *str2, size_t n) copies n characters from memory area str2 to memory area str1.
     memcpy(collision_queue[number_of_collisions-1].point_of_collision,point_of_collision, 3*sizeof(double));
     
     TRACE(printf("%d: Added to queue: Particles %d and %d at %lf %lf %lf\n",this_node,part1,part2,point_of_collision[0],point_of_collision[1],point_of_collision[2]));
@@ -193,7 +196,12 @@ void detect_collision(Particle* p1, Particle* p2)
 
   int part1, part2, size;
   int counts[n_nodes];
+
+
   //TRACE(printf("%d: consider particles %d and %d\n", this_node, p1->p.identity, p2->p.identity));
+  
+
+
 
   double vec21[3];
   // Obtain distance between particles
@@ -277,7 +285,7 @@ if (gb_en >= 0.0001 and gb_en <= -0.0001)
     double c;
 
     // If not in the glue_to_surface-mode, the point of collision
-    // is in the middle of the vecotr connecting the particle
+    // is in the middle of the vector connecting the particle
     // centers
     if (! (collision_params.mode & COLLISION_MODE_GLUE_TO_SURF))
       c=0.5;
@@ -317,6 +325,129 @@ if (gb_en >= 0.0001 and gb_en <= -0.0001)
 }
 
 
+//*****************begin of implementation****************
+  
+
+
+void triangle_binding (Particle* p1, Particle* p2) {
+
+  double connecting_vector[3];
+  get_mi_vector(connecting_vector, p1->r.p, p2->r.p); //(a,b,c) vector normal to the triangle plane 
+  
+
+  double c_m[3]; //middle point at the connecting_vector, point where the perpendiculer plane with is triangle is going to be placed
+  c_m[0] = 0.5*(p2->r.p[0]+p1->r.p[0]);
+  c_m[1] = 0.5*(p2->r.p[1]+p1->r.p[1]);
+  c_m[2] = 0.5*(p2->r.p[2]+p1->r.p[2]);
+
+  double c_1[3], c_2[3], c_3[3]; //corners of the triangle
+  c_1[0]=c_m[0];
+  c_1[2]=c_m[2]+0.5*pow(2.0,1.0/6.0);
+  c_1[1]=c_m[1]+(-connecting_vector[2]/connecting_vector[1])*(c_1[2]-c_m[2]);
+   
+  c_2[0]=c_m[0];
+  c_2[2]=c_m[2]-0.5*pow(2.0,1.0/6.0);
+  c_2[1]=c_m[1]+(-connecting_vector[2]/connecting_vector[1])*(c_2[2]-c_m[2]);
+
+  c_3[0]=c_m[0]+0.5*pow(2.0,1.0/6.0);
+  c_3[2]=c_m[2];
+  c_3[1]=c_m[1]+(-connecting_vector[0]/connecting_vector[1])*(c_3[0]-c_m[0]);
+
+
+  
+  struct triangle_points
+  {
+   double c_1[3];
+   double c_2[3];
+   double c_3[3];
+  };
+ 
+// place_vs_and_relate_to_particle(double* pos, int relate_to)  
+  for (int a=0; a<3; a++){
+   //place_vs_and_relate_to_particle(a, p1->p-identity);
+   // place_vs_and_relate_to_particle(a, p2->p-identity);
+};
+// Add bond of length zero between vs
+ // bond_info[0] = collision_params.bond_vs;
+ // bond_info[1] = max_seen_particle-1;
+ // local_change_bond(max_seen_particle, bondinfo, 0);
+
+ // }
+
+  
+return;
+ }
+
+
+
+// the function Random() returns a float in the range [0,1]
+
+//  srand(time(NULL));
+  double r=d_random();
+  //puts("Particle ");
+/*
+//float3 RandomDirection3D()
+//{
+//  float z = (2*rand()) - 1; // z is in the range [-1,1]
+//  float planar = RandomDirection2D() * sqrt(1-z*z);
+//  return float(planar.x, planar.y, z);
+//}
+//printf("random director is %f %f %f\n", float3);
+
+//}
+
+//  *****************end of implementation****************
+
+
+
+
+//  *****************Begin of BEE-implementation****************
+// Amongs animals, bee is one with very well developed orienatation 
+//sense, back to our particles, with this we want to make them able to home
+
+
+  double orientation_p1[3], orientation_p2[3];
+  orientation_p1[0] = p1->r.quatu[0];
+  orientation_p1[1] = p1->r.quatu[1];
+  orientation_p1[2] = p1->r.quatu[2];
+  orientation_p2[0] = p2->r.quatu[0];
+  orientation_p2[1] = p2->r.quatu[1];
+  orientation_p2[2] = p2->r.quatu[2];
+  
+  
+//  double connecting_vector[3];
+  get_mi_vector(connecting_vector, p1->r.p, p2->r.p);  
+  
+  double norm_connecting_vector[3], norm_orientation_p1[3], norm_orientation_p2[3];
+  //normalize orientation vectors
+  norm_connecting_vector[0] = connecting_vector[0]/(sqrt(sqrlen(connecting_vector))); 
+  norm_connecting_vector[1] = connecting_vector[1]/(sqrt(sqrlen(connecting_vector))); 
+  norm_connecting_vector[2] = connecting_vector[2]/(sqrt(sqrlen(connecting_vector))); 
+  
+  norm_orientation_p1[0] = connecting_vector[0]/(sqrt(sqrlen(connecting_vector))); 
+  norm_orientation_p1[1] = connecting_vector[1]/(sqrt(sqrlen(connecting_vector))); 
+  norm_orientation_p1[2] = connecting_vector[2]/(sqrt(sqrlen(connecting_vector))); 
+ 
+  norm_orientation_p2[0] = connecting_vector[0]/(sqrt(sqrlen(connecting_vector))); 
+  norm_orientation_p2[1] = connecting_vector[1]/(sqrt(sqrlen(connecting_vector))); 
+  norm_orientation_p2[2] = connecting_vector[2]/(sqrt(sqrlen(connecting_vector))); 
+  
+  double theta_p1, theta_p2;
+  theta_p1=scalar(norm_orientation_p1, norm_connecting_vector);
+  theta_p2=scalar(norm_orientation_p2, norm_connecting_vector);
+
+Equation of ellipsoid
+(x/a)^2+(y/b)^2+(z/c)^2=0
+
+for ellipse x and y coordinates for a given angle alfa:
+
+x=ab/(((b*cos alfa)^2+(a*sin alfa)^2)^0.5)*cos alfa
+y=ab/(((b*cos alfa)^2+(a*sin alfa)^2)^0.5)*sin alfa
+*/  
+  
+
+
+//*****************end of implementation****************
 
 // Considers three particles for three_particle_binding and performs
 // the binding if the criteria are met //
@@ -388,7 +519,7 @@ void coldet_do_three_particle_bond(Particle* p, Particle* p1, Particle* p2)
   double d2i = 1.0 / sqrt(dist2);
   for(int j=0;j<3;j++) vec2[j] *= d2i;
   
-  /* scalar produvt of vec1 and vec2 */
+  /* scalar product of vec1 and vec2 */
   cosine = scalar(vec1, vec2);
   
   // Handle case where cosine is nearly 1 or nearly -1
@@ -471,8 +602,6 @@ void bind_at_poc_create_bond_between_vs(int i)
      local_change_bond(max_seen_particle,   bondG, 0);
      local_change_bond(max_seen_particle-1, bondG, 0);
      //HACK: Zero length bond of id 3 between virtual sites
- //case 3:{//define new variable only for type of bonds where VS's centers are connected with bond of zero length, instead of using const char 3
- 
      bondG[0] = 3;
      bondG[1] = max_seen_particle-1;
      local_change_bond(max_seen_particle,   bondG, 0);

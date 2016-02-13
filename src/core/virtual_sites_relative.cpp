@@ -227,7 +227,7 @@ int vs_relate_to(int part_num, int relate_to)
     // the quaternions representing the orientation of the real particle
     // with those in the virtual particle. The re quulting quaternion is then
     // converted to a director.
-    // Whe have quat_(real particle) *quat_(virtual particle) 
+    // We have quat_(real particle) *quat_(virtual particle) 
     // = quat_(obtained from desired director)
     // Resolving this for the quat_(virtaul particle)
 
@@ -287,7 +287,7 @@ int vs_relate_to(int part_num, int relate_to)
     free_particle(&p_relate_to);
     free_particle(&p_current);
 
-    // Set the particle id of the particle we want to relate to, the distnace
+    // Set the particle id of the particle we want to relate to, the distance
     // and the relative orientation
     if (set_particle_vs_relative(part_num, relate_to, l, quat) == ES_ERROR) {
       ostringstream msg;
@@ -329,7 +329,7 @@ void vs_relative_pressure_and_stress_tensor(double* pressure, double* stress_ten
       double d[3];
       get_mi_vector(d,p_real->r.p,p[i].r.p);
 
-      // Stress tensor conribution
+      // Stress tensor contribution
       for (int k =0; k<3;k++)
        for (int l =0;l<3;l++)
         stress_tensor[k*3+l] +=p[i].f.f[k] *d[l];

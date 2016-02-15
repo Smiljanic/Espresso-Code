@@ -77,7 +77,7 @@ int tclcommand_on_collision(ClientData data, Tcl_Interp *interp, int argc, char 
     }
        
     else if (collision_params.mode & COLLISION_MODE_TRIANGLE_BINDING) {
-      sprintf(s, "triangle_binding %f %d %d %f",
+      sprintf(s, "triangle_binding %f %d %d %d %f",
               collision_params.distance, collision_params.bond_centers,
               collision_params.bond_vs, collision_params.vs_particle_type,
               collision_params.triangle_size);
@@ -109,9 +109,12 @@ int tclcommand_on_collision(ClientData data, Tcl_Interp *interp, int argc, char 
     // Particle types for virtual sites based based methods
     int t,tg,tv,ta = 0;
     
-    // /bond types for three particle binding
+    // Bond types for three particle binding
     int bond_three_particles=0;
     int angle_resolution=0;
+    
+    // Size of the triangle in triangle_binding
+    double triangle_size=0;
 
     if (ARG0_IS_S("exception")) {
       mode = COLLISION_MODE_EXCEPTION;
@@ -160,35 +163,6 @@ int tclcommand_on_collision(ClientData data, Tcl_Interp *interp, int argc, char 
 	return TCL_ERROR;
       }
       argc -= 5; argv += 5;
-    }
-    else if (ARG0_IS_S("triangle_binding")) {
-      mode |= COLLISION_MODE_BOND | COLLISION_MODE_TRIANGLE_BINDING;
-      if (argc != 6) {
-         Tcl_AppendResult(interp, "Not enough parameters, need a distance, two bond types, four particle types, ther distance and triplet size as args.", (char*) NULL);
-         return TCL_ERROR;
-      }
-    
-      if (!ARG_IS_D(1,d)) {
-	Tcl_AppendResult(interp, "Need a distance as 1st arg.", (char*) NULL);
-	return TCL_ERROR;
-      }
-      if (!ARG_IS_I(2,bond_centers)) {
-	Tcl_AppendResult(interp, "Need a bond type as 2nd arg.", (char*) NULL);
-	return TCL_ERROR;
-      }
-      if (!ARG_IS_I(3,bond_vs)) {
-	Tcl_AppendResult(interp, "Need a bond type as 3rd arg.", (char*) NULL);
-	return TCL_ERROR;
-      }
-      if (!ARG_IS_I(4,t)) {
-	Tcl_AppendResult(interp, "Need a particle type as 4th arg.", (char*) NULL);
-	return TCL_ERROR;
-      }
-      if (!ARG_IS_F(5,triangle_size)) {
-	Tcl_AppendResult(interp, "Need a triplet size (displacement of triangle corner from the point of collision)  as 5th arg.", (char*) NULL);
-	return TCL_ERROR;
-      }
-      argc -= 6; argv += 6;
     }
     else if (ARG0_IS_S("glue_to_surface")) {
       mode |= COLLISION_MODE_BOND | COLLISION_MODE_GLUE_TO_SURF;
@@ -252,8 +226,36 @@ int tclcommand_on_collision(ClientData data, Tcl_Interp *interp, int argc, char 
 	Tcl_AppendResult(interp, "Need an angle resolution as 4th arg.", (char*) NULL);
 	return TCL_ERROR;
       }
-      
       argc -= 5; argv += 5;
+    }
+    else if (ARG0_IS_S("triangle_binding")) {
+      mode |= COLLISION_MODE_BOND | COLLISION_MODE_TRIANGLE_BINDING;
+      if (argc != 6) {
+         Tcl_AppendResult(interp, "Not enough parameters, need a distance, two bond types, four particle types, ther distance and triplet size as args.", (char*) NULL);
+         return TCL_ERROR;
+      }
+    
+      if (!ARG_IS_D(1,d)) {
+	Tcl_AppendResult(interp, "Need a distance as 1st arg.", (char*) NULL);
+	return TCL_ERROR;
+      }
+      if (!ARG_IS_I(2,bond_centers)) {
+	Tcl_AppendResult(interp, "Need a bond type as 2nd arg.", (char*) NULL);
+	return TCL_ERROR;
+      }
+      if (!ARG_IS_I(3,bond_vs)) {
+	Tcl_AppendResult(interp, "Need a bond type as 3rd arg.", (char*) NULL);
+	return TCL_ERROR;
+      }
+      if (!ARG_IS_I(4,t)) {
+	Tcl_AppendResult(interp, "Need a particle type as 4th arg.", (char*) NULL);
+	return TCL_ERROR;
+      }
+      if (!ARG_IS_D(5,triangle_size)) {
+	Tcl_AppendResult(interp, "Need a triplet size (displacement of triangle corner from the point of collision)  as 5th arg.", (char*) NULL);
+	return TCL_ERROR;
+      }
+      argc -= 6; argv += 6;
     }
     else {
       Tcl_AppendResult(interp, "\"", argv[0], "\" is not a valid collision detection mode.", (char*) NULL);
@@ -261,7 +263,7 @@ int tclcommand_on_collision(ClientData data, Tcl_Interp *interp, int argc, char 
     }
     
     //int res = collision_detection_set_params(mode,d,bond_centers,bond_vs,t,d2,tg,tv,ta,bond_three_particles,angle_resolution, triangle_size);
-    int res = collision_detection_set_params(mode,d,bond_centers,bond_vs,t,d2,tg,tv,ta,bond_three_particles,angle_resolution);
+    int res = collision_detection_set_params(mode,d,bond_centers,bond_vs,t,d2,tg,tv,ta,bond_three_particles,angle_resolution,triangle_size);
 
     switch (res) {
     case 1:

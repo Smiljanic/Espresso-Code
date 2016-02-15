@@ -109,6 +109,7 @@ void handle_collisions();
     @param tv for the "glue to surface" is the type of the particle to which the virtual site is attached
     @param bond_three_particles is the three-particle-bond parameter
     @param angle_resolution is the three_particle_angle_resolution parameter in order to define different angle bonds
+    @param triangle_size is triangle_binding parameter for defining positions of additional vs at trangle corners
  */
 int collision_detection_set_params(int mode, double d, int bond_centers, int bond_vs,int t,int d2, int tg, int tv, int ta, int bond_three_particles, int angle_resolution, double triangle_size);
 

@@ -39,6 +39,8 @@ PATH: /usr/local/games
 PATH: /itv/system/bin/
 PATH: /itv/system/bin/
 PATH: /home/itvms/bin
+PATH: /itv/system/bin/
+PATH: /home/itvms/bin
 
 
 ## ----------- ##
@@ -5558,7 +5560,7 @@ configure:20405: checking whether to use MAGMA
 configure:20415: result: guess
 configure:20421: checking for library containing magma_init
 configure:20452: mpic++ -o conftest  -std=c++11   conftest.cpp -lfftw3  -lm >&5
-/tmp/ccPREpQ5.o: In function `main':
+/tmp/ccZfpGcV.o: In function `main':
 conftest.cpp:(.text+0x5): undefined reference to `magma_init'
 collect2: error: ld returned 1 exit status
 configure:20452: $? = 1

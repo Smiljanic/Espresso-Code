@@ -39,8 +39,6 @@ PATH: /usr/local/games
 PATH: /itv/system/bin/
 PATH: /itv/system/bin/
 PATH: /home/itvms/bin
-PATH: /itv/system/bin/
-PATH: /home/itvms/bin
 
 
 ## ----------- ##
@@ -5560,7 +5558,7 @@ configure:20405: checking whether to use MAGMA
 configure:20415: result: guess
 configure:20421: checking for library containing magma_init
 configure:20452: mpic++ -o conftest  -std=c++11   conftest.cpp -lfftw3  -lm >&5
-/tmp/ccZfpGcV.o: In function `main':
+/tmp/ccKyfGae.o: In function `main':
 conftest.cpp:(.text+0x5): undefined reference to `magma_init'
 collect2: error: ld returned 1 exit status
 configure:20452: $? = 1
@@ -6586,7 +6584,8 @@ conftest.c:66:1: warning: function declaration isn't a prototype [-Wstrict-proto
 configure:21209: $? = 0
 configure:21225: result: yes
 configure:21480: checking for cython
-configure:21511: result: no
+configure:21498: found /usr/bin/cython
+configure:21511: result: /usr/bin/cython
 configure:21530: checking python module: numpy
 configure:21535: result: yes
 configure:21550: checking for numpy include path
@@ -6836,7 +6835,7 @@ ac_cv_header_unistd_h=yes
 ac_cv_host=x86_64-unknown-linux-gnu
 ac_cv_objext=o
 ac_cv_path_BIBTEX=/usr/bin/bibtex
-ac_cv_path_CYTHON=no
+ac_cv_path_CYTHON=/usr/bin/cython
 ac_cv_path_DOT=no
 ac_cv_path_DOXYGEN=no
 ac_cv_path_EGREP='/bin/grep -E'
@@ -6952,7 +6951,7 @@ CXXDEPMODE='depmode=gcc3'
 CXXFLAGS=' -std=c++11'
 CYFLAGS=''
 CYGPATH_W='echo'
-CYTHON='no'
+CYTHON='/usr/bin/cython'
 DEFS='-DHAVE_CONFIG_H'
 DEPDIR='.deps'
 DEVEL_SRC_FALSE='#'
@@ -7031,8 +7030,8 @@ PYTHON_CPPFLAGS='-I/usr/include/python2.7 -I/usr/include/x86_64-linux-gnu/python
 PYTHON_EXEC_PREFIX='${exec_prefix}'
 PYTHON_EXTRA_LDFLAGS=''
 PYTHON_EXTRA_LIBS='-lpthread -ldl  -lutil -lm  -lpython2.7'
-PYTHON_INTERFACE_FALSE=''
-PYTHON_INTERFACE_TRUE='#'
+PYTHON_INTERFACE_FALSE='#'
+PYTHON_INTERFACE_TRUE=''
 PYTHON_LDFLAGS='-L/usr/lib/python2.7/config-x86_64-linux-gnu -L/usr/lib -lpthread -ldl  -lutil -lm  -lpython2.7 -Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions'
 PYTHON_PLATFORM='linux2'
 PYTHON_PREFIX='${prefix}'
@@ -7187,3 +7186,374 @@ toolsdir='${pkgdatadir}/tools'
 #define TCL /**/
 
 configure: exit 0
+
+## ---------------- ##
+## Cache variables. ##
+## ---------------- ##
+
+ac_cv_build=x86_64-unknown-linux-gnu
+ac_cv_c_compiler_gnu=yes
+ac_cv_cxx_compiler_gnu=yes
+ac_cv_cxx_var_prettyfunc=__PRETTY_FUNCTION__
+ac_cv_env_CCC_set=
+ac_cv_env_CCC_value=
+ac_cv_env_CC_set=
+ac_cv_env_CC_value=
+ac_cv_env_CFLAGS_set=
+ac_cv_env_CFLAGS_value=
+ac_cv_env_CPPFLAGS_set=
+ac_cv_env_CPPFLAGS_value=
+ac_cv_env_CPP_set=
+ac_cv_env_CPP_value=
+ac_cv_env_CPU_COUNT_set=
+ac_cv_env_CPU_COUNT_value=
+ac_cv_env_CXXCPP_set=
+ac_cv_env_CXXCPP_value=
+ac_cv_env_CXXFLAGS_set=
+ac_cv_env_CXXFLAGS_value=
+ac_cv_env_CXX_set=
+ac_cv_env_CXX_value=
+ac_cv_env_CYFLAGS_set=
+ac_cv_env_CYFLAGS_value=
+ac_cv_env_CYTHON_set=
+ac_cv_env_CYTHON_value=
+ac_cv_env_LDFLAGS_set=
+ac_cv_env_LDFLAGS_value=
+ac_cv_env_LIBS_set=
+ac_cv_env_LIBS_value=
+ac_cv_env_MPICXX_set=
+ac_cv_env_MPICXX_value=
+ac_cv_env_MPIEXEC_set=
+ac_cv_env_MPIEXEC_value=
+ac_cv_env_MYCONFIG_set=
+ac_cv_env_MYCONFIG_value=
+ac_cv_env_NVCCFLAGS_set=
+ac_cv_env_NVCCFLAGS_value=
+ac_cv_env_NVCC_set=
+ac_cv_env_NVCC_value=
+ac_cv_env_PYTHON_VERSION_set=
+ac_cv_env_PYTHON_VERSION_value=
+ac_cv_env_PYTHON_set=
+ac_cv_env_PYTHON_value=
+ac_cv_env_XMKMF_set=
+ac_cv_env_XMKMF_value=
+ac_cv_env_build_alias_set=
+ac_cv_env_build_alias_value=
+ac_cv_env_host_alias_set=
+ac_cv_env_host_alias_value=
+ac_cv_env_target_alias_set=
+ac_cv_env_target_alias_value=
+ac_cv_func_atexit=yes
+ac_cv_func_floor=yes
+ac_cv_func_getcwd=yes
+ac_cv_func_gethostbyname=yes
+ac_cv_func_malloc_0_nonnull=yes
+ac_cv_func_memcmp_working=yes
+ac_cv_func_memset=yes
+ac_cv_func_pow=yes
+ac_cv_func_realloc_0_nonnull=yes
+ac_cv_func_rint=yes
+ac_cv_func_select=yes
+ac_cv_func_select_args='int,fd_set *,struct timeval *'
+ac_cv_func_socket=yes
+ac_cv_func_sqrt=yes
+ac_cv_func_strtod=yes
+ac_cv_header_arpa_inet_h=yes
+ac_cv_header_dlfcn_h=yes
+ac_cv_header_fcntl_h=yes
+ac_cv_header_float_h=yes
+ac_cv_header_inttypes_h=yes
+ac_cv_header_limits_h=yes
+ac_cv_header_memory_h=yes
+ac_cv_header_netdb_h=yes
+ac_cv_header_netinet_in_h=yes
+ac_cv_header_stdc=yes
+ac_cv_header_stddef_h=yes
+ac_cv_header_stdint_h=yes
+ac_cv_header_stdlib_h=yes
+ac_cv_header_string_h=yes
+ac_cv_header_strings_h=yes
+ac_cv_header_sys_file_h=yes
+ac_cv_header_sys_select_h=yes
+ac_cv_header_sys_socket_h=yes
+ac_cv_header_sys_stat_h=yes
+ac_cv_header_sys_time_h=yes
+ac_cv_header_sys_types_h=yes
+ac_cv_header_unistd_h=yes
+ac_cv_host=x86_64-unknown-linux-gnu
+ac_cv_objext=o
+ac_cv_path_BIBTEX=/usr/bin/bibtex
+ac_cv_path_DOT=no
+ac_cv_path_DOXYGEN=no
+ac_cv_path_EGREP='/bin/grep -E'
+ac_cv_path_FGREP='/bin/grep -F'
+ac_cv_path_GREP=/bin/grep
+ac_cv_path_MAKEINDEX=/usr/bin/makeindex
+ac_cv_path_MPIEXEC=/usr/bin/mpiexec
+ac_cv_path_NVCC=no
+ac_cv_path_PDFLATEX=/usr/bin/pdflatex
+ac_cv_path_SED=/bin/sed
+ac_cv_path_install='/usr/bin/install -c'
+ac_cv_path_mkdir=/bin/mkdir
+ac_cv_prog_AWK=gawk
+ac_cv_prog_CPP='gcc -E'
+ac_cv_prog_CXXCPP='mpic++ -E'
+ac_cv_prog_ac_ct_AR=ar
+ac_cv_prog_ac_ct_CC=gcc
+ac_cv_prog_ac_ct_CXX=mpic++
+ac_cv_prog_ac_ct_MANIFEST_TOOL=mt
+ac_cv_prog_ac_ct_OBJDUMP=objdump
+ac_cv_prog_ac_ct_RANLIB=ranlib
+ac_cv_prog_ac_ct_STRIP=strip
+ac_cv_prog_cc_c89=
+ac_cv_prog_cc_g=yes
+ac_cv_prog_cxx_c_o=yes
+ac_cv_prog_make_make_set=yes
+ac_cv_target=x86_64-unknown-linux-gnu
+ac_cv_type_size_t=yes
+am_cv_CC_dependencies_compiler_type=gcc3
+am_cv_CXX_dependencies_compiler_type=gcc3
+am_cv_make_support_nested_variables=yes
+am_cv_prog_cc_c_o=yes
+am_cv_prog_tar_ustar=gnutar
+ax_cv_cxx_compile_cxx11=no
+ax_cv_cxx_compile_cxx11__std_cpp11=yes
+lt_cv_ar_at_file=@
+lt_cv_archive_cmds_need_lc=no
+lt_cv_deplibs_check_method=pass_all
+lt_cv_file_magic_cmd='$MAGIC_CMD'
+lt_cv_file_magic_test_file=
+lt_cv_ld_reload_flag=-r
+lt_cv_nm_interface='BSD nm'
+lt_cv_objdir=.libs
+lt_cv_path_LD=/usr/bin/ld
+lt_cv_path_LDCXX='/usr/bin/ld -m elf_x86_64'
+lt_cv_path_NM='/usr/bin/nm -B'
+lt_cv_path_mainfest_tool=no
+lt_cv_prog_compiler_c_o=yes
+lt_cv_prog_compiler_c_o_CUDA=no
+lt_cv_prog_compiler_c_o_CXX=yes
+lt_cv_prog_compiler_pic='-fPIC -DPIC'
+lt_cv_prog_compiler_pic_CXX='-fPIC -DPIC'
+lt_cv_prog_compiler_pic_works=yes
+lt_cv_prog_compiler_pic_works_CXX=yes
+lt_cv_prog_compiler_rtti_exceptions=no
+lt_cv_prog_compiler_static_works=yes
+lt_cv_prog_compiler_static_works_CXX=no
+lt_cv_prog_gnu_ld=yes
+lt_cv_prog_gnu_ldcxx=yes
+lt_cv_sharedlib_from_linklib_cmd='printf %s\n'
+lt_cv_shlibpath_overrides_runpath=no
+lt_cv_sys_global_symbol_pipe='sed -n -e '\''s/^.*[	 ]\([ABCDGIRSTW][ABCDGIRSTW]*\)[	 ][	 ]*\([_A-Za-z][_A-Za-z0-9]*\)$/\1 \2 \2/p'\'' | sed '\''/ __gnu_lto/d'\'''
+lt_cv_sys_global_symbol_to_c_name_address='sed -n -e '\''s/^: \([^ ]*\)[ ]*$/  {\"\1\", (void *) 0},/p'\'' -e '\''s/^[ABCDGIRSTW]* \([^ ]*\) \([^ ]*\)$/  {"\2", (void *) \&\2},/p'\'''
+lt_cv_sys_global_symbol_to_c_name_address_lib_prefix='sed -n -e '\''s/^: \([^ ]*\)[ ]*$/  {\"\1\", (void *) 0},/p'\'' -e '\''s/^[ABCDGIRSTW]* \([^ ]*\) \(lib[^ ]*\)$/  {"\2", (void *) \&\2},/p'\'' -e '\''s/^[ABCDGIRSTW]* \([^ ]*\) \([^ ]*\)$/  {"lib\2", (void *) \&\2},/p'\'''
+lt_cv_sys_global_symbol_to_cdecl='sed -n -e '\''s/^T .* \(.*\)$/extern int \1();/p'\'' -e '\''s/^[ABCDGIRSTW]* .* \(.*\)$/extern char \1;/p'\'''
+lt_cv_sys_max_cmd_len=1572864
+lt_cv_to_host_file_cmd=func_convert_file_noop
+lt_cv_to_tool_file_cmd=func_convert_file_noop
+
+## ----------------- ##
+## Output variables. ##
+## ----------------- ##
+
+ACLOCAL='aclocal-1.14'
+AMDEPBACKSLASH='\'
+AMDEP_FALSE='#'
+AMDEP_TRUE=''
+AMTAR='$${TAR-tar}'
+AM_BACKSLASH='\'
+AM_DEFAULT_V='$(AM_DEFAULT_VERBOSITY)'
+AM_DEFAULT_VERBOSITY='0'
+AM_V='$(V)'
+AR='ar'
+AUTOCONF='autoconf'
+AUTOHEADER='autoheader'
+AUTOMAKE='automake-1.14'
+AWK='gawk'
+BIBTEX='/usr/bin/bibtex'
+BOOST_CPPFLAGS=''
+BOOST_LDFLAGS=''
+BOOST_UNIT_TEST_FRAMEWORK_LIB=''
+CC='no'
+CCDEPMODE='depmode=gcc3'
+CFLAGS='-g -O2'
+CONFIG_STATUS_DEPENDENCIES=''
+CPP='gcc -E'
+CPPFLAGS=''
+CPU_COUNT=''
+CUDA_FALSE=''
+CUDA_TRUE=''
+CXX='mpic++'
+CXXCPP='mpic++ -E'
+CXXDEPMODE='depmode=gcc3'
+CXXFLAGS=' -std=c++11'
+CYFLAGS=''
+CYGPATH_W='echo'
+CYTHON=''
+DEFS=''
+DEPDIR='.deps'
+DEVEL_SRC_FALSE='#'
+DEVEL_SRC_TRUE=''
+DLLTOOL='false'
+DOT='no'
+DOT_PATH='.'
+DOXYGEN='no'
+DSYMUTIL=''
+DUMPBIN=''
+ECHO_C=''
+ECHO_N='-n'
+ECHO_T=''
+EGREP='/bin/grep -E'
+ESPRESSO_MPIEXEC='/home/itvms/PHD/CODE/Espresso-Rudolf/espresso-gb/tools/es_mpiexec'
+EXEEXT=''
+FGREP='/bin/grep -F'
+GREP='/bin/grep'
+HAVE_CXX11='1'
+HAVE_DOT='NO'
+HAVE_DOXYGEN_FALSE=''
+HAVE_DOXYGEN_TRUE='#'
+HAVE_LATEX_FALSE='#'
+HAVE_LATEX_TRUE=''
+HAVE_PYTHON_FALSE=''
+HAVE_PYTHON_TRUE=''
+INSTALL_DATA='${INSTALL} -m 644'
+INSTALL_PROGRAM='${INSTALL}'
+INSTALL_SCRIPT='${INSTALL}'
+INSTALL_STRIP_PROGRAM='$(install_sh) -c -s'
+LD='/usr/bin/ld -m elf_x86_64'
+LDFLAGS=''
+LIBOBJS=''
+LIBS='-lfftw3  -lm'
+LIBTOOL='$(SHELL) $(top_builddir)/libtool'
+LIPO=''
+LN_S='ln -s'
+LTLIBOBJS=''
+MAINT='#'
+MAINTAINER_MODE_FALSE=''
+MAINTAINER_MODE_TRUE='#'
+MAKEINDEX='/usr/bin/makeindex'
+MAKEINFO='makeinfo'
+MANIFEST_TOOL=':'
+MKDIR_P='/bin/mkdir -p'
+MPICXX=''
+MPIEXEC='/usr/bin/mpiexec'
+MPI_FAKE=''
+MPI_FAKE_FALSE=''
+MPI_FAKE_TRUE='#'
+MYCONFIG=''
+MYCONFIG_FALSE=''
+MYCONFIG_TRUE=''
+MYMPIEXEC='/home/itvms/PHD/CODE/Espresso-Rudolf/espresso-gb/mympiexec.sh'
+NM='/usr/bin/nm -B'
+NMEDIT=''
+NVCC='no'
+NVCCFLAGS=''
+OBJDUMP='objdump'
+OBJEXT='o'
+OTOOL64=''
+OTOOL=''
+PACKAGE='espresso'
+PACKAGE_BUGREPORT='espressomd-users@nongnu.org'
+PACKAGE_NAME='ESPResSo'
+PACKAGE_STRING='ESPResSo 3.4-dev-1521-g09ec05f'
+PACKAGE_TARNAME='espresso'
+PACKAGE_URL=''
+PACKAGE_VERSION='3.4-dev-1521-g09ec05f'
+PATH_SEPARATOR=':'
+PDFLATEX='/usr/bin/pdflatex'
+POW_LIB=''
+PYTHON=''
+PYTHONCONFIG=''
+PYTHON_CPPFLAGS=''
+PYTHON_EXEC_PREFIX=''
+PYTHON_EXTRA_LDFLAGS=''
+PYTHON_EXTRA_LIBS=''
+PYTHON_INTERFACE_FALSE=''
+PYTHON_INTERFACE_TRUE=''
+PYTHON_LDFLAGS=''
+PYTHON_PLATFORM=''
+PYTHON_PREFIX=''
+PYTHON_SITE_PKG=''
+PYTHON_VERSION=''
+RANLIB='ranlib'
+SED='/bin/sed'
+SET_MAKE=''
+SHELL='/bin/bash'
+STRIP='strip'
+TCL_FALSE=''
+TCL_TRUE=''
+UNIT_TESTS_FALSE=''
+UNIT_TESTS_TRUE=''
+VERSION='3.4-dev-1521-g09ec05f'
+XMKMF=''
+X_CFLAGS=''
+X_EXTRA_LIBS=''
+X_LIBS=''
+X_PRE_LIBS=''
+ac_ct_AR='ar'
+ac_ct_CC='gcc'
+ac_ct_CXX='mpic++'
+ac_ct_DUMPBIN=''
+am__EXEEXT_FALSE=''
+am__EXEEXT_TRUE=''
+am__fastdepCC_FALSE='#'
+am__fastdepCC_TRUE=''
+am__fastdepCXX_FALSE='#'
+am__fastdepCXX_TRUE=''
+am__include='include'
+am__isrc=''
+am__leading_dot='.'
+am__nodep='_no'
+am__quote=''
+am__tar='tar --format=ustar -chf - "$$tardir"'
+am__untar='tar -xf -'
+bindir='${exec_prefix}/bin'
+build='x86_64-unknown-linux-gnu'
+build_alias=''
+build_cpu='x86_64'
+build_os='linux-gnu'
+build_vendor='unknown'
+buildscriptsdir=''
+datadir='${datarootdir}'
+datarootdir='${prefix}/share'
+docdir='${datarootdir}/doc/${PACKAGE_TARNAME}'
+dvidir='${docdir}'
+exec_prefix='NONE'
+host='x86_64-unknown-linux-gnu'
+host_alias=''
+host_cpu='x86_64'
+host_os='linux-gnu'
+host_vendor='unknown'
+htmldir='${docdir}'
+includedir='${prefix}/include'
+infodir='${datarootdir}/info'
+install_sh='${SHELL} /home/itvms/PHD/CODE/Espresso-Rudolf/espresso-gb/config/install-sh'
+libdir='${exec_prefix}/lib'
+libexecdir='${exec_prefix}/libexec'
+localedir='${datarootdir}/locale'
+localstatedir='${prefix}/var'
+mandir='${datarootdir}/man'
+mkdir_p='$(MKDIR_P)'
+objdir='.libs'
+oldincludedir='/usr/include'
+pdfdir='${docdir}'
+pkgpyexecdir=''
+pkgpythondir=''
+prefix='NONE'
+program_transform_name='s,x,x,'
+psdir='${docdir}'
+pyexecdir=''
+pythondir=''
+sbindir='${exec_prefix}/sbin'
+scriptsdir=''
+sharedstatedir='${prefix}/com'
+sysconfdir='${prefix}/etc'
+target='x86_64-unknown-linux-gnu'
+target_alias=''
+target_cpu='x86_64'
+target_os='linux-gnu'
+target_vendor='unknown'
+toolsdir=''
+
+configure: caught signal 1
+configure: exit 1

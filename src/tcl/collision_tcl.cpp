@@ -77,7 +77,7 @@ int tclcommand_on_collision(ClientData data, Tcl_Interp *interp, int argc, char 
     }
        
     else if (collision_params.mode & COLLISION_MODE_TRIANGLE_BINDING) {
-      sprintf(s, "triangle_binding %f %d %d %d %f",
+      sprintf(s, " triangle_binding %f %d %d %d %f",
               collision_params.distance, collision_params.bond_centers,
               collision_params.bond_vs, collision_params.vs_particle_type,
               collision_params.triangle_size);

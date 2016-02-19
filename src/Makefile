@@ -97,7 +97,7 @@ build_triplet = x86_64-unknown-linux-gnu
 host_triplet = x86_64-unknown-linux-gnu
 target_triplet = x86_64-unknown-linux-gnu
 am__append_1 = tcl
-#am__append_2 = python/espressomd
+am__append_2 = python/espressomd
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/acconfig.hpp.in
@@ -228,7 +228,7 @@ CXXDEPMODE = depmode=gcc3
 CXXFLAGS =  -std=c++11
 CYFLAGS = 
 CYGPATH_W = echo
-CYTHON = no
+CYTHON = /usr/bin/cython
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
 DLLTOOL = false

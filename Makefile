@@ -80,7 +80,7 @@ host_triplet = x86_64-unknown-linux-gnu
 target_triplet = x86_64-unknown-linux-gnu
 am__append_1 = scripts
 am__append_2 = Espresso 
-#am__append_3 = pypresso espresso
+am__append_3 = pypresso espresso
 subdir = .
 DIST_COMMON = INSTALL NEWS README AUTHORS ChangeLog \
 	$(srcdir)/Makefile.in $(srcdir)/Makefile.am \
@@ -235,7 +235,7 @@ CXXDEPMODE = depmode=gcc3
 CXXFLAGS =  -std=c++11
 CYFLAGS = 
 CYGPATH_W = echo
-CYTHON = no
+CYTHON = /usr/bin/cython
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
 DLLTOOL = false
@@ -764,7 +764,7 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-recursive
-#all-local:
+##all-local:
 all-am: Makefile all-local
 installdirs: installdirs-recursive
 installdirs-am:
@@ -898,11 +898,11 @@ all-local: Espresso
 Espresso: version.txt
 	test -L Espresso || $(LN_S) src/tcl/Espresso .
 
-#all-local: espresso-python pypresso
-#espresso-python: FORCE
-#	test -L espressomd || $(LN_S) src/python/espressomd espressomd
-#pypresso: FORCE
-#	test -L pypresso || $(LN_S) src/python/pypresso pypresso
+all-local: espresso-python pypresso
+espresso-python: FORCE
+	test -L espressomd || $(LN_S) src/python/espressomd espressomd
+pypresso: FORCE
+	test -L pypresso || $(LN_S) src/python/pypresso pypresso
 
 # Sample myconfig generation
 myconfig-sample.hpp:

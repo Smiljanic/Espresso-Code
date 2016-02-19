@@ -55,16 +55,18 @@ static int number_of_collisions, total_collisions;
 /// Parameters for collision detection
 Collision_parameters collision_params = { 0, };
 
-int collision_detection_set_params(int mode, double d, int bond_centers, int bond_vs,int t,int d2, int tg, int tv, int ta, int bond_three_particles, int angle_resolution, double triangle_size)
+int collision_detection_set_params(int mode, double d, int bond_centers, int bond_vs, int t, int d2, int tg, int tv, int ta, int bond_three_particles, int angle_resolution, double triangle_size)
 {
   // The collision modes involving virutal sites also require the creation of a bond between the colliding 
   // particles, hence, we turn that on.
-  if ((mode & COLLISION_MODE_VS) ||(mode & COLLISION_MODE_GLUE_TO_SURF) || (mode & COLLISION_MODE_TRIANGLE_BINDING))
+  if ((mode & COLLISION_MODE_VS) || (mode & COLLISION_MODE_GLUE_TO_SURF) || (COLLISION_MODE_TRIANGLE_BINDING))
     mode |= COLLISION_MODE_BOND;
 
   if (mode & COLLISION_MODE_BIND_THREE_PARTICLES)
     mode |= COLLISION_MODE_BOND;
 
+  //if (mode & COLLISION_MODE_TRIANGLE_BINDING)
+   // mode |= COLLISION_MODE_TRIANGLE_BINDING;
   // If we don't have virtual sites, virtual site binding isn't possible.
 #ifndef VIRTUAL_SITES_RELATIVE
   if ((mode & COLLISION_MODE_VS) || (mode & COLLISION_MODE_GLUE_TO_SURF) || (mode & COLLISION_MODE_TRIANGLE_BINDING))
@@ -72,7 +74,8 @@ int collision_detection_set_params(int mode, double d, int bond_centers, int bon
 #endif
 
   // For vs based methods, Binding so far only works on a single cpu
-  if ((mode & COLLISION_MODE_VS) ||(mode & COLLISION_MODE_GLUE_TO_SURF))
+  //if ((mode & COLLISION_MODE_VS) || (mode & COLLISION_MODE_GLUE_TO_SURF))
+  if ((mode & COLLISION_MODE_VS) || (mode & COLLISION_MODE_GLUE_TO_SURF) || (mode & COLLISION_MODE_TRIANGLE_BINDING    ))
     if (n_nodes != 1)
       return 2;
 
@@ -119,7 +122,7 @@ int collision_detection_set_params(int mode, double d, int bond_centers, int bon
   collision_params.three_particle_angle_resolution =angle_resolution;
   collision_params.triangle_size = triangle_size;
 
-  if (mode & COLLISION_MODE_VS || COLLISION_MODE_TRIANGLE_BINDING)
+  if (mode & COLLISION_MODE_VS || COLLISION_MODE_TRIANGLE_BINDING || COLLISION_MODE_TRIANGLE_BINDING)
     make_particle_type_exist(t);
   
   
@@ -130,14 +133,9 @@ int collision_detection_set_params(int mode, double d, int bond_centers, int bon
     make_particle_type_exist(tv);
     make_particle_type_exist(ta);
   }
-
-
-  mpi_bcast_collision_params();
-
-
   
+  mpi_bcast_collision_params();
   recalc_forces = 1;
-
   return 0;
 }
 
@@ -184,7 +182,8 @@ void queue_collision(int part1,int part2, double* point_of_collision) {
     // The C library function void *memcpy(void *str1, const void *str2, size_t n) copies n characters from memory area str2 to memory area str1.
     memcpy(collision_queue[number_of_collisions-1].point_of_collision,point_of_collision, 3*sizeof(double));
     
-    TRACE(printf("%d: Added to queue: Particles %d and %d at %lf %lf %lf\n",this_node,part1,part2,point_of_collision[0],point_of_collision[1],point_of_collision[2]));
+    //TRACE(printf("%d: Added to queue: Particles %d and %d at %lf %lf %lf\n",this_node,part1,part2,point_of_collision[0],point_of_collision[1],point_of_collision[2]));
+    printf("%d: Added to queue: Particles %d and %d at %lf %lf %lf\n",this_node,part1,part2,point_of_collision[0],point_of_collision[1],point_of_collision[2]);
 }
 
 
@@ -197,16 +196,12 @@ void detect_collision(Particle* p1, Particle* p2)
   int part1, part2, size;
   int counts[n_nodes];
 
-
   //TRACE(printf("%d: consider particles %d and %d\n", this_node, p1->p.identity, p2->p.identity));
-  
-
-
 
   double vec21[3];
   // Obtain distance between particles
   double dist_betw_part = sqrt(distance2vec(p1->r.p, p2->r.p, vec21));
-  //TRACE(printf("%d: Distance between particles %lf %lf %lf, Scalar: %f\n",this_node,vec21[0],vec21[1],vec21[2], dist_betw_part));
+  printf("%d: Distance between particles %lf %lf %lf, Scalar: %f\n",this_node,vec21[0],vec21[1],vec21[2], dist_betw_part);
  //it might be an error here, try with distance  
  //if (dist_betw_part > max_cut_nonbonded)
   if (dist_betw_part > collision_params.distance) 
@@ -215,16 +210,17 @@ void detect_collision(Particle* p1, Particle* p2)
 
 // Calculate here Gay-Berne nonbonded energy (code in gb.hpp)
 
-double gb_en;
-IA_parameters *ia_params = get_ia_param(p1->p.type, p2->p.type);
-gb_en = gb_pair_energy(p1, p2, ia_params,
+  double gb_en;
+  IA_parameters *ia_params = get_ia_param(p1->p.type, p2->p.type);
+  gb_en = gb_pair_energy(p1, p2, ia_params,
                        vec21, dist_betw_part*dist_betw_part);
 
-if (gb_en >= 0.0001 and gb_en <= -0.0001)
-  return;
+  if (gb_en >= -0.01 and gb_en <= 0.01)
+    return;
 
-
-  TRACE(printf("%d: particles %d and %d within bonding distance %lf\n", this_node, p1->p.identity, p2->p.identity, dist_betw_part));
+  printf("CAME TO HERE");
+  //TRACE(printf("%d: particles %d and %d within bonding distance %lf\n", this_node, p1->p.identity, p2->p.identity, dist_betw_part));
+  printf("%d: particles %d and %d within bonding distance %lf\n", this_node, p1->p.identity, p2->p.identity, dist_betw_part);
   // If we are in the glue to surface mode, check that the particles
   // are of the right type
   if (collision_params.mode & COLLISION_MODE_GLUE_TO_SURF) {
@@ -265,6 +261,7 @@ if (gb_en >= 0.0001 and gb_en <= -0.0001)
 
 
   TRACE(printf("%d: no previous bond, binding\n", this_node));
+  printf("%d: no previous bond, binding\n", this_node);
 
   /* If we're still here, there is no previous bond between the particles,
      we have a new collision */
@@ -283,10 +280,14 @@ if (gb_en >= 0.0001 and gb_en <= -0.0001)
        to the queue to process later */
     // Point of collision
     double c;
-
+    printf("H E R E  W E  A R E !!!\n");
     // If not in the glue_to_surface-mode, the point of collision
     // is in the middle of the vector connecting the particle
     // centers
+// ASSUME WE DON'T NEED MULTIPLE OCCURING OF THIS  
+    //if (collision_params.mode & COLLISION_MODE_TRIANGLE_BINDING)
+    //  triangle_binding(p1->p.identity, p2->p.identity);
+     
     if (! (collision_params.mode & COLLISION_MODE_GLUE_TO_SURF))
       c=0.5;
     else
@@ -314,12 +315,10 @@ if (gb_en >= 0.0001 and gb_en <= -0.0001)
         printf("Something is wrong %s %d\n",__FILE__,":"+__LINE__);
        }
      }
+     printf("We are here, meaning particles %d and %d have collided\n", p1->p.identity, p2->p.identity);
      for (int i=0;i<3;i++) {
        new_position[i] = p1->r.p[i] - vec21[i] * c;
     }
-
-
-
     queue_collision(part1,part2,new_position);
   }
 }
@@ -341,7 +340,8 @@ void coldet_do_three_particle_bond(Particle* p, Particle* p1, Particle* p2)
   if (sqrt(sqrlen(vec21)) > collision_params.distance)
     return;
 
-  //TRACE(printf("%d: checking three particle bond %d %d %d\n", this_node, p1->p.identity, p->p.identity, p2->p.identity));
+  //TRACE(printf("%d: checking three particle bond %d %d %d\n", this_node, p1->p.identity, p->p.identity, p2->p.identity))
+  printf("%d: checking three particle bond %d %d %d\n", this_node, p1->p.identity, p->p.identity, p2->p.identity);
 
   // Check, if there already is a three-particle bond centered on p 
   // with p1 and p2 as partners. If so, skip this triplet.
@@ -456,6 +456,7 @@ void place_vs_and_relate_to_particle(double* pos, int relate_to)
 	    (local_particles[relate_to])->p.rotation=14;
 	  #endif
 	  (local_particles[max_seen_particle])->p.type=collision_params.vs_particle_type;
+
 }
 
 
@@ -487,9 +488,9 @@ void bind_at_poc_create_bond_between_vs(int i)
   }
 }
 
-//Milena s' implementation
+//Milenas' implementation
 void triangle_binding (Particle* p1, Particle* p2) {
-
+  printf("TRIANGLE BINDING going on...\n"); 
   double connecting_vector[3];
   get_mi_vector(connecting_vector, p1->r.p, p2->r.p); //(a,b,c) vector normal to the triangle plane 
 
@@ -500,14 +501,15 @@ void triangle_binding (Particle* p1, Particle* p2) {
 
   double c_1[3], c_2[3], c_3[3]; //corners of the triangle
   c_1[0]=c_m[0];
-  c_1[2]=c_m[2]+0.5*pow(2.0,1.0/6.0);
+//  c_1[2]=c_m[2]+collision_params.triangle_size;
+  c_1[2]=c_m[2]+0.01*pow(2.0,1.0/6.0);
   c_1[1]=c_m[1]+(-connecting_vector[2]/connecting_vector[1])*(c_1[2]-c_m[2]);
    
   c_2[0]=c_m[0];
-  c_2[2]=c_m[2]-0.5*pow(2.0,1.0/6.0);
+  c_2[2]=c_m[2]-0.01*pow(2.0,1.0/6.0);
   c_2[1]=c_m[1]+(-connecting_vector[2]/connecting_vector[1])*(c_2[2]-c_m[2]);
 
-  c_3[0]=c_m[0]+0.5*pow(2.0,1.0/6.0);
+  c_3[0]=c_m[0]+0.01*pow(2.0,1.0/6.0);
   c_3[2]=c_m[2];
   c_3[1]=c_m[1]+(-connecting_vector[0]/connecting_vector[1])*(c_3[0]-c_m[0]);
 
@@ -533,14 +535,14 @@ void triangle_binding (Particle* p1, Particle* p2) {
   
 
 // Check, if there's already a bond between the particles
-  if (bond_exists(p1,p2, collision_params.triangle_size))
+  if (bond_exists(p1,p2, collision_params.bond_centers))
      return;
-  if (bond_exists(p2,p1, collision_params.triangle_size))
+  if (bond_exists(p2,p1, collision_params.bond_centers))
      return;
  
 // place_vs_and_relate_to_particle(double* pos, int relate_to) 
-
-  for (int a=0; a<3; a++){
+  int a;
+  for (a=0; a<3; a++){
     place_vs_and_relate_to_particle(c_1,p1->p.identity);
     place_vs_and_relate_to_particle(c_2,p1->p.identity);
     place_vs_and_relate_to_particle(c_3,p1->p.identity);
@@ -548,18 +550,19 @@ void triangle_binding (Particle* p1, Particle* p2) {
     place_vs_and_relate_to_particle(c_1,p2->p.identity);
     place_vs_and_relate_to_particle(c_2,p2->p.identity);
     place_vs_and_relate_to_particle(c_3,p2->p.identity);
-  //  place_vs_and_relate_to_particle(*corners_triangle[a][0,1,2], p2);
+  
+   //printf("particle %d and %d bonded at %f %f %f, %f %f %f, %f %f %f\n",p1->p.identity,p1->p.identity,c_1,c_2,c_3);
   };
 
 // Add bond of length zero between vs
   int bond_info[2];
-  bond_info[0] = collision_params.bond_vs;
+  bond_info[0] = collision_params.bond_centers;
   bond_info[1] = max_seen_particle-1;
   local_change_bond(max_seen_particle, bond_info, 0);
 
 //printf("particle %d and %d bonded at  %f %f %f %f %f %f %f %f %f\n",p1->p.identity,p2->p.identity,corners_triangle);
-printf("particle %d and %d bonded.\n",p1->p.identity,p2->p.identity);
-return;
+//printf("particle %d and %d bonded.\n",p1->p.identity,p2->p.identity);
+
 }
 
 //srand(time(NULL));
@@ -705,6 +708,8 @@ void three_particle_binding_full_search()
          }
      }
  }
+
+printf("particle %d and %d colided with", p1->p.identity, p2->p.identity);
 }
 
 
@@ -805,7 +810,7 @@ void three_particle_binding_domain_decomposition()
 void handle_collisions ()
 {
 
-  TRACE(printf("%d: handle_collisions: number of collisions in queue %d\n",this_node,number_of_collisions));  
+  printf("node %d: handle_collisions: number of collisions in queue %d\n",this_node,number_of_collisions);  
 
   if (collision_params.mode & COLLISION_MODE_EXCEPTION)
     for (int i=0;i<number_of_collisions;i++) {
@@ -813,6 +818,7 @@ void handle_collisions ()
     }  
     
     
+//  if (collision_params.mode & COLLISION_MODE_BOND) 
   if (collision_params.mode & COLLISION_MODE_BOND) 
   {
     for (int i=0;i<number_of_collisions;i++) {
@@ -822,13 +828,13 @@ void handle_collisions ()
       if (local_particles[collision_queue[i].pp1]->l.ghost) {
         primary = collision_queue[i].pp2;
         secondary = collision_queue[i].pp1;
-        TRACE(printf("%d: particle-%d is ghost", this_node, collision_queue[i].pp1));
+        printf("%d: particle-%d is ghost", this_node, collision_queue[i].pp1);
       }
       int bondG[2];
       bondG[0]=collision_params.bond_centers;
       bondG[1]=secondary;
       local_change_bond(primary, bondG, 0);
-      TRACE(printf("%d: Adding bond %d->%d\n",this_node, primary,secondary));
+      printf("%d: Adding bond %d->%d\n",this_node, primary,secondary);
     }
   }
 
@@ -859,9 +865,16 @@ void handle_collisions ()
            glue_to_surface_bind_vs_to_pp1(i);
         }
       } // Loop over all collisions in the queue
-    } // are we in one of the vs_based methods
+    } // are we in one of the vs_based methodsi
 #endif //defined VIRTUAL_SITES_RELATIVE
-  
+ 
+  if (collision_params.mode & COLLISION_MODE_TRIANGLE_BINDING) 
+  {
+           //triangle_binding (Particle* p1, Particle* p2);
+          // triangle_binding (p1->p.identity, p2->p.identity);
+  }
+
+ 
 
   // three-particle-binding part
 
@@ -890,7 +903,7 @@ void handle_collisions ()
  } // if TPB
 
   // If a collision method is active which places particles, resorting might be needed
-  TRACE(printf("%d: Resort particles is %d\n",this_node,resort_particles));
+  printf("%d: Resort particles is %d\n",this_node,resort_particles);
   if (collision_params.mode & (COLLISION_MODE_VS | COLLISION_MODE_GLUE_TO_SURF))
   {
     // NOTE!! this has to be changed to total_collisions, once parallelization

@@ -149,7 +149,7 @@ CXXDEPMODE = depmode=gcc3
 CXXFLAGS =  -std=c++11
 CYFLAGS = 
 CYGPATH_W = echo
-CYTHON = no
+CYTHON = /usr/bin/cython
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
 DLLTOOL = false

@@ -104,7 +104,7 @@ noinst_PROGRAMS = Espresso$(EXEEXT)
 bin_PROGRAMS = Espresso.install$(EXEEXT)
 
 # generate the Tcl library for the python interpreter
-#am__append_3 = libEspressoTcl4Py.la
+am__append_3 = libEspressoTcl4Py.la
 #am__append_4 = cuda_workaround.o
 #am__append_5 = cuda_workaround.o
 #am__append_6 = cuda_workaround.cu
@@ -271,13 +271,13 @@ AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-#libEspressoTcl4Py_la_DEPENDENCIES =  \
-#	libEspressoTcl.la
+libEspressoTcl4Py_la_DEPENDENCIES =  \
+	libEspressoTcl.la
 am__libEspressoTcl4Py_la_SOURCES_DIST = scriptsdir.cpp
-#am_libEspressoTcl4Py_la_OBJECTS =  \
-#	libEspressoTcl4Py_la-scriptsdir.lo
+am_libEspressoTcl4Py_la_OBJECTS =  \
+	libEspressoTcl4Py_la-scriptsdir.lo
 libEspressoTcl4Py_la_OBJECTS = $(am_libEspressoTcl4Py_la_OBJECTS)
-#am_libEspressoTcl4Py_la_rpath =
+am_libEspressoTcl4Py_la_rpath =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS) $(noinst_PROGRAMS)
 am_Espresso_OBJECTS = Espresso-scriptsdir.$(OBJEXT) \
@@ -397,7 +397,7 @@ CXXDEPMODE = depmode=gcc3
 CXXFLAGS =  -std=c++11
 CYFLAGS = 
 CYGPATH_W = echo
-CYTHON = no
+CYTHON = /usr/bin/cython
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
 DLLTOOL = false
@@ -653,9 +653,9 @@ Espresso_install_CPPFLAGS = -D ESPRESSO_SCRIPTS_DEFAULT=\"$(scriptsdir)\" $(AM_C
 Espresso_install_SOURCES = scriptsdir.cpp main.cpp
 Espresso_install_LDADD = libEspressoTcl.la ../core/libEspresso.la \
 	$(am__append_5)
-#libEspressoTcl4Py_la_CPPFLAGS = -D ESPRESSO_SCRIPTS_DEFAULT=\"$(buildscriptsdir)\" $(AM_CPPFLAGS)
-#libEspressoTcl4Py_la_SOURCES = scriptsdir.cpp
-#libEspressoTcl4Py_la_LIBADD = libEspressoTcl.la
+libEspressoTcl4Py_la_CPPFLAGS = -D ESPRESSO_SCRIPTS_DEFAULT=\"$(buildscriptsdir)\" $(AM_CPPFLAGS)
+libEspressoTcl4Py_la_SOURCES = scriptsdir.cpp
+libEspressoTcl4Py_la_LIBADD = libEspressoTcl.la
 ESPRESSO = `echo Espresso | sed '$(transform)'`$(EXEEXT)
 ESPRESSO_INSTALL = `echo Espresso.install | sed '$(transform)'`$(EXEEXT)
 

@@ -218,7 +218,7 @@ void detect_collision(Particle* p1, Particle* p2)
   if (gb_en >= -0.01 and gb_en <= 0.01)
     return;
 
-  printf("CAME TO HERE");
+  printf("CAME TO HERE\n");
   //TRACE(printf("%d: particles %d and %d within bonding distance %lf\n", this_node, p1->p.identity, p2->p.identity, dist_betw_part));
   printf("%d: particles %d and %d within bonding distance %lf\n", this_node, p1->p.identity, p2->p.identity, dist_betw_part);
   // If we are in the glue to surface mode, check that the particles
@@ -652,10 +652,10 @@ void gather_collision_queue(int* counts)
     // Find where to place collision information for each processor
     int byte_counts[n_nodes];
     for (int k=1; k<n_nodes; k++)
-        displacements[k]=displacements[k-1]+(counts[k-1])*sizeof(collision_struct);
+      displacements[k]=displacements[k-1]+(counts[k-1])*sizeof(collision_struct);
     
     for (int k=0; k<n_nodes; k++)
-       byte_counts[k]=counts[k]*sizeof(collision_struct);
+      byte_counts[k]=counts[k]*sizeof(collision_struct);
     
     TRACE(printf("counts [%d] = %d and number of collisions = %d and diplacements = %d and total collisions = %d\n", this_node, counts[this_node], number_of_collisions, displacements[this_node], total_collisions));
     
@@ -819,7 +819,8 @@ void handle_collisions ()
     
     
 //  if (collision_params.mode & COLLISION_MODE_BOND) 
-  if (collision_params.mode & COLLISION_MODE_BOND) 
+  //if (collision_params.mode & COLLISION_MODE_BOND & COLLISION_MODE_TRIANGLE_BINDING) 
+  if (collision_params.mode & COLLISION_MODE_BOND & COLLISION_MODE_TRIANGLE_BINDING) 
   {
     for (int i=0;i<number_of_collisions;i++) {
       // put the bond to the physical particle; at least one partner always is
@@ -840,7 +841,7 @@ void handle_collisions ()
 
 #ifdef VIRTUAL_SITES_RELATIVE
   // If one of the collision modes is active which places virtual sites, we go over the queue to handle them
-  if ((collision_params.mode & COLLISION_MODE_VS) || (collision_params.mode & COLLISION_MODE_GLUE_TO_SURF)) {
+  if ((collision_params.mode & COLLISION_MODE_VS) || (collision_params.mode & COLLISION_MODE_GLUE_TO_SURF) || (COLLISION_MODE_TRIANGLE_BINDING)) {
     for (int i=0;i<number_of_collisions;i++) {
 	// Create virtual site(s) 
 	
@@ -870,16 +871,17 @@ void handle_collisions ()
  
   if (collision_params.mode & COLLISION_MODE_TRIANGLE_BINDING) 
   {
-           //triangle_binding (Particle* p1, Particle* p2);
-          // triangle_binding (p1->p.identity, p2->p.identity);
+    for (int i=0;i<number_of_collisions;i++) {
+      Particle* p1=local_particles[collision_queue[i].pp1];
+      Particle* p2=local_particles[collision_queue[i].pp2];
+      triangle_binding (p1, p2);
+    }
   }
-
- 
-
   // three-particle-binding part
 
 
-  if (collision_params.mode & (COLLISION_MODE_BIND_THREE_PARTICLES)) {
+  if (collision_params.mode & (COLLISION_MODE_BIND_THREE_PARTICLES))
+  {
   int counts[n_nodes];
   gather_collision_queue(counts);
 
@@ -889,22 +891,22 @@ void handle_collisions ()
       // particles in the system. (slow)
       if (cell_structure.type!=CELL_STRUCTURE_DOMDEC) {
         three_particle_binding_full_search();
-    } // if cell structure != domain decomposition
+       } // if cell structure != domain decomposition
     else
     {
       three_particle_binding_domain_decomposition();
     } // If we have doamin decomposition
 
-   } // if number of collisions of this node > 0
+    }   // if number of collisions of this node > 0
        
        if (total_collisions>0)
          free(gathered_queue);
        total_collisions = 0;
- } // if TPB
+  } // if TPB
 
   // If a collision method is active which places particles, resorting might be needed
   printf("%d: Resort particles is %d\n",this_node,resort_particles);
-  if (collision_params.mode & (COLLISION_MODE_VS | COLLISION_MODE_GLUE_TO_SURF))
+  if (collision_params.mode & (COLLISION_MODE_VS | COLLISION_MODE_GLUE_TO_SURF | COLLISION_MODE_TRIANGLE_BINDING))
   {
     // NOTE!! this has to be changed to total_collisions, once parallelization
     // is implemented

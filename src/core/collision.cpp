@@ -559,7 +559,7 @@ void triangle_binding (Particle* p1, Particle* p2) {
   bond_info[0] = collision_params.bond_centers;
   bond_info[1] = max_seen_particle-1;
   local_change_bond(max_seen_particle, bond_info, 0);
-
+  printf("BOND STORED ON PARTICLE %d OF ID %d\n",max_seen_particle, bond_info);
 //printf("particle %d and %d bonded at  %f %f %f %f %f %f %f %f %f\n",p1->p.identity,p2->p.identity,corners_triangle);
 //printf("particle %d and %d bonded.\n",p1->p.identity,p2->p.identity);
 
@@ -819,7 +819,7 @@ void handle_collisions ()
     
     
 //  if (collision_params.mode & COLLISION_MODE_BOND) 
-  //if (collision_params.mode & COLLISION_MODE_BOND & COLLISION_MODE_TRIANGLE_BINDING) 
+  if (collision_params.mode & COLLISION_MODE_BOND & COLLISION_MODE_TRIANGLE_BINDING) 
   if (collision_params.mode & COLLISION_MODE_BOND & COLLISION_MODE_TRIANGLE_BINDING) 
   {
     for (int i=0;i<number_of_collisions;i++) {
@@ -871,10 +871,12 @@ void handle_collisions ()
  
   if (collision_params.mode & COLLISION_MODE_TRIANGLE_BINDING) 
   {
+    printf("SO HERE WE ARE!!!\n");
     for (int i=0;i<number_of_collisions;i++) {
       Particle* p1=local_particles[collision_queue[i].pp1];
       Particle* p2=local_particles[collision_queue[i].pp2];
-      triangle_binding (p1, p2);
+      triangle_binding (p1, p2); 
+      printf("TRIANGLE BOND BETWEEN %d AND %d CREATED\n", p1, p2);
     }
   }
   // three-particle-binding part
@@ -906,7 +908,7 @@ void handle_collisions ()
 
   // If a collision method is active which places particles, resorting might be needed
   printf("%d: Resort particles is %d\n",this_node,resort_particles);
-  if (collision_params.mode & (COLLISION_MODE_VS | COLLISION_MODE_GLUE_TO_SURF | COLLISION_MODE_TRIANGLE_BINDING))
+  if (collision_params.mode & (COLLISION_MODE_VS || COLLISION_MODE_GLUE_TO_SURF || COLLISION_MODE_TRIANGLE_BINDING))
   {
     // NOTE!! this has to be changed to total_collisions, once parallelization
     // is implemented

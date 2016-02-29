@@ -285,8 +285,6 @@ void detect_collision(Particle* p1, Particle* p2)
     // is in the middle of the vector connecting the particle
     // centers
 // ASSUME WE DON'T NEED MULTIPLE OCCURING OF THIS  
-    //if (collision_params.mode & COLLISION_MODE_TRIANGLE_BINDING)
-    //  triangle_binding(p1->p.identity, p2->p.identity);
      
     if (! (collision_params.mode & COLLISION_MODE_GLUE_TO_SURF))
       c=0.5;
@@ -532,8 +530,10 @@ void triangle_binding (Particle* p1, Particle* p2) {
   };
   double abs_director_2, abs_director_3;
   abs_director1=sqrt(random_vector[0]*random_vector[0]+random_vector[1]*random_vector[1]+random_vector[2]*random_vector[2]);
-  vec_rotate(connecting_vector, 120, director1, director2);
-  vec_rotate(connecting_vector, 120, director2, director3);
+  //vec_rotate(connecting_vector, 120, director1, director2);
+  vec_rotate(connecting_vector, 2.0943951024, director1, director2);
+  //vec_rotate(connecting_vector, 120, director2, director3);
+  vec_rotate(connecting_vector, 2.0943951024, director2, director3);
   
   double corner_1[3], corner_2[3], corner_3[3]; //corners of the triangle
   for (int b=0; b<3; b++){ 
@@ -818,19 +818,25 @@ void handle_collisions ()
       
       triangle_binding (p1, p2);
  
-      if (bond_exists(p1,p2, collision_params.triangle_size))
+      if (bond_exists(p1,p2, collision_params.bond_centers)){
         printf("BOND ALREADY EXIST!\n");
         return;
-      if (bond_exists(p2,p1, collision_params.triangle_size))
+      }
+      if (bond_exists(p2,p1, collision_params.bond_centers)){
         return;
-      
-      int bond_info[2];
-      bond_info[0] = collision_params.triangle_size;
-      bond_info[1] = max_seen_particle-1;
-      local_change_bond(max_seen_particle, bond_info, 0);
+      }
+
+     int bond_info[2];
+     bond_info[0] = collision_params.bond_centers;
+     bond_info[1] = max_seen_particle-1;
+     local_change_bond(max_seen_particle,   bond_info, 0);
+ 
+//      bond_info[0] = collision_params.triangle_size;
+//      bond_info[1] = max_seen_particle-1;
+//      local_change_bond(max_seen_particle, bond_info, 0);
       printf("BOND STORED ON PARTICLE %d OF ID %d\n",max_seen_particle, bond_info[1]);
 
-      printf("TRIANGLE BOND BETWEEN %i  AND %i CREATED\n",p1,p2 );
+      printf("TRIANGLE BOND BETWEEN %i  AND %i CREATED\n",p1,p2);
     }
   }
   // three-particle-binding part

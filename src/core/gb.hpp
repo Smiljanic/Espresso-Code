@@ -31,23 +31,65 @@
 #include "interaction_data.hpp"
 #include "particle_data.hpp"
 #include "mol_cut.hpp"
+#include "grid.hpp"
 
 #ifdef GAY_BERNE
 
 ///
 int gay_berne_set_params(int part_type_a, int part_type_b,
-			 double eps, double sig, double cut,
+			 double eps, 
+                         double sig, 
+                         double cut,
 			 double k1, double k2,
 			 double mu, double nu);
+
+
+//double connecting_vector[3];
+void inline calculate_vector(double *vector, double *a, double *b)
+{
+  vector[0]=b[0]-a[0];
+  vector[1]=b[1]-a[1];
+  vector[2]=b[2]-a[2];
+  return;
+}
 
 inline void add_gb_pair_force(const Particle * const p1, const Particle * const p2, IA_parameters *ia_params,
 				double d[3], double dist, double force[3], 
                               double torque1[3], double torque2[3])
 
-{
+{  
   if (!CUTOFF_CHECK(dist < ia_params->GB_cut))   
     return;
   
+// evaluate current particle orientation
+ double orient_1[3], orient_2[3];
+ orient_1[0]=p1->r.quatu[0];
+ orient_1[1]=p1->r.quatu[1];
+ orient_1[2]=p1->r.quatu[2];
+
+ orient_2[0]=p2->r.quatu[0];
+ orient_2[1]=p2->r.quatu[1];
+ orient_2[2]=p2->r.quatu[2];
+
+ //double myvector;
+ //myvector=calculate_vector(p1->p.r, p2->p.r);
+ //printf("The connecting vector is %f %f %f\n", myvector); 
+//create rotation matrix 
+
+// evaluate mutual position
+ double pos_1[3], pos_2[3];
+ pos_1[0]=p1->r.p[0];
+ pos_1[1]=p1->r.p[1];
+ pos_1[2]=p1->r.p[2];
+ 
+ pos_1[0]=p2->r.p[0];
+ pos_1[1]=p2->r.p[1];
+ pos_1[2]=p2->r.p[2];
+
+
+
+
+
   double a,b,c, X, Xcut,
     Brack,BrackCut,
     Bra12,Bra12Cut,

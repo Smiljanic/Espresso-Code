@@ -124,11 +124,19 @@ gb_tcl.lo: gb_tcl.cpp /usr/include/stdc-predef.h gb_tcl.hpp parser.hpp \
  ../../src/core/gb.hpp ../../src/core/utils.hpp \
  ../../src/core/interaction_data.hpp ../../src/core/particle_data.hpp \
  ../../src/core/mol_cut.hpp ../../src/core/virtual_sites.hpp \
- ../../src/core/virtual_sites_relative.hpp \
+ ../../src/core/virtual_sites_relative.hpp ../../src/core/grid.hpp \
+ /usr/include/c++/4.8/climits \
+ /usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed/limits.h \
+ /usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed/syslimits.h \
+ /usr/include/limits.h /usr/include/x86_64-linux-gnu/bits/posix1_lim.h \
+ /usr/include/x86_64-linux-gnu/bits/local_lim.h \
+ /usr/include/linux/limits.h \
+ /usr/include/x86_64-linux-gnu/bits/posix2_lim.h \
+ /usr/include/x86_64-linux-gnu/bits/xopen_lim.h \
  ../../src/core/communication.hpp ../../src/core/random.hpp \
  ../../src/core/topology.hpp /usr/lib/openmpi/include/mpi.h \
  /usr/lib/openmpi/include/mpi_portable_platform.h \
- ../../src/core/cuda_init.hpp
+ ../../src/core/cuda_init.hpp ../../src/core/communication.hpp
 
 /usr/include/stdc-predef.h:
 
@@ -470,6 +478,26 @@ parser.hpp:
 
 ../../src/core/virtual_sites_relative.hpp:
 
+../../src/core/grid.hpp:
+
+/usr/include/c++/4.8/climits:
+
+/usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed/limits.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed/syslimits.h:
+
+/usr/include/limits.h:
+
+/usr/include/x86_64-linux-gnu/bits/posix1_lim.h:
+
+/usr/include/x86_64-linux-gnu/bits/local_lim.h:
+
+/usr/include/linux/limits.h:
+
+/usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
+
+/usr/include/x86_64-linux-gnu/bits/xopen_lim.h:
+
 ../../src/core/communication.hpp:
 
 ../../src/core/random.hpp:
@@ -481,3 +509,5 @@ parser.hpp:
 /usr/lib/openmpi/include/mpi_portable_platform.h:
 
 ../../src/core/cuda_init.hpp:
+
+../../src/core/communication.hpp:

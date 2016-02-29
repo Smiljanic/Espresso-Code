@@ -152,14 +152,14 @@ void build_verlet_lists()
         }
       }
       resize_verlet_list(pl);
-      VERLET_TRACE(fprintf(stderr,"%d: neighbor %d has %d particles\n",this_node,n,pl->n));
+      //VERLET_TRACE(fprintf(stderr,"%d: neighbor %d has %d particles\n",this_node,n,pl->n));
       VERLET_TRACE(sum += pl->n);
     }
   }
 
   rebuild_verletlist = 0;
 
-  VERLET_TRACE(fprintf(stderr,"%d: total number of interaction pairs: %d (should be around %d)\n",this_node,sum,estimate));
+  //VERLET_TRACE(fprintf(stderr,"%d: total number of interaction pairs: %d (should be around %d)\n",this_node,sum,estimate));
 }
 
 void calculate_verlet_ia()

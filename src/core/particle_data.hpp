@@ -241,7 +241,7 @@ typedef struct {
 
 #ifdef ROTATION
   /** angular velocity  
-      ALWAYS IN PARTICLE FIXEXD, I.E., CO-ROTATING COORDINATE SYSTEM */
+      ALWAYS IN PARTICLE FIXED, I.E., CO-ROTATING COORDINATE SYSTEM */
   double omega[3];
 
 

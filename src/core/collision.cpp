@@ -65,8 +65,6 @@ int collision_detection_set_params(int mode, double d, int bond_centers, int bon
   if (mode & COLLISION_MODE_BIND_THREE_PARTICLES)
     mode |= COLLISION_MODE_BOND;
 
-  //if (mode & COLLISION_MODE_TRIANGLE_BINDING)
-   // mode |= COLLISION_MODE_TRIANGLE_BINDING;
   // If we don't have virtual sites, virtual site binding isn't possible.
 #ifndef VIRTUAL_SITES_RELATIVE
   if ((mode & COLLISION_MODE_VS) || (mode & COLLISION_MODE_GLUE_TO_SURF) || (mode & COLLISION_MODE_TRIANGLE_BINDING))
@@ -215,10 +213,9 @@ void detect_collision(Particle* p1, Particle* p2)
   gb_en = gb_pair_energy(p1, p2, ia_params,
                        vec21, dist_betw_part*dist_betw_part);
 
-  if (gb_en >= -0.01 and gb_en <= 0.01)
+  if (gb_en >= -0.001 and gb_en <= 0.001)
     return;
 
-  printf("CAME TO HERE\n");
   //TRACE(printf("%d: particles %d and %d within bonding distance %lf\n", this_node, p1->p.identity, p2->p.identity, dist_betw_part));
   printf("%d: particles %d and %d within bonding distance %lf\n", this_node, p1->p.identity, p2->p.identity, dist_betw_part);
   // If we are in the glue to surface mode, check that the particles
@@ -280,7 +277,6 @@ void detect_collision(Particle* p1, Particle* p2)
        to the queue to process later */
     // Point of collision
     double c;
-    printf("H E R E  W E  A R E !!!\n");
     // If not in the glue_to_surface-mode, the point of collision
     // is in the middle of the vector connecting the particle
     // centers
@@ -485,73 +481,64 @@ void bind_at_poc_create_bond_between_vs(int i)
 }
 
 
-/** gives a random vector perpendicular to the given vector throug its middle point*/
+/** gives a random vector perpendicular to the given vector throug its given middle point*/
 inline void get_mi_random_vector(double *given_vector, double *middle_point, double *resulting_vector)
 {
- double z_rand    = d_random()*pow(-1,floor(10*d_random()));
- double alfa_rand = d_random()*180;
+ //double z_rand    = d_random()*2-1;
+ double z_rand    = d_random();
+ double alfa_rand = d_random()*M_PI;
  double random_point[3];
  random_point[0]    = sqrt(1-z_rand*z_rand)*cos(alfa_rand);
  random_point[1]    = sqrt(1-z_rand*z_rand)*sin(alfa_rand);
  random_point[2]    = z_rand;
 //TRACE(printf("generated random point on the surface of the random sphere is: %f %f %f\n", point_rand[0],point_rand[1],point_rand[2]));
-//generate random vector  
- double random_vector[3]; 
- get_mi_vector(random_vector, middle_point, random_point);
- vector_product(given_vector, random_vector, resulting_vector);
+ vector_product(given_vector, random_point, resulting_vector);
  return;
 }
 
-void triangle_binding (Particle* p1, Particle* p2) {
-//TRACE(printf("TRIANGLE BINDING going on...\n")); 
+void triangle_binding (Particle* p1, Particle* p2, double corners[3][3]) 
+{
   double connecting_vector[3];
   get_mi_vector(connecting_vector, p1->r.p, p2->r.p); //(a,b,c) vector normal to the triangle plane 
+ // printf("the connecting vector is %f %f %f\n",connecting_vector);
   
+  
+
+  double actual_point_of_collision[3];
+  memcpy(collision_queue[number_of_collisions-1].point_of_collision,actual_point_of_collision, 3*sizeof(double)); 
   double c_m[3]; //middle point at the connecting_vector
-  c_m[0] = 0.5*(p2->r.p[0]+p1->r.p[0]);
-  c_m[1] = 0.5*(p2->r.p[1]+p1->r.p[1]);
-  c_m[2] = 0.5*(p2->r.p[2]+p1->r.p[2]);
+  for (int i=0;i<3;i++)
+    c_m[i] = p1->r.p[i]+0.5*connecting_vector[i]; 
+//    c_m[i] = actual_point_of_collision[i]; 
+  double perpendicular_vector[3];
+  get_mi_random_vector(connecting_vector, c_m, perpendicular_vector);
+  double abs_director1=sqrlen(perpendicular_vector);
+  if (!(abs_director1==0.0) or !((scalar(connecting_vector,perpendicular_vector)<=0.01) and (scalar(connecting_vector,perpendicular_vector)>=-0.01))) {
+    
+    double director1[3],director2[3],director3[3];
+    // normalize vector
+    for (int i=0; i<3; i++) {
+      director1[i]=perpendicular_vector[i]*.5/abs_director1;
+    };
+ //   printf("the normalized random vector is %f %f %f\n",director1);
+    double abs_director_2, abs_director_3;
+    // get additional two vectors: director2 and director3 from rotation of director1 for 120 and 240 deg
+    vec_rotate(connecting_vector, 2.*M_PI/3., director1, director2);
+    vec_rotate(connecting_vector, 2.*M_PI/3., director2, director3);
   
-  double random_vector[3];
-  get_mi_random_vector(connecting_vector, c_m, random_vector);
-//TRACE(printf("random vector %f %f %f\n",random_vector[0],random_vector[1],random_vector[2]));
-  
-  double abs_director1;
-  abs_director1=sqrt(random_vector[0]*random_vector[0]+random_vector[1]*random_vector[1]+random_vector[2]*random_vector[2]);
-//recalculate new vector, if needed
-  if (abs_director1==0.0 or scalar(connecting_vector,random_vector)==1) {
-    get_mi_random_vector(connecting_vector, c_m, random_vector);
-  }; 
-  
-  double director1[3],director2[3],director3[3];
-  //normalize vector
-  for (int i=0; i<3; i++) {
-    director1[i]=random_vector[i]*0.5/abs_director1;
-  };
-  double abs_director_2, abs_director_3;
-  abs_director1=sqrt(random_vector[0]*random_vector[0]+random_vector[1]*random_vector[1]+random_vector[2]*random_vector[2]);
-  //vec_rotate(connecting_vector, 120, director1, director2);
-  vec_rotate(connecting_vector, 2.0943951024, director1, director2);
-  //vec_rotate(connecting_vector, 120, director2, director3);
-  vec_rotate(connecting_vector, 2.0943951024, director2, director3);
-  
-  double corner_1[3], corner_2[3], corner_3[3]; //corners of the triangle
-  for (int b=0; b<3; b++){ 
-    corner_1[b]=c_m[b]+director1[b];
-    corner_2[b]=c_m[b]+director2[b];
-    corner_3[b]=c_m[b]+director3[b];
-  }; 
+    double corner_1[3], corner_2[3], corner_3[3]; //corners of the triangle
+    for (int b=0; b<3; b++){ 
+      corner_1[b]=c_m[b]+director1[b];
+      corner_2[b]=c_m[b]+director2[b];
+      corner_3[b]=c_m[b]+director3[b];
+    }; 
+    for (int a=0; a<3; a++){
+       corners[0][a]=corner_1[a];
+       corners[1][a]=corner_2[a];
+       corners[2][a]=corner_3[a];
+    };  
 //TRACE(printf("corners are %f %f %f %f %f %f %f %f %f\n",corner_1[0],corner_1[1],corner_1[2],corner_2[0],corner_2[1],corner_2[2],corner_3[0],corner_3[1],corner_3[2])); 
-// place_vs_and_relate_to_particle(double* pos, int relate_to) 
-
-  place_vs_and_relate_to_particle(corner_1,p1->p.identity);
-  place_vs_and_relate_to_particle(corner_2,p1->p.identity);
-  place_vs_and_relate_to_particle(corner_3,p1->p.identity);
-
-  place_vs_and_relate_to_particle(corner_1,p2->p.identity);
-  place_vs_and_relate_to_particle(corner_2,p2->p.identity);
-  place_vs_and_relate_to_particle(corner_3,p2->p.identity);
- 
+    };
  return;  
 
 }
@@ -748,40 +735,16 @@ void three_particle_binding_domain_decomposition()
 // Handle the collisions stored in the queue
 void handle_collisions ()
 {
-
-  printf("node %d: handle_collisions: number of collisions in queue %d\n",this_node,number_of_collisions);  
-
+  //TRACE(printf("node %d: handle_collisions: number of collisions in queue %d\n",this_node,number_of_collisions));  
   if (collision_params.mode & COLLISION_MODE_EXCEPTION)
     for (int i=0;i<number_of_collisions;i++) {
       handle_exception_throwing_for_single_collision(i);
     }  
-    
-    
-//  if (collision_params.mode & COLLISION_MODE_BOND) 
-  //if (collision_params.mode & COLLISION_MODE_BOND & COLLISION_MODE_TRIANGLE_BINDING) 
-  if (collision_params.mode & COLLISION_MODE_BOND) 
-  {
-    for (int i=0;i<number_of_collisions;i++) {
-      // put the bond to the physical particle; at least one partner always is
-      int primary =collision_queue[i].pp1;
-      int secondary = collision_queue[i].pp2;
-      if (local_particles[collision_queue[i].pp1]->l.ghost) {
-        primary = collision_queue[i].pp2;
-        secondary = collision_queue[i].pp1;
-        printf("%d: particle-%d is ghost", this_node, collision_queue[i].pp1);
-      }
-      int bondG[2];
-      bondG[0]=collision_params.bond_centers;
-      bondG[1]=secondary;
-      local_change_bond(primary, bondG, 0);
-      printf("%d: Adding bond %d->%d\n",this_node, primary,secondary);
-    }
-  }
 
 #ifdef VIRTUAL_SITES_RELATIVE
   // If one of the collision modes is active which places virtual sites, we go over the queue to handle them
-  if ((collision_params.mode & COLLISION_MODE_VS) || (collision_params.mode & COLLISION_MODE_GLUE_TO_SURF)) {
-  //if ((collision_params.mode & COLLISION_MODE_VS) || (collision_params.mode & COLLISION_MODE_GLUE_TO_SURF) || (COLLISION_MODE_TRIANGLE_BINDING)) {
+  if ((collision_params.mode & COLLISION_MODE_VS) || (collision_params.mode & COLLISION_MODE_GLUE_TO_SURF) || (collision_params.mode & COLLISION_MODE_TRIANGLE_BINDING)) 
+    {
     for (int i=0;i<number_of_collisions;i++) {
 	// Create virtual site(s) 
 	
@@ -805,40 +768,36 @@ void handle_collisions ()
 	{
            glue_to_surface_bind_vs_to_pp1(i);
         }
-      } // Loop over all collisions in the queue
-    } // are we in one of the vs_based methodsi
-
-
-  if (collision_params.mode & COLLISION_MODE_TRIANGLE_BINDING) 
-  {
-    printf("SO HERE WE ARE!!!\n");
-    for (int i=0;i<number_of_collisions;i++) {
-      Particle* p1=local_particles[collision_queue[i].pp1];
-      Particle* p2=local_particles[collision_queue[i].pp2];
       
-      triangle_binding (p1, p2);
- 
-      if (bond_exists(p1,p2, collision_params.bond_centers)){
-        printf("BOND ALREADY EXIST!\n");
-        return;
-      }
-      if (bond_exists(p2,p1, collision_params.bond_centers)){
-        return;
-      }
+        // If we are in the "triangle_binding mode", we need to insert additional 3 pairs of particles
+        if (collision_params.mode & COLLISION_MODE_TRIANGLE_BINDING) 
+        {
+          Particle* p1 = local_particles[collision_queue[i].pp1];
+          Particle* p2 = local_particles[collision_queue[i].pp2];
+          
+          double three_corners[3][3];
+          triangle_binding (p1, p2, three_corners);
+          
+          double first_corner[3], second_corner[3], third_corner[3];
+          for (int i=0; i<3; i++){
+            first_corner[i]  = three_corners[0][i];  
+            second_corner[i] = three_corners[1][i];  
+            third_corner[i]  = three_corners[2][i];  
+          }          
+      
+          //  printf("!!! number of collisions %d\n", number_of_collisions);
+           place_vs_and_relate_to_particle(first_corner,p1->p.identity);
+           place_vs_and_relate_to_particle(first_corner,p2->p.identity);
+         //  bind_at_poc_create_bond_between_vs(i);
+          
+          
 
-     int bond_info[2];
-     bond_info[0] = collision_params.bond_centers;
-     bond_info[1] = max_seen_particle-1;
-     local_change_bond(max_seen_particle,   bond_info, 0);
- 
-//      bond_info[0] = collision_params.triangle_size;
-//      bond_info[1] = max_seen_particle-1;
-//      local_change_bond(max_seen_particle, bond_info, 0);
-      printf("BOND STORED ON PARTICLE %d OF ID %d\n",max_seen_particle, bond_info[1]);
+          //printf("Particle inserted at %f %f %f and related to %d and %d\n", first_corner[0], first_corner[1],first_corner[2], p1->p.identity, p2->p.identity);    
+        }
+       } // Loop over all collisions in the queue
+     } // are we in one of the vs_based methodsi
 
-      printf("TRIANGLE BOND BETWEEN %i  AND %i CREATED\n",p1,p2);
-    }
-  }
+
   // three-particle-binding part
 
 #endif //defined VIRTUAL_SITES_RELATIVE
@@ -870,7 +829,7 @@ void handle_collisions ()
   } // if TPB
 
   // If a collision method is active which places particles, resorting might be needed
-  printf("%d: Resort particles is %d\n",this_node,resort_particles);
+  //TRACE(printf("%d: Resort particles is %d\n",this_node,resort_particles));
   if (collision_params.mode & (COLLISION_MODE_VS || COLLISION_MODE_GLUE_TO_SURF || COLLISION_MODE_TRIANGLE_BINDING))
   {
     // NOTE!! this has to be changed to total_collisions, once parallelization

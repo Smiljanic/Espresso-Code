@@ -3,7 +3,7 @@
 
     Create a copy of this file in any of these locations: 
         @myconfig@ 
-	/home/itvms/PHD/CODE/Espresso-Rudolf/espresso-gb/@myconfig@
+	/home/itvms/PHD/test_espresso/Esspresso-Code/@myconfig@
 
     Then uncomment any of the following lines to activate the
     corresponding feature of ESPResSo. It is recommended to activate

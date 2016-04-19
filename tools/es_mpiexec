@@ -39,7 +39,7 @@
 # 1 if the command line was erroneous
 #
 
-MYMPIEXEC=/home/itvms/PHD/test_espresso/Esspresso-Code/mympiexec.sh
+MYMPIEXEC=/home/itvms/PHD/last_modified/Esspresso-Code/mympiexec.sh
 MPIEXEC=/usr/bin/mpiexec
 
 # get number of processors

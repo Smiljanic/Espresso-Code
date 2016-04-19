@@ -19,12 +19,12 @@
 #
 SRCDIR=$1
 BASEFILENAME=$2
-TEXINPUTS=.:$SRCDIR:/home/itvms/PHD/test_espresso/Esspresso-Code/doc:
+TEXINPUTS=.:$SRCDIR:/home/itvms/PHD/last_modified/Esspresso-Code/doc:
 BIBINPUTS=.:$SRCDIR:
 export TEXINPUTS BIBINPUTS
 echo "TEXINPUTS=$TEXINPUTS"
 
-ESPRESSO_VERSION=`cd /home/itvms/PHD/test_espresso/Esspresso-Code; sh config/genversion.sh -rd`
+ESPRESSO_VERSION=`cd /home/itvms/PHD/last_modified/Esspresso-Code; sh config/genversion.sh -rd`
 echo "ESPRESSO_VERSION=$ESPRESSO_VERSION"
 
 PDFLATEX="/usr/bin/pdflatex -halt-on-error -interaction=batchmode"

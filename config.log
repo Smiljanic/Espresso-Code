@@ -165,7 +165,7 @@ configure:4543: checking for mpiexec
 configure:4561: found /usr/bin/mpiexec
 configure:4574: result: /usr/bin/mpiexec
 configure:4585: checking for the mympiexec user script
-configure:4625: result: /home/itvms/PHD/test_espresso/Esspresso-Code/mympiexec.sh
+configure:4625: result: /home/itvms/PHD/last_modified/Esspresso-Code/mympiexec.sh
 configure:4641: checking whether mpic++ can get a pretty function name
 configure:4659: mpic++ -c   conftest.cpp >&5
 configure:4659: $? = 0
@@ -5558,7 +5558,7 @@ configure:20405: checking whether to use MAGMA
 configure:20415: result: guess
 configure:20421: checking for library containing magma_init
 configure:20452: mpic++ -o conftest  -std=c++11   conftest.cpp -lfftw3  -lm >&5
-/tmp/ccrsRD4r.o: In function `main':
+/tmp/cckYJzaN.o: In function `main':
 conftest.cpp:(.text+0x5): undefined reference to `magma_init'
 collect2: error: ld returned 1 exit status
 configure:20452: $? = 1
@@ -6734,7 +6734,6 @@ config.status:1346: creating testsuite/runtest.sh
 config.status:1346: creating tools/es_mpiexec
 config.status:1346: creating src/python/pypresso
 config.status:1346: creating src/acconfig.hpp
-config.status:1527: src/acconfig.hpp is unchanged
 config.status:1575: executing depfiles commands
 config.status:1575: executing libtool commands
 config.status:1575: executing myconfig-sample.hpp commands
@@ -6966,7 +6965,7 @@ ECHO_C=''
 ECHO_N='-n'
 ECHO_T=''
 EGREP='/bin/grep -E'
-ESPRESSO_MPIEXEC='/home/itvms/PHD/test_espresso/Esspresso-Code/tools/es_mpiexec'
+ESPRESSO_MPIEXEC='/home/itvms/PHD/last_modified/Esspresso-Code/tools/es_mpiexec'
 EXEEXT=''
 FGREP='/bin/grep -F'
 GREP='/bin/grep'
@@ -7005,7 +7004,7 @@ MPI_FAKE_TRUE='#'
 MYCONFIG='myconfig.hpp'
 MYCONFIG_FALSE=''
 MYCONFIG_TRUE='#'
-MYMPIEXEC='/home/itvms/PHD/test_espresso/Esspresso-Code/mympiexec.sh'
+MYMPIEXEC='/home/itvms/PHD/last_modified/Esspresso-Code/mympiexec.sh'
 NM='/usr/bin/nm -B'
 NMEDIT=''
 NVCC='no'
@@ -7089,7 +7088,7 @@ host_vendor='unknown'
 htmldir='${docdir}'
 includedir='${prefix}/include'
 infodir='${datarootdir}/info'
-install_sh='${SHELL} /home/itvms/PHD/test_espresso/Esspresso-Code/config/install-sh'
+install_sh='${SHELL} /home/itvms/PHD/last_modified/Esspresso-Code/config/install-sh'
 libdir='${exec_prefix}/lib'
 libexecdir='${exec_prefix}/libexec'
 localedir='${datarootdir}/locale'

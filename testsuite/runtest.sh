@@ -38,7 +38,7 @@ TESTLOG=runtest.log
 
 srcdir=.
 ESPRESSO=../Espresso
-ESMPIEXEC=/home/itvms/PHD/test_espresso/Esspresso-Code/tools/es_mpiexec
+ESMPIEXEC=/home/itvms/PHD/last_modified/Esspresso-Code/tools/es_mpiexec
 
 # tests need to be run from the directory where this script is located
 cd ${0%runtest.sh}

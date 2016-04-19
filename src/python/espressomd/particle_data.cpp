@@ -1241,7 +1241,7 @@ static char __pyx_k_Angular_velocity_in_lab_frame[] = "Angular velocity in lab f
 static char __pyx_k_Deleting_existing_bonds_failed[] = "Deleting existing bonds failed.";
 static char __pyx_k_Bond_argument_has_to_be_of_type[] = "Bond argument has to be of type BondedInteraction.";
 static char __pyx_k_The_relative_orientation_has_to[] = "The relative orientation has to be specified as quaternion with 4 floats.";
-static char __pyx_k_home_itvms_PHD_test_espresso_Es[] = "/home/itvms/PHD/test_espresso/Esspresso-Code/src/python/espressomd/particle_data.pyx";
+static char __pyx_k_home_itvms_PHD_last_modified_Es[] = "/home/itvms/PHD/last_modified/Esspresso-Code/src/python/espressomd/particle_data.pyx";
 static char __pyx_k_unknown_dtype_code_in_numpy_pxd[] = "unknown dtype code in numpy.pxd (%d)";
 static char __pyx_k_Argument_of_vs_auto_relate_to_ha[] = "Argument of vs_auto_relate_to has to be of type int";
 static char __pyx_k_Bond_partners_with_respect_to_bo[] = "Bond partners with respect to bonded interactions.";
@@ -1295,7 +1295,7 @@ static PyObject *__pyx_kp_s_does_not_exist;
 static PyObject *__pyx_n_s_espressomd_particle_data;
 static PyObject *__pyx_n_s_getitem;
 static PyObject *__pyx_n_s_getitem_2;
-static PyObject *__pyx_kp_s_home_itvms_PHD_test_espresso_Es;
+static PyObject *__pyx_kp_s_home_itvms_PHD_last_modified_Es;
 static PyObject *__pyx_n_s_id;
 static PyObject *__pyx_n_s_import;
 static PyObject *__pyx_n_s_interactions;
@@ -8792,7 +8792,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_espressomd_particle_data, __pyx_k_espressomd_particle_data, sizeof(__pyx_k_espressomd_particle_data), 0, 0, 1, 1},
   {&__pyx_n_s_getitem, __pyx_k_getitem, sizeof(__pyx_k_getitem), 0, 0, 1, 1},
   {&__pyx_n_s_getitem_2, __pyx_k_getitem_2, sizeof(__pyx_k_getitem_2), 0, 0, 1, 1},
-  {&__pyx_kp_s_home_itvms_PHD_test_espresso_Es, __pyx_k_home_itvms_PHD_test_espresso_Es, sizeof(__pyx_k_home_itvms_PHD_test_espresso_Es), 0, 0, 1, 0},
+  {&__pyx_kp_s_home_itvms_PHD_last_modified_Es, __pyx_k_home_itvms_PHD_last_modified_Es, sizeof(__pyx_k_home_itvms_PHD_last_modified_Es), 0, 0, 1, 0},
   {&__pyx_n_s_id, __pyx_k_id, sizeof(__pyx_k_id), 0, 0, 1, 1},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
   {&__pyx_n_s_interactions, __pyx_k_interactions, sizeof(__pyx_k_interactions), 0, 0, 1, 1},
@@ -9194,7 +9194,7 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__33 = PyTuple_Pack(1, __pyx_n_s_coord); if (unlikely(!__pyx_tuple__33)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__33);
   __Pyx_GIVEREF(__pyx_tuple__33);
-  __pyx_codeobj__34 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__33, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_itvms_PHD_test_espresso_Es, __pyx_n_s_COORD_FIXED, 30, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__34)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_codeobj__34 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__33, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_itvms_PHD_last_modified_Es, __pyx_n_s_COORD_FIXED, 30, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__34)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
   /* "espressomd/particle_data.pyx":32
  * def COORD_FIXED(coord):

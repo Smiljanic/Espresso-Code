@@ -437,7 +437,7 @@ Copyright (C) 2012 Free Software Foundation, Inc.
 This config.status script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it."
 
-ac_pwd='/home/itvms/PHD/test_espresso/Esspresso-Code'
+ac_pwd='/home/itvms/PHD/last_modified/Esspresso-Code'
 srcdir='.'
 INSTALL='/usr/bin/install -c'
 MKDIR_P='/bin/mkdir -p'
@@ -1047,8 +1047,8 @@ S["CFLAGS"]="-g -O2"
 S["CC"]="gcc"
 S["LIBTOOL"]="$(SHELL) $(top_builddir)/libtool"
 S["HAVE_CXX11"]="1"
-S["ESPRESSO_MPIEXEC"]="/home/itvms/PHD/test_espresso/Esspresso-Code/tools/es_mpiexec"
-S["MYMPIEXEC"]="/home/itvms/PHD/test_espresso/Esspresso-Code/mympiexec.sh"
+S["ESPRESSO_MPIEXEC"]="/home/itvms/PHD/last_modified/Esspresso-Code/tools/es_mpiexec"
+S["MYMPIEXEC"]="/home/itvms/PHD/last_modified/Esspresso-Code/mympiexec.sh"
 S["MPIEXEC"]="/usr/bin/mpiexec"
 S["MPI_FAKE"]=""
 S["MPI_FAKE_FALSE"]=""
@@ -1090,7 +1090,7 @@ S["mkdir_p"]="$(MKDIR_P)"
 S["MKDIR_P"]="/bin/mkdir -p"
 S["INSTALL_STRIP_PROGRAM"]="$(install_sh) -c -s"
 S["STRIP"]="strip"
-S["install_sh"]="${SHELL} /home/itvms/PHD/test_espresso/Esspresso-Code/config/install-sh"
+S["install_sh"]="${SHELL} /home/itvms/PHD/last_modified/Esspresso-Code/config/install-sh"
 S["MAKEINFO"]="makeinfo"
 S["AUTOHEADER"]="autoheader"
 S["AUTOMAKE"]="automake-1.14"

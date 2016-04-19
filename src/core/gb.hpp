@@ -71,9 +71,9 @@ inline void add_gb_pair_force(const Particle * const p1, const Particle * const 
  orient_2[1]=p2->r.quatu[1];
  orient_2[2]=p2->r.quatu[2];
 
- //double myvector;
- //myvector=calculate_vector(p1->p.r, p2->p.r);
- //printf("The connecting vector is %f %f %f\n", myvector); 
+//double myvector;
+//myvector=calculate_vector(p1->p.r, p2->p.r);
+//printf("The connecting vector is %f %f %f\n", myvector); 
 //create rotation matrix 
 
 // evaluate mutual position
@@ -122,7 +122,11 @@ inline void add_gb_pair_force(const Particle * const p1, const Particle * const 
     Sigma = ia_params->GB_sig/sqrt(1-0.5*Brhi1);
     Koef1 = ia_params->GB_mu/E2;
     Koef2 = Sigma*Sigma*Sigma*0.5;
-    
+   
+// check wether is Brhi1 random number:
+    printf("Brhi1 has this time the value: %f\n", Brhi1);
+
+ 
     X = 1/(dist - Sigma + ia_params->GB_sig);
     Xcut = 1/(ia_params->GB_cut - Sigma + ia_params->GB_sig);
      

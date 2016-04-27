@@ -219,9 +219,9 @@ AUTOHEADER = autoheader
 AUTOMAKE = automake-1.14
 AWK = gawk
 BIBTEX = /usr/bin/bibtex
-BOOST_CPPFLAGS = -I/include/boost-0
-BOOST_LDFLAGS = -L/lib64
-BOOST_UNIT_TEST_FRAMEWORK_LIB = 
+BOOST_CPPFLAGS = -I/usr/include
+BOOST_LDFLAGS = -L/usr/lib/x86_64-linux-gnu
+BOOST_UNIT_TEST_FRAMEWORK_LIB = -lboost_unit_test_framework
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
@@ -232,7 +232,7 @@ CPU_COUNT = 6
 CXX = mpic++
 CXXCPP = mpic++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS =  -std=c++11
+CXXFLAGS = -g -O0 -std=c++11
 CYFLAGS = 
 CYGPATH_W = echo
 CYTHON = /usr/bin/cython

@@ -23,10 +23,10 @@
 #define HAVE_ATEXIT 1
 
 /* define if the Boost library is available */
-/* #undef HAVE_BOOST */
+#define HAVE_BOOST /**/
 
 /* define if the Boost::Unit_Test_Framework library is available */
-/* #undef HAVE_BOOST_UNIT_TEST_FRAMEWORK */
+#define HAVE_BOOST_UNIT_TEST_FRAMEWORK /**/
 
 /* define if the compiler supports basic C++11 syntax */
 #define HAVE_CXX11 1

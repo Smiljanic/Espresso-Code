@@ -26,7 +26,7 @@
 // Virtual particles are placed relative to the position of a real particle
 
 // Obtain the real particle from which a virtual particle derives it's position
-// Note: for now, we use the mol_di property of Particle
+// Note: for now, we use the mol_id property of Particle
 Particle* vs_relative_get_real_particle(Particle* p)
 {
  return local_particles[p->p.vs_relative_to_particle_id];
@@ -48,7 +48,7 @@ void update_mol_pos_particle(Particle *p)
    return;
  }
  
- // Calculate the quaternion defining the orientation of the vecotr connectinhg
+ // Calculate the quaternion defining the orientation of the vector connecting
  // the virtual site and the real particle
  // This is obtained, by multiplying the quaternion representing the director
  // of the real particle with the quaternion of the virtual particle, which 
@@ -75,7 +75,7 @@ void update_mol_pos_particle(Particle *p)
   if (PERIODIC(i)) 
   {
     tmp =p->r.p[i] -new_pos[i];
-    //printf("%f\n",tmp);
+    printf("%f\n",tmp);
     if (tmp > box_l[i]/2.) {
      //printf("greater than box_l/2 %f\n",tmp);
      p->r.p[i] =new_pos[i] + box_l[i];
@@ -107,7 +107,7 @@ void update_mol_vel_particle(Particle *p)
    return;
  }
  
- // Calculate the quaternion defining the orientation of the vecotr connectinhg
+ // Calculate the quaternion defining the orientation of the vector connecting
  // the virtual site and the real particle
  // This is obtained, by multiplying the quaternion representing the director
  // of the real particle with the quaternion of the virtual particle, which 
@@ -192,7 +192,7 @@ void distribute_mol_force()
 // Setup the virtual_sites_relative properties of a particle so that the given virtaul particle will follow the given real particle
 int vs_relate_to(int part_num, int relate_to)
 {
-    // Get the data for the particle we act on and the one we wnat to relate
+    // Get the data for the particle we act on and the one we want to relate
     // it to.
     Particle  p_current,p_relate_to;
     if ((get_particle_data(relate_to,&p_relate_to)!=ES_OK) || 
@@ -203,7 +203,7 @@ int vs_relate_to(int part_num, int relate_to)
       return ES_ERROR;
     }
     
-    // get teh distance between the particles
+    // get the distance between the particles
     double d[3];
     get_mi_vector(d, p_current.r.p,p_relate_to.r.p);
     
@@ -223,7 +223,7 @@ int vs_relate_to(int part_num, int relate_to)
     // the director of the particel we relate to and the vector
     // (paritlce_we_relate_to - this_particle)
     double quat[4];
-    // The vs_relative implemnation later obtains the direcotr by multiplying
+    // The vs_relative implemention later obtains the direcotr by multiplying
     // the quaternions representing the orientation of the real particle
     // with those in the virtual particle. The re quulting quaternion is then
     // converted to a director.

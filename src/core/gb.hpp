@@ -124,8 +124,8 @@ inline void add_gb_pair_force(const Particle * const p1, const Particle * const 
     Koef2 = Sigma*Sigma*Sigma*0.5;
    
 // check wether is Brhi1 random number:
-    printf("Brhi1 has this time the value: %f\n", Brhi1);
-
+//    printf("Brhi1 has this time the value: %f\n", Brhi1);
+//It is not a random number!!!
  
     X = 1/(dist - Sigma + ia_params->GB_sig);
     Xcut = 1/(ia_params->GB_cut - Sigma + ia_params->GB_sig);

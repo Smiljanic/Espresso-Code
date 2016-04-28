@@ -77,11 +77,11 @@ void update_mol_pos_particle(Particle *p)
     tmp =p->r.p[i] -new_pos[i];
     printf("%f\n",tmp);
     if (tmp > box_l[i]/2.) {
-     //printf("greater than box_l/2 %f\n",tmp);
+     printf("greater than box_l/2 %f\n",tmp);
      p->r.p[i] =new_pos[i] + box_l[i];
     }
     else if (tmp < -box_l[i]/2.) {
-     //printf("smaller than box_l/2 %f\n",tmp);
+     printf("smaller than box_l/2 %f\n",tmp);
      p->r.p[i] =new_pos[i] - box_l[i];
     }
     else p->r.p[i] =new_pos[i];
@@ -209,12 +209,12 @@ int vs_relate_to(int part_num, int relate_to)
     
     
     
-    // Check, if the distance between virtual and non-virtual particles is larger htan minimum global cutoff
+    // Check, if the distance between virtual and non-virtual particles is larger than minimum global cutoff
     // If so, warn user
     double l=sqrt(sqrlen(d));
     if (l>min_global_cut) {
         ostringstream msg;
-        msg << "Warning: The distance between virtual and non-virtual particle (" << l << ") is\nlarger than the minimum global cutoff (" << min_global_cut << "). This may lead to incorrect simulations\nunder certain conditions. Use \"setmd min_global_cut\" to increase the minimum cutoff.\n";
+        msg << "Warning: The distance between virtual ("<< *p_current.r.p<<") and non-virtual ("<<*p_relate_to.r.p<<") particle (" << l << ") is\nlarger than the minimum global cutoff (" << min_global_cut << "). This may lead to incorrect simulations\nunder certain conditions. Use \"setmd min_global_cut\" to increase the minimum cutoff.\n";
         runtimeWarning(msg);
       return ES_ERROR;
     }
@@ -223,7 +223,7 @@ int vs_relate_to(int part_num, int relate_to)
     // the director of the particel we relate to and the vector
     // (paritlce_we_relate_to - this_particle)
     double quat[4];
-    // The vs_relative implemention later obtains the direcotr by multiplying
+    // The vs_relative implemention later obtains the director by multiplying
     // the quaternions representing the orientation of the real particle
     // with those in the virtual particle. The re quulting quaternion is then
     // converted to a director.

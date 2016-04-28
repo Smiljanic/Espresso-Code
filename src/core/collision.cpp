@@ -182,7 +182,8 @@ void queue_collision(int part1,int part2, double* point_of_collision) {
     memcpy(point_of_collision,collision_queue[number_of_collisions-1].point_of_collision, 3*sizeof(double));
     
     //TRACE(printf("%d: Added to queue: Particles %d and %d at %lf %lf %lf\n",this_node,part1,part2,point_of_collision[0],point_of_collision[1],point_of_collision[2]));
-    printf("%d: Added to queue: Particles %d and %d at %lf %lf %lf\n",this_node,part1,part2,point_of_collision[0],point_of_collision[1],point_of_collision[2]);
+    printf("%d: Added to queue: Particles %d and %d at %f %f %f\n",this_node,part1,part2,&point_of_collision[0],&point_of_collision[1],&point_of_collision[2]);
+    //printf("%d: Added to queue: Particles %d and %d at %lf %lf %lf\n",this_node,part1,part2,&point_of_collision[0],&point_of_collision[1],&point_of_collision[2]);
 }
 
 
@@ -442,10 +443,11 @@ void place_vs_and_relate_to_particle(double* pos, int relate_to)
 {
  
 	  place_particle(max_seen_particle+1,pos);
-          printf("Max seen particle is %d\n",max_seen_particle);	  
-          printf("New inserted particle is at the position %f %f %f \n",pos);	  
+          //printf("Max seen particle is %d\n",max_seen_particle);	  
+          
+          //printf("New inserted particle is at the position %d %d %d \n", *pos);	  
 	  vs_relate_to(max_seen_particle,relate_to);
-          printf("... and it is related to %d\n",relate_to);	  
+          printf("New max seen particle is %d and it is related to %d\n",max_seen_particle, relate_to);	  
           
 	  (local_particles[max_seen_particle])->p.isVirtual=1;
 	  #ifdef ROTATION_PER_PARTICLE
@@ -547,8 +549,8 @@ void triangle_binding (Particle* p1, Particle* p2, double (&corners)[3][3])
 //TRACE(printf("corners are %f %f %f %f %f %f %f %f %f\n",corner_1[0],corner_1[1],corner_1[2],corner_2[0],corner_2[1],corner_2[2],corner_3[0],corner_3[1],corner_3[2]));
     for (int p=0; p<3; p++){
       for (int q=0; q<3; q++){
-        //printf("corners[p][q]= %f %f %f\n", (&corners)[p][q]), p, q; 
-        printf("corners[p][q]= %f \n", (&corners)[p][q]); 
+        printf("corners[%d][%d]= %f \n",p,q, (corners)[p][q]); 
+        //printf("corners[%d][%d]= %f \n",p,q, (&corners)[p][q]); 
       };
     };
 
@@ -805,7 +807,7 @@ void handle_collisions ()
           }          
       
           //printf("Particle inserted at %f %f %f and related to %d and %d\n", first_corner[0], first_corner[1],first_corner[2], p1->p.identity, p2->p.identity);    
-          //printf("!!! number of collisions %d\n", number_of_collisions);
+          printf("!!! number of collisions %d\n", number_of_collisions);
          // printf("First corner is %d %d %d and particle %d\n", first_corner[0],first_corner[1],first_corner[2], p1->p.identity);
           //place_vs_and_relate_to_particle(first_corner, max_seen_particle);
           place_vs_and_relate_to_particle(first_corner,p1->p.identity);
@@ -820,22 +822,23 @@ void handle_collisions ()
 
             
           place_vs_and_relate_to_particle(second_corner,p1->p.identity);
-          //printf("p1->p.identity %d\n", p1->p.identity+1);
+          printf("p1->p.identity %d\n", p1->p.identity);
           place_vs_and_relate_to_particle(second_corner,p2->p.identity);
-          //printf("p2->p.identity %d\n", p2->p.identity+1);
+          printf("p2->p.identity %d\n", p2->p.identity);
           bind_at_poc_create_bond_between_vs(i);
 
           //printf("Third corner is %d %d %d and particle %d\n", third_corner[0],third_corner[1],third_corner[2], p1->p.identity);
           place_vs_and_relate_to_particle(third_corner,p1->p.identity);
-          //printf("p1->p.identity %d\n", p1->p.identity+2);
+          printf("p1->p.identity %d\n", p1->p.identity);
           place_vs_and_relate_to_particle(third_corner,p2->p.identity);
-          //printf("p2->p.identity %d\n", p2->p.identity+2);
+          printf("p2->p.identity %d\n", p2->p.identity);
           bind_at_poc_create_bond_between_vs(i);
           printf("DONE with place_vs_and_relate_to_particle\n");    
 //printf("Particle from handle collisions inserted at %f %f %f and related to %d and %d\n", first_corner[0], first_corner[1],first_corner[2], p1->p.identity, p2->p.identity);    
         
-                    
+          printf("Siest du mein Gesicht?");          
         }
+
        } // Loop over all collisions in the queue
      } // are we in one of the vs_based methods
 

@@ -152,7 +152,7 @@
 #define PACKAGE_NAME "ESPResSo"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "ESPResSo 3.4-dev-1521-g09ec05f"
+#define PACKAGE_STRING "ESPResSo "
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "espresso"
@@ -161,7 +161,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "3.4-dev-1521-g09ec05f"
+#define PACKAGE_VERSION ""
 
 /* Whether Python is available */
 #define PYTHON_DEV /**/
@@ -185,7 +185,7 @@
 /* #undef TK */
 
 /* Version number of package */
-#define VERSION "3.4-dev-1521-g09ec05f"
+#define VERSION ""
 
 /* Define to 1 if the X Window System is missing or not being used. */
 /* #undef X_DISPLAY_MISSING */

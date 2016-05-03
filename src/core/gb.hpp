@@ -71,25 +71,32 @@ inline void add_gb_pair_force(const Particle * const p1, const Particle * const 
  orient_2[1]=p2->r.quatu[1];
  orient_2[2]=p2->r.quatu[2];
 
-//double myvector;
-//myvector=calculate_vector(p1->p.r, p2->p.r);
-//printf("The connecting vector is %f %f %f\n", myvector); 
-//create rotation matrix 
+ /*
+ printf("Milena: particle orientation 1 is: %f \n", orient_1[0]);
+ printf("Milena: particle orientation 1 is: %f \n", orient_1[1]);
+ printf("Milena: particle orientation 1 is: %f \n", orient_1[2]);
+ */
 
-// evaluate mutual position
+
+//evaluate mutual position
  double pos_1[3], pos_2[3];
  pos_1[0]=p1->r.p[0];
  pos_1[1]=p1->r.p[1];
  pos_1[2]=p1->r.p[2];
  
- pos_1[0]=p2->r.p[0];
- pos_1[1]=p2->r.p[1];
- pos_1[2]=p2->r.p[2];
+ pos_2[0]=p2->r.p[0];
+ pos_2[1]=p2->r.p[1];
+ pos_2[2]=p2->r.p[2];
+ 
+ printf("Particle positions 1 is: %f \n", pos_1[0]);
+ printf("Particle positions 1 is: %f \n", pos_1[1]);
+ printf("Particle positions 1 is: %f \n", pos_1[2]);
 
+ double myvector[3];
+ calculate_vector(myvector, pos_2, pos_1);
+ printf("The connecting vector is %f %f %f\n", myvector); 
 
-
-
-
+//create rotation matrix 
   double a,b,c, X, Xcut,
     Brack,BrackCut,
     Bra12,Bra12Cut,
@@ -124,8 +131,8 @@ inline void add_gb_pair_force(const Particle * const p1, const Particle * const 
     Koef2 = Sigma*Sigma*Sigma*0.5;
    
 // check wether is Brhi1 random number:
-//    printf("Brhi1 has this time the value: %f\n", Brhi1);
-//It is not a random number!!!
+// printf("Brhi1 has this time the value: %f\n", Brhi1);
+// It is not a random number!!!
  
     X = 1/(dist - Sigma + ia_params->GB_sig);
     Xcut = 1/(ia_params->GB_cut - Sigma + ia_params->GB_sig);

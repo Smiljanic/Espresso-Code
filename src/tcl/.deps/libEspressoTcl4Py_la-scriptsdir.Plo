@@ -1,4 +1,0 @@
-libEspressoTcl4Py_la-scriptsdir.lo: scriptsdir.cpp \
- /usr/include/stdc-predef.h
-
-/usr/include/stdc-predef.h:

@@ -1,6 +1,0 @@
-RunningAverage.lo: RunningAverage.cpp /usr/include/stdc-predef.h \
- RunningAverage.hpp
-
-/usr/include/stdc-predef.h:
-
-RunningAverage.hpp:

@@ -88,13 +88,13 @@ inline void add_gb_pair_force(const Particle * const p1, const Particle * const 
  pos_2[1]=p2->r.p[1];
  pos_2[2]=p2->r.p[2];
  
- printf("Particle positions 1 is: %f \n", pos_1[0]);
- printf("Particle positions 1 is: %f \n", pos_1[1]);
- printf("Particle positions 1 is: %f \n", pos_1[2]);
+ //printf("Particle positions 1 is: %f \n", pos_1[0]);
+ //printf("Particle positions 1 is: %f \n", pos_1[1]);
+ //printf("Particle positions 1 is: %f \n", pos_1[2]);
 
  double myvector[3];
  calculate_vector(myvector, pos_2, pos_1);
- printf("The connecting vector is %f %f %f\n", myvector); 
+ //printf("The connecting vector is %f %f %f\n", myvector); 
 
 //create rotation matrix 
   double a,b,c, X, Xcut,

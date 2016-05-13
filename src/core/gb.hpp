@@ -43,20 +43,48 @@ int gay_berne_set_params(int part_type_a, int part_type_b,
 			 double mu, double nu);
 
 
-//double connecting_vector[3];
-//void inline calculate_vector(double *vector, double *a, double *b)
-//{
-//  vector[0]=b[0]-a[0];
-//  vector[1]=b[1]-a[1];
-//  vector[2]=b[2]-a[2];
-//  return;
-//}
+inline double matrix_product(double a[3][3], double b[3][3], double product[3][3])
+{  
+  for (int i=0;i<3;i++){
+    for (int j=0;j<3;j++){
+       product[i][j]=a[i][j]*b[i][j];
+    }
+  } 
+}
 
-//particle orientation/quat is taken with the particle
+
+/**calculate the inverse of matrix  */
+inline double matrix_3x3_inverse(double matrix[3][3], double inverse[3][3])
+{
+   double a11=matrix[0][0];  
+   double a12=matrix[0][1];  
+   double a13=matrix[0][2];
+   double a21=matrix[1][0];  
+   double a22=matrix[1][1];  
+   double a23=matrix[1][2];
+   double a31=matrix[2][0];  
+   double a32=matrix[2][1];  
+   double a33=matrix[2][2];
+  
+   double determinant=a11*a22*a33 + a12*a23*a31 + a13*a21*a32 - a31*a22*a13 - a32*a23*a11 - a33*a21*a12;
+   if (!(determinant==0)) 
+     determinant=1/determinant;
+
+   inverse[0][0]=determinant*a22*a33-a32*a23;
+   inverse[0][1]=determinant*a13*a32-a33*a12;
+   inverse[0][2]=determinant*a12*a23-a22*a13;
+   inverse[1][0]=determinant*a23*a31-a33*a21; 
+   inverse[1][1]=determinant*a11*a32-a33*a12;
+   inverse[1][2]=determinant*a13*a21-a23*a11;
+   inverse[2][0]=determinant*a21*a32-a31*a22;
+   inverse[2][1]=determinant*a12*a31-a32*a11;
+   inverse[2][2]=determinant*a11*a22-a12*a21;
+}
+
+
 inline void add_gb_pair_force(const Particle * const p1, const Particle * const p2, IA_parameters *ia_params,
 				double d[3], double dist, double force[3], 
                               double torque1[3], double torque2[3])
-
 {  
   if (!CUTOFF_CHECK(dist < ia_params->GB_cut))   
     return;
@@ -105,9 +133,7 @@ inline void add_gb_pair_force(const Particle * const p1, const Particle * const 
    }
  }
 
-//orientation matrices a_hat, b_hat
-
-
+// orientation matrices a_hat, b_hat
 // double a_hat[3][3], b_hat[3][3];
  double a_hat[3][3]={{0,0,0},{0,0,0},{0,0,0}};
  double b_hat[3][3]={{0,0,0},{0,0,0},{0,0,0}};
@@ -122,23 +148,43 @@ inline void add_gb_pair_force(const Particle * const p1, const Particle * const 
 
 //shape matrix S1, S2
 double S1[3][3]={{sig1,0,0},{0,sig2,0},{0,0,sig3}};
+double S2[3][3]={{sig1,0,0},{0,sig2,0},{0,0,sig3}};
+double a_hat_inverse[3][3];
+double b_hat_inverse[3][3];
 
-//A, B
- 
+matrix_3x3_inverse(a_hat, a_hat_inverse);
+matrix_3x3_inverse(b_hat, b_hat_inverse);
 
+double A[3][3], B[3][3], A_1[3][3], B_1[3][3], A_SS[3][3], B_SS[3][3];
+matrix_product(S1,S1,A_SS);
+matrix_product(S2,S2,B_SS);
+matrix_product(a_hat_inverse,A_SS,A_1);
+matrix_product(b_hat_inverse,B_SS,B_1);
+matrix_product(A_1,a_hat,A);
+matrix_product(B_1,b_hat,B);
 
- 
-// a_hat=scalar(orient_1, I);    check utils.hpp --> scalar(a[3][3],b[3][3])
-// b_hat=scalar(orient_2, I); 
+double H[3][3];
+for (int i=0;i<3;i++){
+  for (int j=0;j<3;j++){
+    H[i][j]=A[i][j]+B[i][j];
+  }
+}
+   
+double sig;
+double umanjilac[3];
+for (int i=0;i<3;i++){
+  umanjilac[i]=r_vector[i]/r_moduo;
+} 
 
+//double uprim[3]={{umanjilac[0]},{umanjilac[1]},{umanjilac[2]}};
+//double left[3]=SQR(2/umanjilac);
+//inv(matrix) in matlab is transpose(matrix) here
+//check utils.hpp --> scalar(a[3][3],b[3][3])
 // double qu=(r_moduo-sigma+sigma_min)/sigma_min;
 // double dU_dfi = 24*ia_params->GB_eps;
 
-//for (int i = 0; i<3; i++)
-//   for (int j = 0; j<3; j++)
-//     result[j][i] = matrix[i][j];
-
 }
+
 
 inline double gb_pair_energy(Particle *p1, Particle *p2, IA_parameters *ia_params,
 			       double d[3], double dist)

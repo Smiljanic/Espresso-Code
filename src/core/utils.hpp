@@ -559,7 +559,7 @@ inline int calc_eigenvalues_3x3(double *q,  double *eva) {
 
 /** Calc eigevectors of a 3x3 matrix stored in a as a 9x1 array*/
 /** Given an eigenvalue (eva) returns the corresponding eigenvector (eve)*/
-inline int calc_eigenvector_3x3(double *a,double eva,double *eve) {
+inline int calc_eigenvector_3x3(double *a, double eva, double *eve) {
   int i,j,ind1,ind2,ind3,row1,row2;
   double A_x1[3][3],coeff1,coeff2,norm;
 
@@ -1100,10 +1100,6 @@ void cross_product(T const * const a, T const * const b, T * const c) {
   c[1] = a[2]*b[0] - a[0]*b[2];
   c[2] = a[0]*b[1] - a[1]*b[0];
 }
-
-//
-// dot_product: Calculate the dot product of two vectors
-//
 
 template<typename T>
 double dot_product(const std::vector<T> &a, const std::vector<T> &b) throw() {

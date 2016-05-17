@@ -179,10 +179,10 @@ void queue_collision(int part1,int part2, double* point_of_collision) {
     collision_queue[number_of_collisions-1].pp2 = part2;
     // The C library function void *memcpy(void *str1, const void *str2, size_t n) copies n characters from memory area str2 to memory area str1.
     // the structure: void memcpy(destination, source, size_t)
-    memcpy(point_of_collision,collision_queue[number_of_collisions-1].point_of_collision, 3*sizeof(double));
+    memcpy(collision_queue[number_of_collisions-1].point_of_collision,point_of_collision, 3*sizeof(double));
     
     //TRACE(printf("%d: Added to queue: Particles %d and %d at %lf %lf %lf\n",this_node,part1,part2,point_of_collision[0],point_of_collision[1],point_of_collision[2]));
-    printf("%d: Added to queue: Particles %d and %d collided at %f %f %f\n",this_node,part1,part2,&point_of_collision[0],&point_of_collision[1],&point_of_collision[2]);
+    //printf("%d: Added to queue: Particles %d and %d collided at %f %f %f\n",this_node,part1,part2,&point_of_collision[0],&point_of_collision[1],&point_of_collision[2]);
     //printf("%d: Added to queue: Particles %d and %d at %lf %lf %lf\n",this_node,part1,part2,&point_of_collision[0],&point_of_collision[1],&point_of_collision[2]);
 }
 
@@ -493,42 +493,30 @@ inline void get_mi_random_vector(double *perpendicular_vector, double *given_vec
  double z_rand          = d_random()*2-1;
  double alfa_rand       = d_random()*M_PI;
  double random_point[3] = {sqrt(1-z_rand*z_rand)*cos(alfa_rand),sqrt(1-z_rand*z_rand)*sin(alfa_rand),z_rand};
-
  vector_product(given_vector, random_point, perpendicular_vector);
-// printf("get_mi_vector: Connecting vector between particles %f %f %f\n", given_vector[0], given_vector[1], given_vector[2] );
-// printf("get_mi_random_vector: Perpendicular vector %f %f %f\n", perpendicular_vector[0], perpendicular_vector[1], perpendicular_vector[2] );
  return;
 }
 
 /** the function calling get_mi_random_vector and calculating the three corners where virtual particles should be inserted */
 void triangle_binding (Particle* p1, Particle* p2, double (&corners)[3][3]) 
 {
-  printf("position of the particle 1 %f %f %f\n", p1->r.p[0], p1->r.p[1], p1->r.p[2]);
-  printf("position of the particle 2 %f %f %f\n", p2->r.p[0], p2->r.p[1], p2->r.p[2]);
-  
   double connecting_vector[3];
   get_mi_vector(connecting_vector, p1->r.p, p2->r.p);
   
-  double actual_point_of_collision[3];
-//the memcpy arguments are: destination, source/origin, size   
-  memcpy(actual_point_of_collision, collision_queue[number_of_collisions-1].point_of_collision, 3*sizeof(double)); 
   double c_m[3]; //middle point at the connecting_vector
   for (int i=0;i<3;i++)
     c_m[i] = p1->r.p[i]+0.5*connecting_vector[i]; 
-
   
   double orthogonal_vector[3];
   get_mi_random_vector(orthogonal_vector, connecting_vector, c_m);
   
   double abs_director1=sqrlen(orthogonal_vector);
   if (!(abs_director1==0.0) or !((scalar(connecting_vector,orthogonal_vector)<=0.001) and (scalar(connecting_vector,orthogonal_vector)>=-0.001))) {
-  //if (3>2) {
-    
     double director1[3],director2[3],director3[3];
     // normalize vector
-    for (int i=0; i<3; i++) {
+    for (int i=0; i<3; i++) { 
       director1[i]=orthogonal_vector[i]*.5/abs_director1;
-    };
+	    };
  //   printf("the normalized random vector is %f %f %f\n",director1);
     double abs_director_2, abs_director_3;
     // get additional two vectors: director2 and director3 from rotation of director1 for 120 and 240 deg
@@ -545,21 +533,74 @@ void triangle_binding (Particle* p1, Particle* p2, double (&corners)[3][3])
        corners[0][a]=corner_1[a];
        corners[1][a]=corner_2[a];
        corners[2][a]=corner_3[a];
-    };  
-//TRACE(printf("corners are %f %f %f %f %f %f %f %f %f\n",corner_1[0],corner_1[1],corner_1[2],corner_2[0],corner_2[1],corner_2[2],corner_3[0],corner_3[1],corner_3[2]));
-/*
-    for (int p=0; p<3; p++){
-      for (int q=0; q<3; q++){
-        printf("corners[%d][%d]= %f \n",p,q, (corners)[p][q]); 
-      };
-    };
-*/
- 
-printf("TRIANGLE_BINDING corners are %f %f %f %f %f %f %f %f %f\n",corner_1[0],corner_1[1],corner_1[2],corner_2[0],corner_2[1],corner_2[2],corner_3[0],corner_3[1],corner_3[2]); 
+    }; 
+//printf("TRIANGLE_BINDING corners are %f %f %f %f %f %f %f %f %f\n",corner_1[0],corner_1[1],corner_1[2],corner_2[0],corner_2[1],corner_2[2],corner_3[0],corner_3[1],corner_3[2]); 
     };
  return;  
 }
+/***** */
 
+void ellipsoid_collision(int i) 
+{
+    Particle* p1 = local_particles[collision_queue[i].pp1];
+    Particle* p2 = local_particles[collision_queue[i].pp2];
+    //array definition, calculated from triangle_binding function  
+    double (three_corners[3][3]);
+    triangle_binding (p1, p2, (three_corners));
+    double first_corner[3], second_corner[3], third_corner[3];
+    for (int a=0; a<3; a++){
+      first_corner[a]  = three_corners[a][0];  
+      second_corner[a] = three_corners[a][1];  
+      third_corner[a]  = three_corners[a][2];  
+    }          
+ 
+    printf("Particle should be inserted at %f %f %f and related to %d and %d\n", first_corner[0], first_corner[1],first_corner[2], p1->p.identity, p2->p.identity);    
+    printf("Particle should be inserted at %f %f %f and related to %d and %d\n", second_corner[0], second_corner[1],second_corner[2], p1->p.identity, p2->p.identity);    
+    printf("Particle should be inserted at %f %f %f and related to %d and %d\n", third_corner[0], third_corner[1],third_corner[2], p1->p.identity, p2->p.identity);    
+    printf("!!! Current number of collisions %d\n", number_of_collisions);
+    printf("First corner is %f %f %f\n", first_corner[0],first_corner[1],first_corner[2]);
+          place_vs_and_relate_to_particle(first_corner,p1->p.identity);
+    printf("p1->p.identity %d\n", p1->p.identity);
+          place_vs_and_relate_to_particle(first_corner,p2->p.identity);
+    printf("p2->p.identity %d\n", p2->p.identity);
+          //bind_at_poc_create_bond_between_vs(i);
+          int bondTriangleFirstCorner[3];      
+          bondTriangleFirstCorner[0] = 3;
+          bondTriangleFirstCorner[1] = max_seen_particle-1;
+          //local_change_bond(max_seen_particle,   bondTriangleFirstCorner, 0);
+          local_change_bond(collision_queue[i].pp1,   bondTriangleFirstCorner, 0);
+           
+    printf("MAX SEEN PARTICLES %d\n", max_seen_particle);
+    printf("collision_que.pp1 is %d\n", collision_queue[i].pp1);
+    printf("Second corner is %f %f %f\n", second_corner[0],second_corner[1],second_corner[2]);
+          place_vs_and_relate_to_particle(second_corner,p1->p.identity);
+    printf("p1->p.identity %d\n", p1->p.identity);
+          place_vs_and_relate_to_particle(second_corner,p2->p.identity);
+    printf("p2->p.identity %d\n", p2->p.identity);
+          //bind_at_poc_create_bond_between_vs(i);
+          int bondTriangleSecondCorner[3];      
+          bondTriangleSecondCorner[0] = 3;
+          bondTriangleSecondCorner[1] = max_seen_particle-2;
+          //local_change_bond(max_seen_particle,   bondTriangleSecondCorner, 0);
+          local_change_bond(collision_queue[i].pp1,   bondTriangleSecondCorner, 0);
+
+          printf("Third corner is %f %f %f\n", third_corner[0], third_corner[1], third_corner[2]);
+          place_vs_and_relate_to_particle(third_corner,p1->p.identity);
+          printf("p1->p.identity %d\n", p1->p.identity);
+          place_vs_and_relate_to_particle(third_corner,p2->p.identity);
+          printf("p2->p.identity %d\n", p2->p.identity);
+          //bind_at_poc_create_bond_between_vs(i);
+          int bondTriangleThirdCorner[3];      
+          bondTriangleThirdCorner[0] = 3;
+          bondTriangleThirdCorner[1] = max_seen_particle-1;
+          //local_change_bond(max_seen_particle,   bondTriangleThirdCorner, 0);
+          local_change_bond(collision_queue[i].pp1,   bondTriangleThirdCorner, 0);
+          printf("DONE with place_vs_and_relate_to_particle\n");    
+          //printf("Particle from handle collisions inserted at %f %f %f and related to %d and %d\n", first_corner[0], first_corner[1],first_corner[2], p1->p.identity, p2->p.identity);    
+}
+
+
+/**** */
 void glue_to_surface_bind_vs_to_pp1(int i)
 {
 	 int bondG[3];
@@ -749,26 +790,6 @@ void three_particle_binding_domain_decomposition()
 }
 
 
-// Recognize bonded particles as aggregate
-
-// 1) iterate over collision_queue 
-// 2) create struct aggregate to which particles are assigned and define new aggregate id: save relative positions of all particles surrounding the COM 
-// 3) remove single particles when replacing them with agglomerates
-//void identify_agglomerate (arguments) {to do} 
-    
-// memcpy(agglomerate_list, collision_queue[number_of_collisions-1], 3*sizeof(double));
-
-// calculate characteristics of agglomerates: COM, Rg, Df
-
-/*
-void calculate_com_of_aggregate (arguments) {to do}
-
-void calculate_radius_of_gyration (arguments) {to do}
-
-void calculate_fractal_dimension_of_agglomerate (arguments) {to do}
-*/
-
-
 // Handle the collisions stored in the queue
 void handle_collisions ()
 {
@@ -784,12 +805,12 @@ void handle_collisions ()
     {
     for (int i=0;i<number_of_collisions;i++) {
 	// Create virtual site(s) 
+        
+        if (collision_params.mode & COLLISION_MODE_TRIANGLE_BINDING)
+        {
+          ellipsoid_collision(i); 
+        } 
 
-//try to see how many particles there actually is:
-        printf("number of collisions: %d\n", number_of_collisions);
-
-	
-	// If we are in the two vs mode
 	// Virtual site related to first particle in the collision
 	if (collision_params.mode & COLLISION_MODE_VS)
 	{
@@ -809,8 +830,8 @@ void handle_collisions ()
 	{
            glue_to_surface_bind_vs_to_pp1(i);
         }
-      
-        // If we are in the "triangle_binding mode", we need to insert additional 3 pairs of particles
+  /*    
+        // If we are in the "triangle_binding mode", we need to insert additional 2 pairs of particles
         if (collision_params.mode & COLLISION_MODE_TRIANGLE_BINDING) 
         {
           //rethrieve particle positions from local ones which are stored in the collision_queue
@@ -825,11 +846,11 @@ void handle_collisions ()
             second_corner[a] = three_corners[a][1];  
             third_corner[a]  = three_corners[a][2];  
           }          
-/* 
-          printf("Particle inserted at %f %f %f and related to %d and %d\n", first_corner[0], first_corner[1],first_corner[2], p1->p.identity, p2->p.identity);    
-          printf("Particle inserted at %f %f %f and related to %d and %d\n", second_corner[0], second_corner[1],second_corner[2], p1->p.identity, p2->p.identity);    
-          printf("Particle inserted at %f %f %f and related to %d and %d\n", third_corner[0], third_corner[1],third_corner[2], p1->p.identity, p2->p.identity);    
-*/  
+ 
+          printf("Particle should be inserted at %f %f %f and related to %d and %d\n", first_corner[0], first_corner[1],first_corner[2], p1->p.identity, p2->p.identity);    
+          printf("Particle should be inserted at %f %f %f and related to %d and %d\n", second_corner[0], second_corner[1],second_corner[2], p1->p.identity, p2->p.identity);    
+          printf("Particle should be inserted at %f %f %f and related to %d and %d\n", third_corner[0], third_corner[1],third_corner[2], p1->p.identity, p2->p.identity);    
+  
           printf("!!! Current number of collisions %d\n", number_of_collisions);
           
           printf("First corner is %f %f %f\n", first_corner[0],first_corner[1],first_corner[2]);
@@ -837,41 +858,45 @@ void handle_collisions ()
           printf("p1->p.identity %d\n", p1->p.identity);
           place_vs_and_relate_to_particle(first_corner,p2->p.identity);
           printf("p2->p.identity %d\n", p2->p.identity);
-          bind_at_poc_create_bond_between_vs(i);
-          int bondTriangle[3];      
-          bondTriangle[0] = 3;
-          bondTriangle[1] = max_seen_particle-1;
-          local_change_bond(max_seen_particle,   bondTriangle, 0);
-
+          //bind_at_poc_create_bond_between_vs(i);
+          int bondTriangleFirstCorner[3];      
+          bondTriangleFirstCorner[0] = 3;
+          bondTriangleFirstCorner[1] = max_seen_particle-1;
+          //local_change_bond(max_seen_particle,   bondTriangleFirstCorner, 0);
+          local_change_bond(collision_queue[i].pp1,   bondTriangleFirstCorner, 0);
+           
+          printf("MAX SEEN PARTICLES %d\n", max_seen_particle);
+          printf("collision_que.pp1 is %d\n", collision_queue[i].pp1);
+  
           printf("Second corner is %f %f %f\n", second_corner[0],second_corner[1],second_corner[2]);
-
-            
           place_vs_and_relate_to_particle(second_corner,p1->p.identity);
           printf("p1->p.identity %d\n", p1->p.identity);
           place_vs_and_relate_to_particle(second_corner,p2->p.identity);
           printf("p2->p.identity %d\n", p2->p.identity);
-          bind_at_poc_create_bond_between_vs(i);
-        
-          //int bondTriangle[3];      
-          bondTriangle[0] = 3;
-          bondTriangle[1] = max_seen_particle-1;
-          local_change_bond(max_seen_particle,   bondTriangle, 0);
+          //bind_at_poc_create_bond_between_vs(i);
+          int bondTriangleSecondCorner[3];      
+          bondTriangleSecondCorner[0] = 3;
+          bondTriangleSecondCorner[1] = max_seen_particle-2;
+          //local_change_bond(max_seen_particle,   bondTriangleSecondCorner, 0);
+          local_change_bond(collision_queue[i].pp1,   bondTriangleSecondCorner, 0);
 
           printf("Third corner is %f %f %f\n", third_corner[0], third_corner[1], third_corner[2]);
           place_vs_and_relate_to_particle(third_corner,p1->p.identity);
           printf("p1->p.identity %d\n", p1->p.identity);
           place_vs_and_relate_to_particle(third_corner,p2->p.identity);
           printf("p2->p.identity %d\n", p2->p.identity);
-          bind_at_poc_create_bond_between_vs(i);
+          //bind_at_poc_create_bond_between_vs(i);
+          int bondTriangleThirdCorner[3];      
+          bondTriangleThirdCorner[0] = 3;
+          bondTriangleThirdCorner[1] = max_seen_particle-1;
+          //local_change_bond(max_seen_particle,   bondTriangleThirdCorner, 0);
+          local_change_bond(collision_queue[i].pp1,   bondTriangleThirdCorner, 0);
           printf("DONE with place_vs_and_relate_to_particle\n");    
-
-          //int bondTriangle[3];      
-          bondTriangle[0] = 3;
-          bondTriangle[1] = max_seen_particle-1;
-          local_change_bond(max_seen_particle,   bondTriangle, 0);
-
+ 
           //printf("Particle from handle collisions inserted at %f %f %f and related to %d and %d\n", first_corner[0], first_corner[1],first_corner[2], p1->p.identity, p2->p.identity);    
         }
+
+*/
        //return;
        } // Loop over all collisions in the queue
      } // are we in one of the vs_based methods

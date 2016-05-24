@@ -543,7 +543,7 @@ void triangle_binding (Particle* p1, Particle* p2) {
      // corner_2[b]=1.;
      // corner_3[b]=2;
 
-      printf("corners are %f %f %f\n",corner_1[b],corner_2[b],corner_3[b]); 
+printf("corners are %f %f %f %f %f %f %f %f %f\n",corner_1[0],corner_1[1],corner_1[1],corner_2[1],corner_2[1],corner_2[2],corner_3[0],corner_3[1],corner_3[2]); 
     }; 
 //TRACE(printf("corners are %f %f %f %f %f %f %f %f %f\n",corner_1[0],corner_1[1],corner_1[2],corner_2[0],corner_2[1],corner_2[2],corner_3[0],corner_3[1],corner_3[2])); 
 printf("after loop::: corners are %f %f %f %f %f %f %f %f %f\n",corner_1[0],corner_1[1],corner_1[2],corner_2[0],corner_2[1],corner_2[2],corner_3[0],corner_3[1],corner_3[2]); 

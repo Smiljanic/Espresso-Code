@@ -25,7 +25,7 @@ setmd box_l 50 50 50
 setmd time_step 0.01
 thermostat langevin 1 1 
 
-set nx 10 
+set nx 2 
 set nz 0 
 
 set aspect 1.5
@@ -35,7 +35,7 @@ set sigma3 1.5
 set epsilon1 1
 set epsilon2 1
 set epsilon3 1 
-set steps 10
+set steps 1000
 
 # Location of the lj minimum 
 set lj_fac [expr pow(2,1./6.)]

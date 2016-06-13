@@ -450,8 +450,9 @@ void place_vs_and_relate_to_particle(double* pos, int relate_to)
           
           printf("New inserted particle is %d at the position %f %f %f \n",max_seen_particle, pos[0], pos[1], pos[2]);	  
 	  vs_relate_to(max_seen_particle,relate_to);
-          printf("Particle %d is inserted at %f %f %f and it is related to %d\n",max_seen_particle, pos[0], pos[1], pos[2], relate_to);	  
-          
+//          printf("Particle %d is inserted at %f %f %f and it is related to %d\n",max_seen_particle, pos[0], pos[1], pos[2], relate_to);	  
+          printf("New inserted particle is related to %d\n", relate_to);	  
+                    
 	  (local_particles[max_seen_particle])->p.isVirtual=1;
 	  #ifdef ROTATION_PER_PARTICLE
 	    (local_particles[relate_to])->p.rotation=14;
@@ -552,7 +553,7 @@ void ellipsoid_collision(int i)
     Particle* p1 = local_particles[collision_queue[i].pp1];
     Particle* p2 = local_particles[collision_queue[i].pp2];
     printf("particle 1 and particle 2 are %d %d\n", p1->p.identity, p2->p.identity);
-    printf("locla_particles 1 and 2 are %d %d\n", *local_particles[collision_queue[i].pp1],local_particles[collision_queue[i].pp2]);
+    //printf("locla_particles 1 and 2 are %d %d\n", *local_particles[collision_queue[i].pp1],*local_particles[collision_queue[i].pp2]);
     // array definition, calculated from triangle_binding function  
     double (three_corners[3][3]);
     triangle_binding_calc_corners (p1, p2, (three_corners));
@@ -567,8 +568,6 @@ void ellipsoid_collision(int i)
       local_change_bond(max_seen_particle,   bondTriangle, 0);
     }
        
-    printf("Testing if all colliding particles are looped, or only the first two are taken and all particles are added to the same pair\n");
-    printf("DONE with place_vs_and_relate_to_particle\n");    
           //printf("Particle from handle collisions inserted at %f %f %f and related to %d and %d\n", first_corner[0], first_corner[1],first_corner[2], p1->p.identity, p2->p.identity);    
    
     return;

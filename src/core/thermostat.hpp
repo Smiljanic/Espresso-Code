@@ -223,6 +223,8 @@ inline void friction_thermo_langevin(Particle *p)
   for (int i = 0; i < 3; i++) {
     // Particle velocity
     velocity[i] = p->m.v[i];
+    // printing particles velocities from the core
+    // fprintf(stderr,"P %d: vel=(%.3e,%.3e,%.3e)\n", p->p.identity, p->m.v[0],p->m.v[1],p->m.v[2]);
     #ifdef ENGINE
       // In case of the engine feature, the velocity is relaxed
       // towards a swimming velocity oriented parallel to the

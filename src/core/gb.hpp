@@ -238,6 +238,8 @@ matrix_product(b_hat_inverse,B_SS,B_1);
 matrix_product(A_1,a_hat,A);
 matrix_product(B_1,b_hat,B);
 
+printf("matrix A=[%f %f %f %f %f %f %f %f %f\n]", A[0,0], A[0,1], A[0,2], A[1,0], A[1,1], A[1,2], A[2,0], A[2,1], A[2,2]);
+printf("matrix B=[%f %f %f %f %f %f %f %f %f\n]", B[0,0], B[0,1], B[0,2], B[1,0], B[1,1], B[1,2], B[2,0], B[2,1], B[2,2]);
 double H[3][3];
 for (int i=0;i<3;i++){
   for (int j=0;j<3;j++){
@@ -456,6 +458,8 @@ d_eps_AB_prim_dr[2]=4*(inv_B_AB[2][0]*r_vector[0]+inv_B_AB[2][1]*r_vector[1]+inv
 double sigma_AB;
 double inv_H[3][3];
 matrix_3x3_inverse(H, inv_H);
+printf("matrix H=[ %f %f %f %f %f %f %f %f %f\n]",H[0,0],H[0,1],H[0,2],H[1,0],H[1,1],H[1,2],H[2,0],H[2,1],H[2,2]);
+printf("matrix inv_H=[ %f %f %f %f %f %f %f %f %f\n]",inv_H[0,0],inv_H[0,1],inv_H[0,2],inv_H[1,0],inv_H[1,1],inv_H[1,2],inv_H[2,0],inv_H[2,1],inv_H[2,2]);
 double intermediate;
 solve_quadratic_form(inv_H,r_unit,intermediate);
 sigma_AB=pow(2*intermediate,-0.5);
@@ -482,13 +486,19 @@ multiply_matrix_3x3_by_vector_3x1(inv_H, r_unit, somesth);
 //sigma_c/(r_12-sigma_AB+sigma_c)
 double q=sigma_min/(r_moduo-sigma_AB+sigma_min);
 
+printf("r moduo= %f\n", r_moduo);
+printf("sigma AB= %f\n", sigma_AB);
+printf("sigma min= %f\n", sigma_min);
+printf("q= %f\n", q);
 left_derivative=mu*pow(eps_AB_prim,(mu-1))*4*(pow(q,12)-pow(q,6));
+printf("left derivative= %f\n", left_derivative);
 double left[3];
 for (int i=0;i<3;i++)
   {
   left[i]=left_derivative*some[i];
   }
 right_derivative=pow(eps_AB_prim,mu)*6*(-4*sigma_min)*(2*pow(q,11)*(1+0.5*pow(sigma_AB,3))-pow(q,5)*1+0.5*pow(sigma_AB,3));
+//printf("right derivative is %f\n", right_derivative);
 double right[3];
 for (int i=0;i<3;i++)
   {

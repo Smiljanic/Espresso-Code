@@ -24,6 +24,25 @@ void ClusterStructure::analyze_pair()
   }
 }
 
+
+//MILENA-HACK: missing part
+void ClusterStructure::analyze_energy()
+{
+  // clear data structs
+  clear();
+  
+  // Iterate over pairs
+  for (int i=0;i<=max_seen_particle;i++) {
+    if (! local_particles[i]) continue;
+    for (int j=i+1;j<=max_seen_particle;j++) {
+      if (! local_particles[j]) continue;
+      add_pair(*local_particles[i],*local_particles[j]); // maybe no *
+    }
+  }
+}
+
+
+
 void ClusterStructure::add_pair(Particle& p1, Particle& p2) {
 // * check, if there's a neighbor
  //   * No: Then go on to the next particle

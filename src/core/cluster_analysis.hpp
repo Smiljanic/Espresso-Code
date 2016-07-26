@@ -50,9 +50,10 @@ class ClusterStructure {
   std::map<int,int> cluster_identities;
   // Clear data strucutres
   void clear();
-  // Analyze the cluster structure for energy and sistance-based
-  // criteria
+  // Analyze the cluster structure for energy and sistance-based criteria
   void analyze_pair();
+  // energy
+  void analyze_energy();
   // Analyze cluster strcutre based on the presence of a bond as criterion
   void analyze_bonds(NeighborCriterion* nd);
   // Count a pair of particles

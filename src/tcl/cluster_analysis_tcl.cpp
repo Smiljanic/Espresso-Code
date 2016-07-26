@@ -59,8 +59,9 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
       argc -= 1; argv += 1;
       return TCL_OK;
     }
+//HACK
  
-/*    else if (ARGO_IS_S("energy")) {
+    else if (ARGO_IS_S("energy")) {
       if (argc != 2) {
         Tcl_AppendResult(interp, "The energy criterion needs an energy value as argument.", (char*) NULL);
         return TCL_ERROR;
@@ -87,7 +88,7 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
       cluster_analysis().set_criterion(new BondCriterion(b));
       argc -= 2; argv += 2;
     }
-*/
+
 //    else if (ARGO_IS_)
 
     else if (ARG0_IS_S("print")) {

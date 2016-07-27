@@ -63,6 +63,14 @@ class ClusterStructure {
   // Neighbor criterion
   void set_criterion(NeighborCriterion* c);
   NeighborCriterion* get_criterion() {return nc;};
+  //center of mass of the cluster : com(x,y,z)
+  inline double center_of_mass(Particle& p); 
+   //coordiantion number - average
+  inline double average_coordiantion_number();
+   //radius of gyration
+  inline double radius_of_gyration();
+   //fractal dimension
+  inline double fractal_dimension();
  private:
   NeighborCriterion* nc;
   // Follow a chain of cluster identities
@@ -72,10 +80,24 @@ class ClusterStructure {
  
 };
 
+//MILENA: further analysis - declaration of geometry functions
+//MILENA:: iterating over cluster:id particles is not possible outside the ClusterStructure,
+//so that following content of class ClusterGeometry is nested under the ClusterStructure
+/*
+class ClusterGeometry {
+  public:
+   //center of mass of the cluster : com(x,y,z)
+  inline double center_of_mass(Particle& p); 
+   //coordiantion number - average
+  inline double average_coordiantion_number();
+   //radius of gyration
+  inline double radius_of_gyration();
+   //fractal dimension
+  inline double fractal_dimension();
+};
 
-
+*/
 //take cut off value that is input data in Tcl simulation script
-// 
 class DistanceCriterion : public NeighborCriterion {
   public: 
     DistanceCriterion(double _cut_off) {

@@ -42,6 +42,28 @@ void ClusterStructure::analyze_energy()
 }
 
 
+//MILENA: further geometry analysis
+inline double ClusterStructure::center_of_mass(Particle& p)  
+//iterate over particles within one cluster
+//take of each particle its position
+//and calculate the COM
+{
+  //get size of cluster
+  int pid = 0;
+  double position[3];
+  double tmp[3] = {0,0,0};
+  while (cluster_id.find(pid) != cluster_id.end()) {
+    for (int i=0; i<3; i++)
+      tmp[i] = tmp[i] + p.r.p[i]; 
+  }
+  for (int j=0; j<3; j++) 
+    tmp[j]=tmp[j]*(1.0/sizeof(cluster_id));
+  //return tmp*(1.0/sizeof(cluster_id));
+  return sizeof(cluster_id);
+//  return 0;
+}
+
+
 
 void ClusterStructure::add_pair(Particle& p1, Particle& p2) {
 // * check, if there's a neighbor

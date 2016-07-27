@@ -24,7 +24,7 @@
 
 int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, char **argv) 
 {
-  // If no argumens are given, print status
+  // If no arguments are given, print status
   if (argc==1) {
       if (cluster_analysis().get_criterion()) {
         Tcl_AppendResult(interp, cluster_analysis().get_criterion()->name().c_str(), (char*) NULL);
@@ -54,44 +54,39 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
       cluster_analysis().set_criterion(new DistanceCriterion(d));
       argc -= 2; argv += 2;
     }
-    else if (ARG0_IS_S("analyze_pair")) {
-      cluster_analysis().analyze_pair();
-      argc -= 1; argv += 1;
-      return TCL_OK;
-    }
-//HACK
- 
-    else if (ARGO_IS_S("energy")) {
+  if (ARG0_IS_S("energy")) {
       if (argc != 2) {
-        Tcl_AppendResult(interp, "The energy criterion needs an energy value as argument.", (char*) NULL);
-        return TCL_ERROR;
+      	Tcl_AppendResult(interp, "The energy criterion needs an energy value as argument.", (char*) NULL);
+      	return TCL_ERROR;
       }
       double e;
       if (!ARG_IS_D(1,e)) {
-                Tcl_AppendResult(interp, "Need an energy as 1st arg.", (char*) NULL);
+        	Tcl_AppendResult(interp, "Need an energy value as 1st arg.", (char*) NULL);
         	return TCL_ERROR;
       }
       cluster_analysis().set_criterion(new EnergyCriterion(e));
       argc -= 2; argv += 2;
-    }
-   
-    else if (ARGO_IS_S("bond")) {
+  }
+  if (ARG0_IS_S("bond")) {
       if (argc != 2) {
-        Tcl_AppendResult(interp, "The bond criterion needs bond type as argument.", (char*) NULL);
-        return TCL_ERROR;
+      	Tcl_AppendResult(interp, "The bond criterion needs a bond as argument.", (char*) NULL);
+      	return TCL_ERROR;
       }
-      double b;
+      int b;
       if (!ARG_IS_I(1,b)) {
-                Tcl_AppendResult(interp, "Need bond type as 1st arg.", (char*) NULL);
+        	Tcl_AppendResult(interp, "Need a bond tpe as 1st arg.", (char*) NULL);
         	return TCL_ERROR;
       }
       cluster_analysis().set_criterion(new BondCriterion(b));
       argc -= 2; argv += 2;
     }
+    else if (ARG0_IS_S("analyze_pair")) {
+      cluster_analysis().analyze_pair();
+      argc -= 1; argv += 1;
+      return TCL_OK;
+    }
 
-//    else if (ARGO_IS_)
-
-    else if (ARG0_IS_S("print")) {
+  else if (ARG0_IS_S("print")) {
       std::stringstream res;
       for (auto it : cluster_analysis().clusters) {
         res << "{ "<<it.first<<" {";
@@ -104,9 +99,8 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
       argc -= 1; argv += 1;
     	Tcl_AppendResult(interp, res.str().c_str(), (char*) NULL);
       return TCL_OK;
-    }
-    else {
-    	Tcl_AppendResult(interp, "Unknown argument.", (char*) NULL);
+  } else {
+    	 Tcl_AppendResult(interp, "Unknown argument.", (char*) NULL);
 	    return TCL_ERROR;
-      }
+         }
 }

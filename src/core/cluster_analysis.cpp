@@ -43,24 +43,21 @@ void ClusterStructure::analyze_energy()
 
 
 //MILENA: further geometry analysis
-inline double ClusterStructure::center_of_mass(Particle& p)  
+double * ClusterStructure::center_of_mass(Particle& p)  
 //iterate over particles within one cluster
-//take of each particle its position
-//and calculate the COM
+//take position of each particle
+//sum them up and 
 {
   //get size of cluster
+  double position[3] = {0,0,0};
   int pid = 0;
-  double position[3];
-  double tmp[3] = {0,0,0};
   while (cluster_id.find(pid) != cluster_id.end()) {
     for (int i=0; i<3; i++)
-      tmp[i] = tmp[i] + p.r.p[i]; 
+      position[i] = position[i] + p.r.p[i]; 
   }
   for (int j=0; j<3; j++) 
-    tmp[j]=tmp[j]*(1.0/sizeof(cluster_id));
-  //return tmp*(1.0/sizeof(cluster_id));
-  return sizeof(cluster_id);
-//  return 0;
+    position[j]=position[j]*(1.0/sizeof(cluster_id));
+  return position;
 }
 
 

@@ -64,7 +64,7 @@ class ClusterStructure {
   void set_criterion(NeighborCriterion* c);
   NeighborCriterion* get_criterion() {return nc;};
   //center of mass of the cluster : com(x,y,z)
-  inline double center_of_mass(Particle& p); 
+  double * center_of_mass(Particle& p); 
    //coordiantion number - average
   inline double average_coordiantion_number();
    //radius of gyration

@@ -85,18 +85,20 @@ double * Cluster::center_of_mass(Particle& p)
 }
 
 double Cluster::radius_of_gyration(Particle& p)
-{ double rg = 0;
+{ double rg_vec[3]={0,0,0};
+  double rg = 0;
   int cluster_size = particles.size();
   double position[3] = {0,0,0};
   double com[3];
 //  com = Cluster::center_of_mass();
 
-  for (int p=0; p<particles.size(); p++){
+  for (int p=0; p<cluster_size; p++){
     for (int i=0; i<3; i++) {
-      rg +=position[i]-com[i]; 
+      rg_vec[i] =position[i]-com[i]; 
     }
+    rg+= sqrlen(rg_vec);
   }
-  return rg;
+  return sqrt(rg/cluster_size);
 }
 
 void ClusterStructure::add_pair(Particle& p1, Particle& p2) {

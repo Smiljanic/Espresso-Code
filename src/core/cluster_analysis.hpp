@@ -27,7 +27,10 @@ class Cluster {
     std::vector<int> particles;
     // add a particle (Makes a copy of the original)
     void add_particle(const Particle& p);
+    // calculate center of mass of the cluster from the particles vector
     double * center_of_mass(Particle& p);
+    // calculate radius of gyration of the cluster from the particles vector
+    double radius_of_gyration(Particle& p);
  };
 
 // add a particle (Makes a copy of the original)

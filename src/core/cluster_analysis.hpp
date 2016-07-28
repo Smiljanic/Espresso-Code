@@ -21,14 +21,13 @@ class NeighborCriterion {
 };
 
 
-
-
 class Cluster {
   public: 
     /** Particles in the cluster */
     std::vector<int> particles;
     // add a particle (Makes a copy of the original)
     void add_particle(const Particle& p);
+    double * center_of_mass(Particle& p);
  };
 
 // add a particle (Makes a copy of the original)
@@ -36,7 +35,6 @@ class Cluster {
 void Cluster::add_particle(const Particle& p) {
  particles.push_back(p.p.identity);
 }
-
 
 
 class ClusterStructure {
@@ -64,7 +62,8 @@ class ClusterStructure {
   void set_criterion(NeighborCriterion* c);
   NeighborCriterion* get_criterion() {return nc;};
   //center of mass of the cluster : com(x,y,z)
-  double * center_of_mass(Particle& p); 
+  double * center_of_mass(); 
+  //double * center_of_mass(Particle& p); 
    //coordiantion number - average
   inline double average_coordiantion_number();
    //radius of gyration
@@ -136,6 +135,7 @@ class EnergyCriterion : public NeighborCriterion {
       double cut_off;
 };
 
+
 class BondCriterion : public NeighborCriterion {
   public: 
     BondCriterion(int _bond_type) {
@@ -152,7 +152,6 @@ class BondCriterion : public NeighborCriterion {
     private:
       double bond_type;
 };
-
 
 
 ClusterStructure& cluster_analysis();

@@ -41,12 +41,12 @@ void ClusterStructure::analyze_energy()
   }
 }
 
-
+/*
 //MILENA: further geometry analysis
 double * ClusterStructure::center_of_mass(Particle& p)  
 //iterate over particles within one cluster
 //take position of each particle
-//sum them up and 
+//sum them up and divide with number of particles 
 {
   //get size of cluster
   double position[3] = {0,0,0};
@@ -57,6 +57,30 @@ double * ClusterStructure::center_of_mass(Particle& p)
   }
   for (int j=0; j<3; j++) 
     position[j]=position[j]*(1.0/sizeof(cluster_id));
+  return position;
+}
+//what is this code doing: sets position for com to 0,0,0
+//searchs for cluster_id[0]
+//ads to the position previous value of position and random 
+*/
+
+
+// From Cluster get particles positions
+double * Cluster::center_of_mass(Particle& p)  
+{
+  int cluster_size = particles.size();
+  double position[3] = {0,0,0}; //initialized com
+  double temp[3]={0,0,0}; //initialized position of particle
+  for (int p=0; p<particles.size(); p++){
+//from particle ID saved in the vector particle get real particles position
+    int pid = particles[p]; //ID of the indexed particle from vector particles 
+    //ClusterStructure::cluster_id.find(p);
+    //temp[0] = ClusterStructure::cluster_id[p];
+  
+    for (int i=0; i<3; i++) {
+      position[i] = (position[i]+temp[i])*(1.0/cluster_size); 
+    }   
+  }
   return position;
 }
 

@@ -66,17 +66,19 @@ double * ClusterStructure::center_of_mass(Particle& p)
 
 
 // From Cluster get particles positions
-double * Cluster::center_of_mass(Particle& p)  
+std::vector<double> Cluster::center_of_mass(Particle& p)  
 {
   int cluster_size = particles.size();
-  double position[3] = {0,0,0}; //initialized com
+  std::vector<double> position; //initialized com
   double temp[3] = {0,0,0}; //initialized position of particle
-  for (int p = 0; p<particles.size(); p++){
-    int pid = particles[p]; //ID of the indexed particle from vector particles
+  for (std::vector<int>::iterator it = particles.begin(); it != particles.end(); ++it) {
+//int pid = particles.find(it);
+    int pid = particles[it]; //ID of the indexed particle from vector particles
 //MILENA: HERE TAKE PARTICLE POSITION AND STORE IT IN temp[3] 
     //ClusterStructure::cluster_id.find(p);
     //temp[0] = ClusterStructure::cluster_id[p];
-  
+    
+
     for (int i=0; i<3; i++) {
       position[i] += temp[i]*(1.0/cluster_size); 
     }   
@@ -93,8 +95,8 @@ double Cluster::largest_distance(Particle& p)
   double position[3] = {0,0,0};
   double distance[3] = {0,0,0};
   double com[3];
+// here should be calculated com from the previous function
 //  com = Cluster::center_of_mass();
-
   for (int p=0; p<cluster_size; p++){
     for (int i=0; i<3; i++) {
      ld_vec[i] =position[i]-com[i]; 

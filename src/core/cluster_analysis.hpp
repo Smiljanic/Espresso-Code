@@ -29,6 +29,8 @@ class Cluster {
     void add_particle(const Particle& p);
     // calculate center of mass of the cluster from the particles vector
     double * center_of_mass(Particle& p);
+    // calculate largest distance to the of a particle within an agglomerate
+    double largest_distance(Particle& p);
     // calculate radius of gyration of the cluster from the particles vector
     double radius_of_gyration(Particle& p);
  };

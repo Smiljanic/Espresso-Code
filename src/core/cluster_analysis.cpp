@@ -84,6 +84,27 @@ double * Cluster::center_of_mass(Particle& p)
   return position;
 }
 
+
+double Cluster::largest_distance(Particle& p)
+{ 
+  int cluster_size = particles.size();
+  double ld = 0.0;
+  double ld_vec[3] ={0,0,0};
+  double position[3] = {0,0,0};
+  double distance[3] = {0,0,0};
+  double com[3];
+//  com = Cluster::center_of_mass();
+
+  for (int p=0; p<cluster_size; p++){
+    for (int i=0; i<3; i++) {
+     ld_vec[i] =position[i]-com[i]; 
+    }
+    if (ld<sqrlen(ld_vec)) 
+      ld=sqrlen(ld_vec);
+  }
+  return ld;
+}
+
 double Cluster::radius_of_gyration(Particle& p)
 { double rg_vec[3]={0,0,0};
   double rg = 0;

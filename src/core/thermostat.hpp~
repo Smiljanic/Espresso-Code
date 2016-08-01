@@ -168,6 +168,15 @@ inline void fluid_velocity(Particle *p, double vfxyz[3]){
     //int size = SIZE;
     int i,j,k;
 
+//printf("memory allocation for velocity components\n");
+//double * velu = (double *)malloc(size*size*size*sizeof(double));
+//printf("VEL_U memory allocation for velocity components\n");
+
+//double * velv = (double *)malloc(size*size*size*sizeof(double));
+//printf("VEL_V memory allocation for velocity components\n");
+
+//double * velw = (double *)malloc(size*size*size*sizeof(double));
+//printf("VEL_W memory allocation for velocity components\n");
 
     // Initialize all parameters
     vfxyz[0]=0; vfxyz[1]=0; vfxyz[2]=0;
@@ -175,7 +184,63 @@ inline void fluid_velocity(Particle *p, double vfxyz[3]){
     v000 = 0; v100 = 0; v010 = 0; v001 = 0; v101 = 0; v011 = 0; v110 = 0; v111 = 0;
     w000 = 0; w100 = 0; w010 = 0; w001 = 0; w101 = 0; w011 = 0; w110 = 0; w111 = 0;
 
+/*    // Open and Read binary data
+    FILE *fp, *fq, *fr;
 
+    fp = fopen("u.dat", "rb");
+    fq = fopen("v.dat", "rb");
+    fr = fopen("w.dat", "rb");
+
+  //printf("Files Should be Opened\n"); 
+ 
+    if (!fp) {printf("Unable to open u_velocity file!");}
+    else if (!fq) {printf("Unable to open v_velocity file!");}
+    else if (!fr) {printf("Unable to open w_velocity file!");}
+
+      //printf("we have data now assign it\n"); 
+
+    fread(velu, sizeof(double), TOTALSIZE, fp);
+//printf("vel_u variables should be initialized\n");
+    fread(velv, sizeof(double), TOTALSIZE, fq);
+    fread(velw, sizeof(double), TOTALSIZE, fr);
+
+fclose(fp);
+fclose(fq);
+fclose(fr);
+
+free(velu);
+free(velv);
+free(velw);
+
+*/
+//#define veluu(i,j,k) (velu[size*size*i + size*j + k])
+//#define velvv(i,j,k) (velv[size*size*i + size*j + k])
+//#define velww(i,j,k) (velu[size*size*i + size*j + k])
+
+
+
+
+
+//printf("vel_* variables should be initialized\n");
+    /*if (p->r.p[0]>box_l[0] || p->r.p[1]>box_l[0] || p->r.p[2]>box_l[0] || p->r.p[0]<0.1 || p->r.p[1]<0.1 || p->r.p[2]<0.1) {
+printf("particle is out of boundary\n");
+}*/
+/*
+ int a;
+ double new_pos[3];
+ double tmp;
+ for (a=0;a<3;a++)
+ {
+  new_pos[a] = p->r.p[a]; 
+
+  if (p->r.p[a]>box_l[a])
+      new_pos[a] = p->r.p[a]-box_l[a]; 
+  else if (p->r.p[a]<0)
+      new_pos[a] = p->r.p[a]+box_l[a];
+
+  p->r.p[a] = new_pos[a]; 
+ }
+*/
     //printf("particle:%d position: %e, %e, %e, NOW CALCULATE GRID POINTS \n",p->p.identity, p->r.p[0], p->r.p[1], p->r.p[2]);
 
     // 8 vertices of the grid that surrounds the point

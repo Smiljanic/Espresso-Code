@@ -112,6 +112,19 @@ void thermo_init_langevin()
 
 /** DNS flow field data */
 
+// Grid points
+/*enum {size=65};
+enum {TOTALSIZE=274625};*/
+
+//printf("memory allocation for velocity components\n");
+//double * velu = (double *)malloc(size*size*size*sizeof(double));
+//printf("VEL_U memory allocation for velocity components\n");
+
+//double * velv = (double *)malloc(size*size*size*sizeof(double));
+//printf("VEL_V memory allocation for velocity components\n");
+
+//double * velw = (double *)malloc(size*size*size*sizeof(double));
+//printf("VEL_W memory allocation for velocity components\n");
 
 velu = (double *)malloc(size*size*size*sizeof(double));
 velv = (double *)malloc(size*size*size*sizeof(double));
@@ -140,6 +153,14 @@ fclose(fp);
 fclose(fq);
 fclose(fr);
 
+/*
+#define veluu(i,j,k) (velu[size*size*i + size*j + k])
+#define velvv(i,j,k) (velv[size*size*i + size*j + k])
+#define velww(i,j,k) (velu[size*size*i + size*j + k])
+
+free(velu);
+free(velv);
+free(velw);*/
 }
 
 #ifdef NPT

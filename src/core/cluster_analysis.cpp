@@ -60,47 +60,27 @@ void ClusterStructure::analyze_energy()
   }
 }
 
-
-/*
-double * ClusterStructure::center_of_mass(Particle& p)  
-//iterate over particles within one cluster
-//take position of each particle
-//sum them up and divide with number of particles 
-{
-  //get size of cluster
-  double position[3] = {0,0,0};
- 
-  for (auto it : cluster_id) {
-    int pid=it.first;
-    for (int i=0; i<3; i++)
-      position[i]=position[i] + p.r.p[pid]; 
-
-  }
-  for (int j=0; j<3; j++) 
-    position[j]=position[j]*(1.0/sizeof(cluster_id));
-  return position;
-}
-*/
-
-
-// From Cluster get particles positions
-
+//calculate center of mas of an agglomerate
 std::vector<double>  Cluster::center_of_mass(Particle& p) 
 {
   int cluster_size = particles.size();
   std::vector<double> position; //initialized com
   double temp[3] = {0,0,0}; //initialized position of particle
   for (auto const& it : particles) {
-//    int pid = particles.find(it);
-    int pid = particles[it]; //ID of the indexed particle from vector particles
+    int pid = particles[it]; //ID of the indexed particle from (vector) particles
+    for (int i=0; i<3; i++){ 
+      temp[i] += local_particles[pid]->r.p[i];
+    
+    
 //MILENA: HERE TAKE PARTICLE POSITION AND STORE IT IN temp[3] 
     //ClusterStructure::cluster_id.find(p);
     //temp[0] = ClusterStructure::cluster_id[p];
     
 
     for (int i=0; i<3; i++) {
-      position[i] += temp[i]*(1.0/cluster_size); 
-    }   
+      position[i] = temp[i]*(1.0/cluster_size); 
+    }  
+   } 
   }
   return position;
 }
@@ -130,7 +110,8 @@ double Cluster::largest_distance(Particle& p)
 }
 
 double Cluster::radius_of_gyration(Particle& p)
-{ double rg_vec[3]={0,0,0};
+{
+  double rg_vec[3]={0,0,0};
   double rg = 0;
   int cluster_size = particles.size();
   double position[3] = {0,0,0};
@@ -145,6 +126,24 @@ double Cluster::radius_of_gyration(Particle& p)
   }
   return sqrt(rg/cluster_size);
 }
+
+
+double Cluster::fractal_dimension(Particle& p)
+{
+  double df = 3.0;
+  double ppos[3];
+  int pid;
+  for (auto const& it : particles) {
+//    int pid = particles.find(it);
+    pid = particles[it];
+    for (int i=0; i<3; i++){ 
+      ppos[i] = local_particles[pid]->r.p[i];
+    }
+    
+  }
+  return df;
+}
+
 
 void ClusterStructure::add_pair(Particle& p1, Particle& p2) {
 // * check, if there's a neighbor

@@ -49,6 +49,8 @@ class Cluster {
     double largest_distance(Particle& p);
     // calculate radius of gyration of the cluster from the particles vector
     double radius_of_gyration(Particle& p);
+    // calculate fractal dimension number
+    double fractal_dimension(Particle& p);
  };
 
 // add a particle (Makes a copy of the original)

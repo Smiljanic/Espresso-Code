@@ -63,47 +63,46 @@ void ClusterStructure::analyze_energy()
 //calculate center of mas of an agglomerate
 std::vector<double>  Cluster::center_of_mass(Particle& p) 
 {
-  int cluster_size = particles.size();
-  std::vector<double> position; //initialized com
+  std::vector<double> com; //initialized com
   double temp[3] = {0,0,0}; //initialized position of particle
   for (auto const& it : particles) {
     int pid = particles[it]; //ID of the indexed particle from (vector) particles
     for (int i=0; i<3; i++){ 
       temp[i] += local_particles[pid]->r.p[i];
-    
-    
-//MILENA: HERE TAKE PARTICLE POSITION AND STORE IT IN temp[3] 
-    //ClusterStructure::cluster_id.find(p);
-    //temp[0] = ClusterStructure::cluster_id[p];
-    
-
-    for (int i=0; i<3; i++) {
-      position[i] = temp[i]*(1.0/cluster_size); 
-    }  
-   } 
+    }
   }
-  return position;
+  for (int i=0; i<3; i++) {
+    com[i] = temp[i]*(1.0/particles.size()); 
+  }
+  return com;
 }
 
 
 double Cluster::largest_distance(Particle& p)
-{ 
-  int cluster_size = particles.size();
+{
+   
   double ld = 0.0;
   double ld_vec[3] ={0,0,0};
   double position[3] = {0,0,0};
-  double distance[3] = {0,0,0};
+//calculate com  
   double com[3];
-// here should be calculated com from the previous function
-// and position particle position taken for the
-// com = Cluster::center_of_mass();
-  for (int p=0; p<cluster_size; p++){
-    int pid = particles[p];
-    for (int i=0; i<3; i++) {
-     //ld_vec[i] =position[i]-com[i]; 
-     ld_vec[i] = position[i]-com[i]; 
+  double temp[3] = {0,0,0}; //initialized position of particle
+  for (auto const& it : particles) {
+    int pid = particles[it]; //ID of the indexed particle from (vector) particles
+    for (int i=0; i<3; i++){ 
+      temp[i] += local_particles[pid]->r.p[i];
     }
-    if (ld<sqrlen(ld_vec)) 
+  } 
+  for (int i=0; i<3; i++) {
+    com[i] = temp[i]*(1.0/particles.size()); 
+  } 
+    
+  for (auto const& it2 : particles) {
+    int pid = particles[it2]; //ID of the indexed particle from (vector) particles
+    for (int i=0; i<3; i++){ 
+     ld_vec[i] = com[i]-local_particles[pid]->r.p[i]; 
+    }
+    if ((sqrlen(ld_vec))>ld) 
       ld=sqrlen(ld_vec);
   }
   return ld;

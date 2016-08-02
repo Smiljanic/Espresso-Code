@@ -109,7 +109,7 @@ double Cluster::largest_distance(Particle& p)
 
 double Cluster::radius_of_gyration(Particle& p)
 {
-  double rg, rg2;
+  double rg2;
   int cluster_size = particles.size();
   double position[3] = {0,0,0};
   double com[3];

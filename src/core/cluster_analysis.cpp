@@ -19,7 +19,7 @@
 
 #include "cluster_analysis.hpp"
 #include "interaction_data.hpp"
-
+#include "utils.hpp"
 
 void ClusterStructure::clear() {
  clusters.clear();
@@ -80,7 +80,6 @@ std::vector<double>  Cluster::center_of_mass(Particle& p)
 
 double Cluster::largest_distance(Particle& p)
 {
-   
   double ld = 0.0;
   double ld_vec[3] ={0,0,0};
   double position[3] = {0,0,0};
@@ -96,7 +95,7 @@ double Cluster::largest_distance(Particle& p)
   for (int i=0; i<3; i++) {
     com[i] = temp[i]*(1.0/particles.size()); 
   } 
-    
+//compare the distance of each particle from the c_o_m to get the longest    
   for (auto const& it2 : particles) {
     int pid = particles[it2]; //ID of the indexed particle from (vector) particles
     for (int i=0; i<3; i++){ 
@@ -110,20 +109,37 @@ double Cluster::largest_distance(Particle& p)
 
 double Cluster::radius_of_gyration(Particle& p)
 {
-  double rg_vec[3]={0,0,0};
-  double rg = 0;
+  double rg, rg2;
   int cluster_size = particles.size();
   double position[3] = {0,0,0};
   double com[3];
-//  com = Cluster::center_of_mass();
-
-  for (int p=0; p<cluster_size; p++){
-    for (int i=0; i<3; i++) {
-      rg_vec[i] =position[i]-com[i]; 
+//  com 
+  double temp[3] = {0,0,0}; //initialized position of particle
+  for (auto const& it : particles) {
+    int pid = particles[it]; //ID of the indexed particle from (vector) particles
+    for (int i=0; i<3; i++){ 
+      temp[i] += local_particles[pid]->r.p[i];
     }
-    rg+= sqrlen(rg_vec);
-  }
-  return sqrt(rg/cluster_size);
+  } 
+  for (int i=0; i<3; i++) {
+    com[i] = temp[i]*(1.0/particles.size()); 
+  } 
+
+//compare the distance of each particle from the c_o_m to get the longest    
+  double current[3];
+  double current_modul;
+  double current2;
+  for (auto const& it3 : particles) {
+    int pid = particles[it3]; //ID of the indexed particle from (vector) particles
+// calculate distance between com and pid and store in current  
+    get_mi_vector(current, com, local_particles[pid]->r.p);
+// calculate square length of this distance  
+    current2 += sqrlen(current)*sqrlen(current);
+  }      
+// divide with number of particles 
+  rg2 = current2/particles.size(); 
+//return square root of it
+  return sqrt(rg2);
 }
 
 

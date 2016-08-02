@@ -205,8 +205,6 @@ enum ConstraintApplied{
     CONSTRAINT_EXT_MAGN_FIELD,
 //end ER
 /** Constraint for tunable-lsip boundary conditions */
-    CONSTRAINT_PLANE,
-/** Constraint for tunable-lsip boundary conditions */
     CONSTRAINT_RHOMBOID,
 /** Constraint for a stomatocyte boundary */
     CONSTRAINT_STOMATOCYTE,
@@ -1131,17 +1129,17 @@ typedef struct{
 } Constraint_ext_magn_field;
 //end ER
 
-/** Parameters for a plane constraint which is needed for tunable-slip boundary conditions. */
-typedef struct {
-  /** Position of the plain. Negative values mean non-existing in that direction. */
-  double pos[3];
-} Constraint_plane;
-
 typedef struct {
   double omega;
   double Prefactor;
 } SinusoidalField;
-typedef union {
+
+/** Structure to specify a constraint. */
+typedef struct {
+  /** type of the constraint. */
+  ConstraintApplied type;
+
+  union {
     Constraint_wall wal;
     Constraint_sphere sph;
     Constraint_cylinder cyl;
@@ -1158,15 +1156,7 @@ typedef union {
     //ER
     Constraint_ext_magn_field emfield;
     //end ER
-    Constraint_plane plane;
-  } ConstraintData;
-
-/** Structure to specify a constraint. */
-typedef struct {
-  /** type of the constraint. */
-  ConstraintApplied type;
-
-  ConstraintData c;
+  } c;
 
   /** particle representation of this constraint. Actually needed are only the identity,
       the type and the force. */

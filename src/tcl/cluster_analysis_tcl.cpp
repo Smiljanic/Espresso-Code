@@ -38,9 +38,10 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
 
   // Otherwise, we set parameters
   if (ARG0_IS_S("off")) {
-    cluster_analysis().set_criterion(NULL);
-    return TCL_OK;
+      cluster_analysis().set_criterion(NULL);
+      return TCL_OK;
   }
+
   if (ARG0_IS_S("distance")) {
       if (argc != 2) {
       	Tcl_AppendResult(interp, "The distance criterion needs a distance as argument.", (char*) NULL);
@@ -54,7 +55,8 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
       cluster_analysis().set_criterion(new DistanceCriterion(d));
       argc -= 2; argv += 2;
     }
-  if (ARG0_IS_S("energy")) {
+
+  else if (ARG0_IS_S("energy")) {
       if (argc != 2) {
       	Tcl_AppendResult(interp, "The energy criterion needs an energy value as argument.", (char*) NULL);
       	return TCL_ERROR;
@@ -67,7 +69,8 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
       cluster_analysis().set_criterion(new EnergyCriterion(e));
       argc -= 2; argv += 2;
   }
-  if (ARG0_IS_S("bond")) {
+
+  else if (ARG0_IS_S("bond")) {
       if (argc != 2) {
       	Tcl_AppendResult(interp, "The bond criterion needs a bond as argument.", (char*) NULL);
       	return TCL_ERROR;
@@ -80,11 +83,12 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
       cluster_analysis().set_criterion(new BondCriterion(b));
       argc -= 2; argv += 2;
     }
-    else if (ARG0_IS_S("analyze_pair")) {
+
+  else if (ARG0_IS_S("analyze_pair")) {
       cluster_analysis().analyze_pair();
       argc -= 1; argv += 1;
       return TCL_OK;
-    }
+  }
 
   else if (ARG0_IS_S("print")) {
       std::stringstream res;

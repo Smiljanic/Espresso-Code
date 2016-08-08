@@ -20,6 +20,8 @@
 #include "cluster_analysis.hpp"
 #include "interaction_data.hpp"
 #include "utils.hpp"
+#include "config.hpp"
+#include "errorhandling.hpp"
 
 void ClusterStructure::clear() {
  clusters.clear();
@@ -49,7 +51,8 @@ void ClusterStructure::analyze_energy()
 {
   // clear data structs
   clear();
-  
+ 
+ printf("ANALYZE ENERGY------"); 
   // Iterate over pairs
   for (int i=0;i<=max_seen_particle;i++) {
     if (! local_particles[i]) continue;
@@ -60,7 +63,9 @@ void ClusterStructure::analyze_energy()
   }
 }
 
-//calculate center of mas of an agglomerate
+
+// ---------------begin of gemetrical analysis-------------------
+
 std::vector<double>  Cluster::center_of_mass(Particle& p) 
 {
   std::vector<double> com; //initialized com
@@ -107,6 +112,7 @@ double Cluster::largest_distance(Particle& p)
   return ld;
 }
 
+
 double Cluster::radius_of_gyration(Particle& p)
 {
   double rg2;
@@ -142,22 +148,73 @@ double Cluster::radius_of_gyration(Particle& p)
   return sqrt(rg2);
 }
 
-
 double Cluster::fractal_dimension(Particle& p)
 {
   double df = 3.0;
   double ppos[3];
+  double p_to_com[3]; //vector of the particle to the com
+  double distance; //distance of the particle from the center of the mass of the agglomerate
   int pid;
+//  calculate com of the aggregate
+  double com[3];
+  double temp[3] = {0,0,0}; //initialized position of particle
   for (auto const& it : particles) {
-//    int pid = particles.find(it);
+    int pid = particles[it]; //ID of the indexed particle from (vector) particles
+    for (int i=0; i<3; i++){ 
+      temp[i] += local_particles[pid]->r.p[i];
+    }   
+  }   
+  for (int i=0; i<3; i++) {
+    com[i] = temp[i]*(1.0/particles.size()); 
+  } 
+
+  std::vector<double> distances; //list of 
+  std::vector<double> diameters; //contains the radii of circles around the com of aggregate
+  std::vector<int> pcounts; //contains the number of particles within that diameters circle
+  int rad = 0;
+  int k = 0;  
+  #ifdef GSL
+// iterate over particles within an aggregate 
+  for (auto const& it : particles) {
+// get particle's ID
     pid = particles[it];
     for (int i=0; i<3; i++){ 
+// get particle position
       ppos[i] = local_particles[pid]->r.p[i];
+// calculate particle vector positions from the COM
+      p_to_com[i] = com[i]-ppos[i]; 
     }
-    
+//calculate particle distance from the COM 
+    distance = sqrlen(p_to_com);
+
+    while k<particles.size() 
+      {
+        k +=1;
+        int counter = 0;
+        
+// compare that distance with the radius, if it is inside the  
+        if (distance<rad) { 
+          counter+=1;
+          diameters.push_back(2*rad);
+          pcounts.push_back(counter);
+//not clear what is k here!!!!!!!!!!
+        } 
+      }
   }
+  df=3.0;
+  double c1, c2, c3, c4, c5, c6;
+  if (diameters.size() > 1) : 
+    gsl_fit_linear(x,1,y,1,c1,c2,c3,c4,c5,c6);
+      
   return df;
+
+#else
+  runtimeErrorMsg()<< "GSL (gnu scientific library) is not found.";
+#endif
 }
+
+// -----------------end of gemetrical analysis-------------------
+
 
 
 void ClusterStructure::add_pair(Particle& p1, Particle& p2) {

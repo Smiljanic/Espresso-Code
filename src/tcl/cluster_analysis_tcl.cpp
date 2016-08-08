@@ -77,7 +77,7 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
       }
       int b;
       if (!ARG_IS_I(1,b)) {
-        	Tcl_AppendResult(interp, "Need a bond tpe as 1st arg.", (char*) NULL);
+        	Tcl_AppendResult(interp, "Need a bond type as 1st arg.", (char*) NULL);
         	return TCL_ERROR;
       }
       cluster_analysis().set_criterion(new BondCriterion(b));
@@ -104,7 +104,7 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
     	Tcl_AppendResult(interp, res.str().c_str(), (char*) NULL);
       return TCL_OK;
   } else {
-    	 Tcl_AppendResult(interp, "Unknown argument.", (char*) NULL);
+    	 Tcl_AppendResult(interp, "Unknown argument(s). The order you inserted arguments may be wrong.", (char*) NULL);
 	    return TCL_ERROR;
          }
 }

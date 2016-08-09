@@ -54,6 +54,7 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
       }
       cluster_analysis().set_criterion(new DistanceCriterion(d));
       argc -= 2; argv += 2;
+      return TCL_OK;
     }
 
   else if (ARG0_IS_S("energy")) {
@@ -68,6 +69,7 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
       }
       cluster_analysis().set_criterion(new EnergyCriterion(e));
       argc -= 2; argv += 2;
+      return TCL_OK;
   }
 
   else if (ARG0_IS_S("bond")) {
@@ -82,10 +84,13 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
       }
       cluster_analysis().set_criterion(new BondCriterion(b));
       argc -= 2; argv += 2;
+      return TCL_OK;
     }
 
   else if (ARG0_IS_S("analyze_pair")) {
       cluster_analysis().analyze_pair();
+      std::stringstream comment;
+      comment << "ANALYZE PAIR----->";
       argc -= 1; argv += 1;
       return TCL_OK;
   }
@@ -108,3 +113,8 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
 	    return TCL_ERROR;
          }
 }
+
+
+//int tclcommand_print_cluster_analysis_data(ClientData data, Tcl_Interp *interp, int argc, char **argv) 
+//    return TCL_ERROR;
+//}

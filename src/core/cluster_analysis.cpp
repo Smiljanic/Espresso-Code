@@ -212,10 +212,11 @@ double Cluster::fractal_dimension(Particle& p)
   }
 
 #ifdef GSL
+//usage: Function: int gsl_fit_linear (const double * x, const size_t xstride, const double * y, const size_t ystride, size_t n, double * c0, double * c1, double * cov00, double * cov01, double * cov11, double * sumsq) 
   df=3.0;
-  double c1, c2, c3, c4, c5, c6;
+  double c0, c1, cov00, cov01, cov11, sumsq;
   if (diameters.size() > 1) : 
-    gsl_fit_linear(x,1,y,1,c1,c2,c3,c4,c5,c6);
+    gsl_fit_linear(x,1,y,1,c0, c1, cov00, cov01, cov11, sumsq);
     gsl_fit_linear (&diameters.front(), 1, &pcounts.front(), 1, n, &c0, &c1, &cov00, &cov01, &cov11, &sumsq);  
   return df;
 

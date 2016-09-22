@@ -75,6 +75,7 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
       cluster_analysis().analyze_bonds();
       argc -= 1; argv += 1;
     }
+
     else if (ARG0_IS_S("print")) {
       std::stringstream res;
       for (auto it : cluster_analysis().clusters) {
@@ -89,6 +90,23 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
     	Tcl_AppendResult(interp, res.str().c_str(), (char*) NULL);
       return TCL_OK;
     }
+
+    else if (ARG0_IS_S("com")) {
+      std::stringstream res;
+      for (auto it : cluster_analysis().clusters) {
+        res << "{"<< it.first << " {";
+        Cluster cluster = it.second;
+        for (int pid : cluster.particles) 
+        {
+          std::vector<double> com = cluster.calculate_cluster_center_of_mass();
+        }
+        res << com << "} } ";
+      }
+      argc -= 1; argv += 1;
+    	Tcl_AppendResult(interp, res.str().c_str(), (char*) NULL);
+      return TCL_OK;
+    }
+
     else {
     	Tcl_AppendResult(interp, "Unknown argument.", (char*) NULL);
 	    return TCL_ERROR;

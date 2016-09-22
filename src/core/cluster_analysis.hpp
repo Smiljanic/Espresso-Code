@@ -30,10 +30,14 @@ class Cluster {
     std::vector<int> particles;
     // add a particle (Makes a copy of the original)
     void add_particle(const Particle& p);
+    //calculate center of mass of the cluster
+    std::vector<double> calculate_cluster_center_of_mass();
+    //calculate fractal dimension
+    double calculate_fractal_dimension();
  };
 
-// add a particle (Makes a copy of the original)
 
+// add a particle (Makes a copy of the original)
 void Cluster::add_particle(const Particle& p) {
  particles.push_back(p.p.identity);
 }
@@ -44,17 +48,17 @@ class ClusterStructure {
  public:
   // Container to hold the clusters
   std::map<int,Cluster> clusters;
-  // ID of cluster, a particle belongs to
+  // IDs of cluster, a particle belongs to
   std::map<int, int> cluster_id;
   // Clusters that turn out to be the same (i.e., if two particles are
   // neighbors that already belong to different clusters)
   std::map<int,int> cluster_identities;
-  // Clear data strucutres
+  // Clear data structures
   void clear();
-  // Analyze the cluster structure for energy and sistance-based
+  // Analyze the cluster structure for energy and distance-based
   // criteria
   void analyze_pair();
-  // Analyze cluster strcutre based on the presence of a bond as criterion
+  // Analyze cluster structure based on the presence of a bond as criterion
   void analyze_bonds();
   // Count a pair of particles
   void add_pair(Particle& p1, Particle& p2);
@@ -63,13 +67,17 @@ class ClusterStructure {
   // Neighbor criterion
   void set_criterion(NeighborCriterion* c);
   bool part_of_cluster(const Particle& p);
+  // take the clustering  criterion that is input data in Tcl simulation script
   NeighborCriterion* get_criterion() {return nc;};
  private:
   NeighborCriterion* nc;
   // Follow a chain of cluster identities
   inline int find_id_for(int x);
-  //
+  // Iterate over existing clusters and return [max_seen_cluster+1] 
   inline int get_next_free_cluster_id();
+    
+
+
  
 };
 

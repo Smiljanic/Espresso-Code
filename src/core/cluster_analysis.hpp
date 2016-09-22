@@ -30,8 +30,12 @@ class Cluster {
     std::vector<int> particles;
     // add a particle (Makes a copy of the original)
     void add_particle(const Particle& p);
-    //calculate center of mass of the cluster
+    // calculate center of mass of the cluster
     std::vector<double> calculate_cluster_center_of_mass();
+    // calculate longest distance
+    double calculate_longest_distance();
+    // calculate radius of gyration();
+    double calculate_radius_of_gyration();
     //calculate fractal dimension
     double calculate_fractal_dimension();
  };

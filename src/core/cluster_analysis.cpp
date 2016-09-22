@@ -2,6 +2,7 @@
 #include "interaction_data.hpp"
 #include <algorithm>
 #include "config.hpp"
+#include <gsl/gsl_fit.h>
 
 void ClusterStructure::clear() {
  clusters.clear();
@@ -32,7 +33,7 @@ void ClusterStructure::analyze_pair()
   }
   merge_clusters();
   calculate_cluster_center_of_mass();
-  //calculate_fractal_dimension();
+  calculate_fractal_dimension();
 }
 
 void ClusterStructure::analyze_bonds() {
@@ -230,10 +231,12 @@ double Cluster::calculate_fractal_dimension()
     rad+=1;
   }
 //now calculate pcounts for all diameters or iterate over distances or do while loop; k is initialized as 0
-  for (auto const& co : diameters ) { //iterate over diameters
+  for (auto const& co : diameters )  //iterate over diameters
+  {
     double diam = diameters[co];
     int pcount=0;
-    for (auto const& it : distances) { //go over distances
+    for (auto const& it : distances)  //go over distances
+    {
       double dist = distances[it]; //ID of the indexed particle from (vector) particles
       if (dist<diam)
       {   
@@ -246,7 +249,8 @@ double Cluster::calculate_fractal_dimension()
 //calculate Df using linear regression on the logarithms of diameters [__std::vector<double> diameters__] and num of particles [__std::vector<int> pcounts__] within the diameters
   std::vector<double> log_diameters;
   std::vector<double> log_pcounts;
-  for (auto const& co : diameters ) { 
+  for (auto const& co : diameters )  
+  {
     log_diameters[co]=log(diameters[co]); //save the logarithms of diameters and num of particles --> do it in a more fashionable way : maybe with map
     log_pcounts[co]=log(pcounts[co]);
   }
@@ -254,15 +258,16 @@ double Cluster::calculate_fractal_dimension()
 #ifdef GSL
 //usage: Function: int gsl_fit_linear (const double * x, const size_t xstride, const double * y, const size_t ystride, size_t n, double * c0, double * c1, double * cov00, double * cov01, double * cov11, double * sumsq) 
   df=3.0;
-  double c0, c1, cov00, cov01, cov11, sumsq;
-  if (diameters.size() > 1) : 
-    gsl_fit_linear(x,1,y,1,c0, c1, cov00, cov01, cov11, sumsq);
-    gsl_fit_linear (&diameters.front(), 1, &pcounts.front(), 1, n, &c0, &c1, &cov00, &cov01, &cov11, &sumsq);  
-  return df; 
+  double c0, c1, cov00, cov01, cov11, sumsq, n;
+  if (diameters.size() > 1) 
+  {
+    gsl_fit_linear (&(diameters[0]), 1, &(pcounts[0]), 1, &n, &c0, &c1, &cov00, &cov01, &cov11, &sumsq);  
+  }
 
 #else
   runtimeErrorMsg()<< "GSL (gnu scientific library) is not found.";
 #endif
+  return df; 
 }
 
 

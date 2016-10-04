@@ -282,56 +282,68 @@ double Cluster::calculate_fractal_dimension()
 //  double com; //center of mass
   com = calculate_cluster_center_of_mass();  
   double *comarray = &com[0];
-  std::vector<double> distances; //list of distances , same size as particles
+  std::vector<double> distances; //list of distances 
+  std::vector<double> distances_smaller_than_rad; //list of distances 
   std::vector<double> diameters; //all diameters=(radii*2) of circles around the com of aggregate
   std::vector<int> pcounts; // numbers of particles within given diameters
-  int rad = 0;
-  int k = 0;  
-// iterate over particles within an aggregate 
-  for (auto const& it : particles) {
-    diameters.push_back(rad*2.0); //diameters are taken as doubled counter rad=0,1,2,3,..,particles.size()
-// get particle's ID
-    pid = particles[it];
+  
+  int cluster_size = particles.size();
+
+// calculate relative distance for each particle to the center of mass and store it into vector distances 
+  for (int i=0; i<cluster_size; i++)
+  {
 // calculate particle vector positions from the COM
-    get_mi_vector(relative_to_com, comarray, local_particles[it]->r.p); 
+    get_mi_vector(relative_to_com, comarray, local_particles[i]->r.p); 
 //calculate particle distance from the COM 
     distance = sqrlen(relative_to_com);
+    printf("Particles distance is %f\n",distance );
     distances.push_back(distance); //add distance from the current particle to the com in the distances vectors
-    rad+=1;
   }
-//now calculate pcounts for all diameters or iterate over distances or do while loop; k is initialized as 0
-  for (auto const& co : diameters )  //iterate over diameters
-  {
-    double diam = diameters[co];
-    int pcount=0;
-    for (auto const& it : distances)  //go over distances
-    {
-      double dist = distances[it]; //ID of the indexed particle from (vector) particles
-      if (dist<diam)
-      {   
-        pcount+=1; //count number of particcles within given diameter
-      }    
-    pcounts.push_back(pcount);
-    }   
-  }   
+  
+  int rad = 0;
+  int k = 0;
+  int pcount = 0;  
+// iterate over particles within an aggregate 
+  while (k < particles.size()) 
+  { 
+    
+    printf("Cluster size is: %d, and k is: %d\n", cluster_size, k );
+    rad+=1;  //increase the radius for sigma=1
+    if (distances[rad] < rad) {
+      distances_smaller_than_rad.push_back(distances[rad]);
+      int numPar = distances_smaller_than_rad.size();
+      printf("Particles distances within the rad are %d\n",numPar );
+      k = distances_smaller_than_rad.size();
+      printf("Number of particles within given distances  %d\n", k );
+      if (k > 0) 
+      {
+        pcounts.push_back(k); //append number of particles wihin given diameter
+        diameters.push_back(rad*2.0); //diameters are taken as doubled counter rad=0,1,2,3,..,particles.size()
+      }
+    }
+    k+=1;
+  }
+
     
 //calculate Df using linear regression on the logarithms of diameters [__std::vector<double> diameters__] and num of particles [__std::vector<int> pcounts__] within the diameters
   std::vector<double> log_diameters;
   std::vector<double> log_pcounts;
-  for (auto const& co : diameters )  
+//  for (auto const& co : diameters )  
+  for (int i = 0; i<diameters.size(); i++)  
   {
-    log_diameters[co]=log(diameters[co]); //save the logarithms of diameters and num of particles --> do it in a more fashionable way : maybe with map
-    log_pcounts[co]=log(pcounts[co]);
+    log_diameters[i]=log(diameters[i]); //save the logarithms of diameters and num of particles --> do it in a more fashionable way : maybe with map
+    log_pcounts[i]=log(pcounts[i]);
   }
 
 #ifdef GSL
 //usage: Function: int gsl_fit_linear (const double * x, const size_t xstride, const double * y, const size_t ystride, size_t n, double * c0, double * c1, double * cov00, double * cov01, double * cov11, double * sumsq) 
   df=1.0;
-  int n;
+  int n=5;
   double c0, c1, cov00, cov01, cov11, sumsq;
   if (diameters.size() > 1) 
   {
-    gsl_fit_linear (&(log_diameters[0]), 1, &(log_pcounts[0]), 1, &n, &c0, &c1, &cov00, &cov01, &cov11, &sumsq);  
+//   gsl_fit_linear (&(log_diameters[0]), 1, &(log_pcounts[0]), 1, n, &c0, &c1, &cov00, &cov01, &cov11, &sumsq);  
+   gsl_fit_linear (&log_diameters.front(), 1, &log_pcounts.front(), 1, n, &c0, &c1, &cov00, &cov01, &cov11, &sumsq);  
   }
 
 #else

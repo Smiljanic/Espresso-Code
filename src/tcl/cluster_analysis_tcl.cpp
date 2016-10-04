@@ -19,7 +19,6 @@
 #include "particle_data.hpp"
 #include "interaction_data.hpp"
 #include "cluster_analysis.hpp"
-//#include "cluster_analysis.cpp"
 #include "parser.hpp"
 #include <sstream>
 
@@ -97,20 +96,18 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
     else if (ARG0_IS_S("com")) {
       std::stringstream res;
       for (auto it : cluster_analysis().clusters) {
-  //      res << "{"<< it.second << " {";
-        Cluster cluster = it.second;
+        res << it.second << " {";
+        ClusterStructure clusters = it.second;
         for (int pid : cluster.particles) 
         {
           std::vector<double> com = cluster.calculate_cluster_center_of_mass();
         }
- //       res << com << "} } ";
+        res << com[0] << "," << com[1] << "," << com[2] << "} ";
       }
       argc -= 1; argv += 1;
-    	Tcl_AppendResult(interp, res.str().c_str(), (char*) NULL);
+        Tcl_AppendResult(interp, res.str().c_str(), (char*) NULL);
       return TCL_OK;
     }
-
-
 
 
     else if (ARG0_IS_S("ld")) {
@@ -122,13 +119,12 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
         {
           double ld = cluster.calculate_longest_distance();
         }
-//        res << com << "} } ";
+//        res << ld << "} } ";
       }
       argc -= 1; argv += 1;
     	Tcl_AppendResult(interp, res.str().c_str(), (char*) NULL);
       return TCL_OK;
     }
-
 
 
     else if (ARG0_IS_S("rg")) {
@@ -140,7 +136,7 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
         {
           double rg = cluster.calculate_radius_of_gyration();
         }
-      //  res << com << "} } ";
+      //  res << rg << "} } ";
       }
       argc -= 1; argv += 1;
     	Tcl_AppendResult(interp, res.str().c_str(), (char*) NULL);
@@ -149,7 +145,8 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
 
 
 
-/*    else if (ARG0_IS_S("df")) {
+/*
+    else if (ARG0_IS_S("df")) {
       std::stringstream res;
       for (auto it : cluster_analysis().clusters) {
 //        res << "{"<< it.second << " {";

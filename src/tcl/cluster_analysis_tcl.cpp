@@ -96,13 +96,13 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
     else if (ARG0_IS_S("com")) {
       std::stringstream res;
       for (auto it : cluster_analysis().clusters) {
-        res << it.second << " {";
-        ClusterStructure clusters = it.second;
-        for (int pid : cluster.particles) 
+//        res << it.second << " {";
+        Cluster clusters = it.second;
+        for (int pid : clusters.particles) 
         {
-          std::vector<double> com = cluster.calculate_cluster_center_of_mass();
+          std::vector<double> com = clusters.calculate_cluster_center_of_mass();
         }
-        res << com[0] << "," << com[1] << "," << com[2] << "} ";
+//        res << com[0] << "," << com[1] << "," << com[2] << "} ";
       }
       argc -= 1; argv += 1;
         Tcl_AppendResult(interp, res.str().c_str(), (char*) NULL);

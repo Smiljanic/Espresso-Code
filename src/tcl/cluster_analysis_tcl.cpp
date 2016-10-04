@@ -19,6 +19,7 @@
 #include "particle_data.hpp"
 #include "interaction_data.hpp"
 #include "cluster_analysis.hpp"
+//#include "cluster_analysis.cpp"
 #include "parser.hpp"
 #include <sstream>
 
@@ -91,25 +92,83 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
       return TCL_OK;
     }
 
+//postprocessing  properties
+
     else if (ARG0_IS_S("com")) {
       std::stringstream res;
       for (auto it : cluster_analysis().clusters) {
-        res << "{"<< it.first << " {";
+  //      res << "{"<< it.second << " {";
         Cluster cluster = it.second;
         for (int pid : cluster.particles) 
         {
           std::vector<double> com = cluster.calculate_cluster_center_of_mass();
         }
-        res << com << "} } ";
+ //       res << com << "} } ";
       }
       argc -= 1; argv += 1;
     	Tcl_AppendResult(interp, res.str().c_str(), (char*) NULL);
       return TCL_OK;
     }
 
+
+
+
+    else if (ARG0_IS_S("ld")) {
+      std::stringstream res;
+      for (auto it : cluster_analysis().clusters) {
+ //       res << "{"<< it.second << " {";
+        Cluster cluster = it.second;
+        for (int pid : cluster.particles) 
+        {
+          double ld = cluster.calculate_longest_distance();
+        }
+//        res << com << "} } ";
+      }
+      argc -= 1; argv += 1;
+    	Tcl_AppendResult(interp, res.str().c_str(), (char*) NULL);
+      return TCL_OK;
+    }
+
+
+
+    else if (ARG0_IS_S("rg")) {
+      std::stringstream res;
+      for (auto it : cluster_analysis().clusters) {
+      //  res << "{"<< it.second << " {";
+        Cluster cluster = it.second;
+        for (int pid : cluster.particles) 
+        {
+          double rg = cluster.calculate_radius_of_gyration();
+        }
+      //  res << com << "} } ";
+      }
+      argc -= 1; argv += 1;
+    	Tcl_AppendResult(interp, res.str().c_str(), (char*) NULL);
+      return TCL_OK;
+    }
+
+
+
+/*    else if (ARG0_IS_S("df")) {
+      std::stringstream res;
+      for (auto it : cluster_analysis().clusters) {
+//        res << "{"<< it.second << " {";
+        Cluster cluster = it.second;
+        for (int pid : cluster.particles) 
+        {
+          double  = cluster.calculate_cluster_center_of_mass();
+        }
+//        res << com << "} } ";
+      }
+      argc -= 1; argv += 1;
+    	Tcl_AppendResult(interp, res.str().c_str(), (char*) NULL);
+      return TCL_OK;
+    }
+*/
+
     else {
     	Tcl_AppendResult(interp, "Unknown argument.", (char*) NULL);
 	    return TCL_ERROR;
     }
   return gather_runtime_errors(interp,TCL_OK);
-}
+	}

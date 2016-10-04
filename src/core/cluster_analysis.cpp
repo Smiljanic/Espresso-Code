@@ -234,6 +234,7 @@ double Cluster::calculate_longest_distance()
   return ld; 
 }
 
+
 //Radius of gyration
 double Cluster::calculate_radius_of_gyration()
 {
@@ -272,7 +273,7 @@ double Cluster::calculate_radius_of_gyration()
 // Fractal dimension
 double Cluster::calculate_fractal_dimension()
 {
-/*  double df = 3.0;    //maximum df for spheres
+  double df = 3.0;    //maximum df for spheres
   double relative_to_com[3]; //vector of the particle to the com
   double distance;    //distance of the particle from the center of the mass of the agglomerate
   int pid;            // particle ID
@@ -291,9 +292,7 @@ double Cluster::calculate_fractal_dimension()
     diameters.push_back(rad*2.0); //diameters are taken as doubled counter rad=0,1,2,3,..,particles.size()
 // get particle's ID
     pid = particles[it];
-    for (int i=0; i<3; i++){ 
 // calculate particle vector positions from the COM
-    }   
     get_mi_vector(relative_to_com, comarray, local_particles[it]->r.p); 
 //calculate particle distance from the COM 
     distance = sqrlen(relative_to_com);
@@ -327,19 +326,19 @@ double Cluster::calculate_fractal_dimension()
 
 #ifdef GSL
 //usage: Function: int gsl_fit_linear (const double * x, const size_t xstride, const double * y, const size_t ystride, size_t n, double * c0, double * c1, double * cov00, double * cov01, double * cov11, double * sumsq) 
-  df=3.0;
+  df=1.0;
   int n;
   double c0, c1, cov00, cov01, cov11, sumsq;
   if (diameters.size() > 1) 
   {
-    gsl_fit_linear (&(diameters[0]), 1, &(log_pcounts[0]), 1, &n, &c0, &c1, &cov00, &cov01, &cov11, &sumsq);  
+    gsl_fit_linear (&(log_diameters[0]), 1, &(log_pcounts[0]), 1, &n, &c0, &c1, &cov00, &cov01, &cov11, &sumsq);  
   }
 
 #else
   runtimeErrorMsg()<< "GSL (gnu scientific library) is not found.";
 #endif
   return df; 
-*/
+
 }
 
 

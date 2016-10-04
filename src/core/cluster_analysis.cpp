@@ -197,8 +197,13 @@ std::vector<double>  Cluster::calculate_cluster_center_of_mass()
   for (int i=0; i<3; i++) {
     com[i] = reference[i]*(1.0/particles.size()); //divide by number of particles in aggregate
   }
+  printf("************************************");
+  printf("Cluster center of mass is: [%f,%f,%f].\n", com[0], com[1], com[2]);
+  printf("************************************");
   return com;
 }
+
+
 
 //Longest distance
 double Cluster::calculate_longest_distance()
@@ -230,7 +235,7 @@ double Cluster::calculate_longest_distance()
 double Cluster::calculate_radius_of_gyration()
 {
   double distance[3];
-  double distance2, rg2;
+  double distance2, rg2, rg;
   int cluster_size = particles.size();
 
 //  calculate com of the aggregate
@@ -252,10 +257,11 @@ double Cluster::calculate_radius_of_gyration()
 // divide with number of particles 
   rg2 = distance2/particles.size(); 
 //return square root of it
-  return sqrt(rg2);
+  rg = sqrt(rg2);
+  return rg;
 }
 
-/*
+
 
 // Fractal dimension
 double Cluster::calculate_fractal_dimension()
@@ -328,7 +334,7 @@ double Cluster::calculate_fractal_dimension()
 #endif
   return df; 
 }
-**/
+
 
 
 int ClusterStructure::find_id_for(int x)

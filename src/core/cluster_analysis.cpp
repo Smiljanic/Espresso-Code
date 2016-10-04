@@ -197,9 +197,9 @@ std::vector<double>  Cluster::calculate_cluster_center_of_mass()
   for (int i=0; i<3; i++) {
     com[i] = reference[i]*(1.0/particles.size()); //divide by number of particles in aggregate
   }
-  printf("************************************");
-  printf("Cluster center of mass is: [%f,%f,%f].\n", com[0], com[1], com[2]);
-  printf("************************************");
+//  printf("**********************************************************\n");
+//  printf("Cluster center of mass is: [%f,%f,%f].\n", com[0], com[1], com[2]);
+//  printf("**********************************************************\n");
   return com;
 }
 
@@ -228,6 +228,9 @@ double Cluster::calculate_longest_distance()
     if ((sqrlen(ld_vec))>ld) //compare that distance with the longest distance
       ld=sqrlen(ld_vec); //save bigger value as longest distance - ld
   }
+//  printf("*****************************\n");
+//  printf("The longest distance is: %f.\n", ld);
+//  printf("*****************************\n");
   return ld; 
 }
 
@@ -258,6 +261,9 @@ double Cluster::calculate_radius_of_gyration()
   rg2 = distance2/particles.size(); 
 //return square root of it
   rg = sqrt(rg2);
+//  printf("*****************************\n");
+//  printf("The radius of gyration is: %f.\n", rg);
+//  printf("*****************************\n");
   return rg;
 }
 
@@ -266,7 +272,7 @@ double Cluster::calculate_radius_of_gyration()
 // Fractal dimension
 double Cluster::calculate_fractal_dimension()
 {
-  double df = 3.0;    //maximum df for spheres
+/*  double df = 3.0;    //maximum df for spheres
   double relative_to_com[3]; //vector of the particle to the com
   double distance;    //distance of the particle from the center of the mass of the agglomerate
   int pid;            // particle ID
@@ -333,6 +339,7 @@ double Cluster::calculate_fractal_dimension()
   runtimeErrorMsg()<< "GSL (gnu scientific library) is not found.";
 #endif
   return df; 
+*/
 }
 
 

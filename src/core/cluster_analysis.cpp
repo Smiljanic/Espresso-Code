@@ -189,6 +189,7 @@ std::vector<double>  Cluster::calculate_cluster_center_of_mass()
   for (auto const& it : particles)  //iterate over all particles within a cluster
   { 
     get_mi_vector(relative_to_reference, local_particles[0]->r.p, local_particles[it]->r.p); //add current particle positions
+   
     for (int i=0; i<3; i++)
     {
     reference[i] += relative_to_reference[i];
@@ -208,6 +209,7 @@ std::vector<double>  Cluster::calculate_cluster_center_of_mass()
 //Longest distance
 double Cluster::calculate_longest_distance()
 {
+// !!Current implementation doesn't recalculate LD according to the 
   double ld = 0.0; //the longest distance
   double ld_vec[3] ={0,0,0}; //longest distance vector
   double position[3] = {0,0,0}; //position of current particle
@@ -220,7 +222,7 @@ double Cluster::calculate_longest_distance()
 
   for (auto const& it2 : particles) { //iterate over particles within an aggregate
     get_mi_vector(relative_distance, comarray, local_particles[it2]->r.p); //add current particle positions
-
+    printf("Distance of the particle %d to the com is: [%f-%f=%f, %f-%f=%f, %f-%f=%f]\n", it2,  comarray[0], local_particles[it2]->r.p[0], relative_distance[0], comarray[1],local_particles[it2]->r.p[1], relative_distance[1], comarray[2],local_particles[it2]->r.p[2], relative_distance[2]);
 
     for (int i=0; i<3; i++){ 
      ld_vec[i] = com[i]-relative_distance[i]; //calculate relative particle position to the com
@@ -348,7 +350,7 @@ double Cluster::calculate_fractal_dimension()
 #endif
 
 
-  return df; 
+  return sumsq; 
 
 }
 
@@ -393,6 +395,3 @@ void ClusterStructure::set_criterion(NeighborCriterion* c) {
 }
 
    
-
- 
-

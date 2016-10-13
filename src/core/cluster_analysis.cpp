@@ -170,7 +170,6 @@ void ClusterStructure::merge_clusters() {
 //Center of mass of an aggregate
 std::vector<double>  Cluster::calculate_cluster_center_of_mass() 
 {
-  double zeros[] = {0.0,0.0,0.0};
   std::vector<double> com; //initialized com
   for (int i=0; i<3; i++)
     com.push_back(0.0);
@@ -180,23 +179,29 @@ std::vector<double>  Cluster::calculate_cluster_center_of_mass()
   // particle of the cluster is taken as reference, and for the other particles 
   // distance is calculated with get_mi_vector(reference, current part), added to 
   // the reference and finally divided with num of part. in cluster 
-  std::vector<double> reference;
-  for (int i=0; i<3; i++)
-    reference.push_back(local_particles[0]->r.p[i]);
   
+  double reference_particle[3];
+  //std::vector<double> reference;
+  for (int i=0; i<3; i++)
+    reference_particle[i]=local_particles[0]->r.p[i];
+    //reference.push_back(local_particles[0]->r.p[i]);
+  printf("the reference particle (local_particles[0]->p.identity) is: %d at %f , %f, %f\n", local_particles[0]->p.identity, local_particles[0]->r.p[0], local_particles[0]->r.p[1], local_particles[0]->r.p[2]); 
+  printf("the reference particle (reference_particle[0]) is: %d at %f , %f, %f\n", local_particles[0]->p.identity, reference_particle[0], reference_particle[1], reference_particle[2]); 
   // calculate relative distance if i-th particle to the reference
   double relative_to_reference[3];
   for (auto const& it : particles)  //iterate over all particles within a cluster
   { 
-    get_mi_vector(relative_to_reference, local_particles[0]->r.p, local_particles[it]->r.p); //add current particle positions
+    //get_mi_vector(relative_to_reference, local_particles[0]->r.p, local_particles[it]->r.p); //add current particle positions
+    get_mi_vector(relative_to_reference, reference_particle, local_particles[it]->r.p); //add current particle positions
+    printf("next particle is: %d\n", local_particles[it]->p.identity); 
    
     for (int i=0; i<3; i++)
     {
-    reference[i] += relative_to_reference[i];
+    reference_particle[i] += relative_to_reference[i];
     }
   }
   for (int i=0; i<3; i++) {
-    com[i] = reference[i]*(1.0/particles.size()); //divide by number of particles in aggregate
+    com[i] = reference_particle[i]*(1.0/particles.size()); //divide by number of particles in aggregate
   }
 //  printf("**********************************************************\n");
 //  printf("Cluster center of mass is: [%f,%f,%f].\n", com[0], com[1], com[2]);
@@ -222,7 +227,7 @@ double Cluster::calculate_longest_distance()
 
   for (auto const& it2 : particles) { //iterate over particles within an aggregate
     get_mi_vector(relative_distance, comarray, local_particles[it2]->r.p); //add current particle positions
-    printf("Distance of the particle %d to the com is: [%f-%f=%f, %f-%f=%f, %f-%f=%f]\n", it2,  comarray[0], local_particles[it2]->r.p[0], relative_distance[0], comarray[1],local_particles[it2]->r.p[1], relative_distance[1], comarray[2],local_particles[it2]->r.p[2], relative_distance[2]);
+ //   printf("Distance of the particle %d to the com is: [%f-%f=%f, %f-%f=%f, %f-%f=%f]\n", it2,  comarray[0], local_particles[it2]->r.p[0], relative_distance[0], comarray[1],local_particles[it2]->r.p[1], relative_distance[1], comarray[2],local_particles[it2]->r.p[2], relative_distance[2]);
 
     for (int i=0; i<3; i++){ 
      ld_vec[i] = com[i]-relative_distance[i]; //calculate relative particle position to the com

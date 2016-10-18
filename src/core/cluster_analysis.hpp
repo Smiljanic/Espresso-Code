@@ -36,7 +36,7 @@ class Cluster {
     double calculate_longest_distance();
     // calculate radius of gyration();
     double calculate_radius_of_gyration();
-    //calculate fractal dimension
+    // calculate fractal dimension
     double calculate_fractal_dimension();
  };
 

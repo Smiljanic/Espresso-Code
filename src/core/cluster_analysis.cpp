@@ -183,21 +183,25 @@ std::vector<double>  Cluster::calculate_cluster_center_of_mass()
   double reference_particle[3];
   //std::vector<double> reference;
   for (int i=0; i<3; i++)
-    reference_particle[i]=local_particles[0]->r.p[i];
-    //reference.push_back(local_particles[0]->r.p[i]);
-  printf("the reference particle (local_particles[0]->p.identity) is: %d at %f , %f, %f\n", local_particles[0]->p.identity, local_particles[0]->r.p[0], local_particles[0]->r.p[1], local_particles[0]->r.p[2]); 
-  printf("the reference particle (reference_particle[0]) is: %d at %f , %f, %f\n", local_particles[0]->p.identity, reference_particle[0], reference_particle[1], reference_particle[2]); 
+    reference_particle[i]=0.0;
+//    reference_particle[i]=local_particles[0]->r.p[i];
+
+  // The problem is here: in different runs particle 0 has different id (and position, too)
+//    printf("the reference particle (reference_particle[0]) is: %d at %f , %f, %f\n", local_particles[0]->p.identity, reference_particle[0], reference_particle[1], reference_particle[2]); 
+
   // calculate relative distance if i-th particle to the reference
   double relative_to_reference[3];
   for (auto const& it : particles)  //iterate over all particles within a cluster
   { 
+    printf("particles that are anallyzing are: %d,\n",local_particles[it]->p.identity);
     //get_mi_vector(relative_to_reference, local_particles[0]->r.p, local_particles[it]->r.p); //add current particle positions
-    get_mi_vector(relative_to_reference, reference_particle, local_particles[it]->r.p); //add current particle positions
-    printf("next particle is: %d\n", local_particles[it]->p.identity); 
-   
+  //  get_mi_vector(relative_to_reference, reference_particle, local_particles[it]->r.p); //add current particle positions
+//    printf("next particle is: %d at [%f,%f,%f]\n", local_particles[it]->p.identity, local_particles[it]->r.p[0], local_particles[it]->r.p[1], local_particles[it]->r.p[2]); 
+//    printf("---->> from the reference particle it is [%f, %f, %f] far away!\n", relative_to_reference[0], relative_to_reference[1], relative_to_reference[2]);
+     
     for (int i=0; i<3; i++)
     {
-    reference_particle[i] += relative_to_reference[i];
+    reference_particle[i] += local_particles[it]->r.p[i];
     }
   }
   for (int i=0; i<3; i++) {

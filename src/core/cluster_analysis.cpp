@@ -34,6 +34,9 @@ void ClusterStructure::analyze_pair()
   merge_clusters();
 }
 
+
+
+
 void ClusterStructure::analyze_bonds() {
 
   //printf("Came to the analyze_bond part!\n");
@@ -180,29 +183,30 @@ std::vector<double>  Cluster::calculate_cluster_center_of_mass()
   // distance is calculated with get_mi_vector(reference, current part), added to 
   // the reference and finally divided with num of part. in cluster 
   
-  double reference_particle[3];
-  //std::vector<double> reference;
-  for (int i=0; i<3; i++)
-    reference_particle[i]=local_particles[0]->r.p[i];
-    //reference.push_back(local_particles[0]->r.p[i]);
-  printf("the reference particle (local_particles[0]->p.identity) is: %d at %f , %f, %f\n", local_particles[0]->p.identity, local_particles[0]->r.p[0], local_particles[0]->r.p[1], local_particles[0]->r.p[2]); 
-  printf("the reference particle (reference_particle[0]) is: %d at %f , %f, %f\n", local_particles[0]->p.identity, reference_particle[0], reference_particle[1], reference_particle[2]); 
-  // calculate relative distance if i-th particle to the reference
+  double reference_particle[3] = {0,0,0};
   double relative_to_reference[3];
-  for (auto const& it : particles)  //iterate over all particles within a cluster
-  { 
+  double sum_of_distances[3] = {0.0};
+
+  for (int it : particles)  //iterate over all particles within a cluster
+  {
+    for (int i=0; i<3; i++)
+      // accessing first particle of an aggregate
+      reference_particle[i] = local_particles[particles[0]]->r.p[i];
+    printf("the reference particle (local_particles[0]->p.identity) is: %d at %f , %f, %f\n", local_particles[0]->p.identity, reference_particle[0], reference_particle[1],reference_particle[2]); 
+
     //get_mi_vector(relative_to_reference, local_particles[0]->r.p, local_particles[it]->r.p); //add current particle positions
     get_mi_vector(relative_to_reference, reference_particle, local_particles[it]->r.p); //add current particle positions
-    printf("next particle is: %d\n", local_particles[it]->p.identity); 
+   //printf("next particle is: %d\n", local_particles[it]->p.identity); 
    
     for (int i=0; i<3; i++)
     {
-    reference_particle[i] += relative_to_reference[i];
+    sum_of_distances[i] += relative_to_reference[i];
     }
   }
   for (int i=0; i<3; i++) {
-    com[i] = reference_particle[i]*(1.0/particles.size()); //divide by number of particles in aggregate
+    com[i] = sum_of_distances[i]*(1.0/particles.size()); //divide by number of particles in aggregate
   }
+//}
 //  printf("**********************************************************\n");
 //  printf("Cluster center of mass is: [%f,%f,%f].\n", com[0], com[1], com[2]);
 //  printf("**********************************************************\n");
@@ -220,7 +224,8 @@ double Cluster::calculate_longest_distance()
   double position[3] = {0,0,0}; //position of current particle
 //calculate com  
   std::vector<double> com; //center of mass
-  com = calculate_cluster_center_of_mass(); 
+  com = calculate_cluster_center_of_mass();
+//get an array comarray from the vector com 
   double *comarray = &com[0]; 
 //compare the distance of each particle from the c_o_m to get the longest    
   double relative_distance[3];
@@ -389,6 +394,40 @@ ClusterStructure cluster_structure;
 ClusterStructure& cluster_analysis() {
   return cluster_structure;
 }
+
+//!!!!!!!!!!!!!!!!!!
+// com of all aggregates
+std::vector<double> centers_of_masses()
+{
+ std::vector<double> coms;
+ for (auto const& it: clusters) {
+ ( // coms.push_back(it.second.calculate_cluster_center_of_mass());
+    coms.push_back(it.second.calculate_cluster_center_of_mass());
+ }
+}
+
+ 
+// rg of all aggregates
+std::vector<double> radii_of_gyration() 
+{
+ std::vector<double> rgs;
+
+ for (auto const& it: clusters) {
+   rgs.push_back(it.second.calculate_radius_of_gyration());
+ } 
+}
+
+
+// df of all aggregates
+std::vector<double> fractals_dimensions()
+{
+ std::vector<double> dfs;
+ for (auto const& it: clusters) {
+   dfs.push_back(it.second.calculate_fractal_dimension());
+ }
+}
+
+//!!!!!!!!!!!!!!!!!
 
 void ClusterStructure::set_criterion(NeighborCriterion* c) {
   if (nc)

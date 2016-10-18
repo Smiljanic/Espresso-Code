@@ -57,6 +57,13 @@ class ClusterStructure {
   // Clusters that turn out to be the same (i.e., if two particles are
   // neighbors that already belong to different clusters)
   std::map<int,int> cluster_identities;
+  // com for all aggregates
+  std::vector<double> centers_of_masses();
+  // rg of all aggregates
+  std::vector<double> radii_of_gyration(); 
+  // df of all aggregates
+  std::vector<double> fractals_dimensions();
+ 
   // Clear data structures
   void clear();
   // Analyze the cluster structure for energy and distance-based

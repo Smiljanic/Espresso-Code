@@ -273,26 +273,32 @@ double Cluster::calculate_longest_distance()
 //Radius of gyration
 double Cluster::calculate_radius_of_gyration()
 {
-  double distance[3];
-  double distance2, rg2, rg;
-  int cluster_size = particles.size();
+  double distance[3]={0.0};
+  double distance2 = 0.0;
+  double rg2 = 0.0; 
+  double rg =0.0;;
 
 //  calculate com of the aggregate
   std::vector<double> com; //center of mass
-//  double com; //center of mass
+// get vector center of mass
   com = calculate_cluster_center_of_mass();  
+// get array center of mass
   double *comarray = &com[0];
 
-//compare the distance of each particle from the c_o_m to get the longest    
-  
+//  std::vector<double> distances; 
+//  std::vector<double> distances2; 
+
   double current_modul;
   double current2;
   for (auto const& it3 : particles) {
 // calculate distance between com and pid and store in variable current  
     get_mi_vector(distance, comarray, local_particles[particles[it3]]->r.p);
+//    distances.push_back(distance);
 // calculate square length of this distance  
-    distance2 += sqrlen(distance)*sqrlen(distance);
-  }    
+    distance2 += sqrlen(distance);
+//    distances2.push_back(distance2);
+  }   
+ 
 // divide with number of particles 
   rg2 = distance2/particles.size(); 
 //return square root of it

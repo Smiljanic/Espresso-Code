@@ -343,40 +343,46 @@ double Cluster::calculate_fractal_dimension()
 //calculate particle distance from the COM 
     distance = sqrlen(relative_to_com);
 //    printf("Particles distance is %f\n",distance );
-    distances.push_back(distance); //add distance from the current particle to the com in the distances vectors
+    distances.push_back(sqrt(distance)); //add distance from the current particle to the com in the distances vectors
   }
   
-  int rad = 0;
+  double rad = 0.0;
   int k = 0;
   int pcount = 0;  
 // iterate over particles within an aggregate 
   while (k < particles.size()) 
   { 
-    
-//    printf("Cluster size is: %d, and k is: %d\n", cluster_size, k );
-    rad+=1;  //increase the radius for sigma=1
-    if (distances[rad] < rad) {
-      distances_smaller_than_rad.push_back(distances[rad]);
-      int numPar = distances_smaller_than_rad.size();
-//      printf("Particles distances within the rad are %d\n",numPar );
-      k = distances_smaller_than_rad.size();
-//      printf("Number of particles within given distances  %d\n", k );
-      if (k > 0) 
-      {
-        pcounts.push_back(k); //append number of particles wihin given diameter
-        diameters.push_back(rad*2.0); //diameters are taken as doubled counter rad=0,1,2,3,..,particles.size()
-        
-        log_pcounts.push_back(log(k));
-        log_diameters.push_back(log(rad*2.0)); //save the logarithms of diameters and num of particles --> do it in a more fashionable way : maybe with map
-      }
+    rad += 1;  //increase the radius for sigma=1
+ //   distances_smaller_than_rad.clear();
+    for (int i = 0; i < distances.size(); i ++) {
+     if (distances[i] < rad) {
+      distances_smaller_than_rad.push_back(distances[i]);
+ //     printf ("distances are %f\n", distances[i]);
+     }
     }
-    k+=1;
-  }
+    k = distances_smaller_than_rad.size(); 
+    distances_smaller_than_rad.clear();
+//    printf("Number of particles within given rad %f:  %d\n", rad, k );
+    if (k > 0) 
+    {
+      pcounts.push_back(k); //append number of particles wihin given diameter
+      diameters.push_back(rad*2.0); //diameters are taken as doubled counter rad=0,1,2,3,..,particles.size()
+        
+      log_pcounts.push_back(log(k));
+      log_diameters.push_back(log(rad*2.0)); //save the logarithms of diameters and num of particles --> do it in a more fashionable way : maybe with map
+    }
+}
 
+printf("pcounts  diameters\n");
+for (int i=0; i < diameters.size(); i++) {
+  printf("%d	%f \n", pcounts[i], diameters[i]);
+//  printf("%f	%f \n", log_pcounts[i], log_diameters[i]);
     
+}
+
 #ifdef GSL
 //usage: Function: int gsl_fit_linear (const double * x, const size_t xstride, const double * y, const size_t ystride, size_t n, double * c0, double * c1, double * cov00, double * cov01, double * cov11, double * sumsq) 
-  df=1.0;
+//  df=1.0;
   int n=5;
   double c0, c1, cov00, cov01, cov11, sumsq;
   if (diameters.size() > 1) 
@@ -389,8 +395,11 @@ double Cluster::calculate_fractal_dimension()
   runtimeErrorMsg()<< "GSL (gnu scientific library) is not found.";
 #endif
 
+ 
+  printf("c0	c1	cov00	cov01	cov11	sumsq\n");
+  printf("%f	%f	%f	%f	%f	%f \n", c0, c1, cov00, cov01, cov11, sumsq);
 
-  return sumsq; 
+  return (c1); 
 
 }
 
@@ -435,6 +444,7 @@ std::vector<double> centers_of_masses()
  ( // coms.push_back(it.second.calculate_cluster_center_of_mass());
     coms.push_back(it.second.calculate_cluster_center_of_mass());
  }
+return coms;
 }
 
  
@@ -446,6 +456,7 @@ std::vector<double> radii_of_gyration()
  for (auto const& it: clusters) {
    rgs.push_back(it.second.calculate_radius_of_gyration());
  } 
+return rgs;
 }
 
 
@@ -456,6 +467,7 @@ std::vector<double> fractals_dimensions()
  for (auto const& it: clusters) {
    dfs.push_back(it.second.calculate_fractal_dimension());
  }
+return dfs;
 }
 
 //!!!!!!!!!!!!!!!!!

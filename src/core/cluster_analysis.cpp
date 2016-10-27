@@ -373,9 +373,9 @@ double Cluster::calculate_fractal_dimension()
     }
 }
 
-printf("pcounts  diameters\n");
+//printf("pcounts  diameters\n");
 for (int i=0; i < diameters.size(); i++) {
-  printf("%d	%f \n", pcounts[i], diameters[i]);
+//  printf("%d	%f \n", pcounts[i], diameters[i]);
 //  printf("%f	%f \n", log_pcounts[i], log_diameters[i]);
     
 }
@@ -383,7 +383,7 @@ for (int i=0; i < diameters.size(); i++) {
 #ifdef GSL
 //usage: Function: int gsl_fit_linear (const double * x, const size_t xstride, const double * y, const size_t ystride, size_t n, double * c0, double * c1, double * cov00, double * cov01, double * cov11, double * sumsq) 
 //  df=1.0;
-  int n=5;
+  int n=pcounts.size();
   double c0, c1, cov00, cov01, cov11, sumsq;
   if (diameters.size() > 1) 
   {
@@ -396,8 +396,8 @@ for (int i=0; i < diameters.size(); i++) {
 #endif
 
  
-  printf("c0	c1	cov00	cov01	cov11	sumsq\n");
-  printf("%f	%f	%f	%f	%f	%f \n", c0, c1, cov00, cov01, cov11, sumsq);
+//  printf("c0	c1	cov00	cov01	cov11	sumsq\n");
+//  printf("%f	%f	%f	%f	%f	%f \n", c0, c1, cov00, cov01, cov11, sumsq);
 
   return (c1); 
 

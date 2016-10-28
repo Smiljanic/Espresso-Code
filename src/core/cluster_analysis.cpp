@@ -458,7 +458,7 @@ std::vector<double> ClusterStructure::longest_distances()
  for (auto  it: clusters) {
    lds.push_back(it.second.calculate_longest_distance());
  } 
-return rgs;
+return lds;
 }
 
 // rg of all aggregates

@@ -450,6 +450,17 @@ std::vector<std::vector<double> > ClusterStructure::centers_of_masses()
   return coms;
 }
  
+// ld of all aggregates
+std::vector<double> ClusterStructure::longest_distances() 
+{
+ std::vector<double> lds;
+
+ for (auto  it: clusters) {
+   lds.push_back(it.second.calculate_longest_distance());
+ } 
+return rgs;
+}
+
 // rg of all aggregates
 std::vector<double> ClusterStructure::radii_of_gyration() 
 {

@@ -58,7 +58,9 @@ class ClusterStructure {
   // neighbors that already belong to different clusters)
   std::map<int,int> cluster_identities;
   // com for all aggregates
-  std::vector<double> centers_of_masses();
+  std::vector<std::vector<double> > centers_of_masses();
+  // LD of all aggregates
+  std::vector<double> longest_distances(); 
   // rg of all aggregates
   std::vector<double> radii_of_gyration(); 
   // df of all aggregates
@@ -85,11 +87,8 @@ class ClusterStructure {
   // Follow a chain of cluster identities
   inline int find_id_for(int x);
   // Iterate over existing clusters and return [max_seen_cluster+1] 
-  inline int get_next_free_cluster_id();
-    
+  inline int get_next_free_cluster_id(); 
 
-
- 
 };
 
 

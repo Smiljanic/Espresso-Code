@@ -326,7 +326,7 @@ double Cluster::calculate_fractal_dimension()
   std::vector<double> distances; //list of distances 
   std::vector<double> distances_smaller_than_rad; //list of distances 
   std::vector<double> diameters; //all diameters=(radii*2) of circles around the com of aggregate
-  std::vector<int> pcounts; // numbers of particles within given diameters
+  std::vector<double> pcounts; // numbers of particles within given diameters
   
   int cluster_size = particles.size();
 
@@ -434,26 +434,28 @@ ClusterStructure& cluster_analysis() {
   return cluster_structure;
 }
 
-/*
+
 //!!!!!!!!!!!!!!!!!!
 // com of all aggregates
-std::vector<double> centers_of_masses()
+std::vector<std::vector<double> > ClusterStructure::centers_of_masses()
 {
- std::vector<double> coms;
- for (auto const& it: clusters) {
- ( // coms.push_back(it.second.calculate_cluster_center_of_mass());
-    coms.push_back(it.second.calculate_cluster_center_of_mass());
- }
-return coms;
-}
+  std::vector<std::vector<double> > coms;
+  for (auto it: clusters) {
+  //  std::vector<double> single_com;
+  //  single_com = Cluster::calculate_cluster_center_of_mass();
+  //  coms.push_back(single_com);
+   coms.push_back(it.second.calculate_cluster_center_of_mass());
+  }
 
+  return coms;
+}
  
 // rg of all aggregates
-std::vector<double> radii_of_gyration() 
+std::vector<double> ClusterStructure::radii_of_gyration() 
 {
  std::vector<double> rgs;
 
- for (auto const& it: clusters) {
+ for (auto  it: clusters) {
    rgs.push_back(it.second.calculate_radius_of_gyration());
  } 
 return rgs;
@@ -461,17 +463,18 @@ return rgs;
 
 
 // df of all aggregates
-std::vector<double> fractals_dimensions()
+std::vector<double> ClusterStructure::fractals_dimensions()
 {
  std::vector<double> dfs;
- for (auto const& it: clusters) {
+ for (auto  it: clusters) {
    dfs.push_back(it.second.calculate_fractal_dimension());
  }
 return dfs;
 }
 
 //!!!!!!!!!!!!!!!!!
-*/
+
+
 
 void ClusterStructure::set_criterion(NeighborCriterion* c) {
   if (nc)

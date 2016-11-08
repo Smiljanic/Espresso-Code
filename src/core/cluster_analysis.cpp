@@ -212,61 +212,54 @@ std::vector<double>  Cluster::calculate_cluster_center_of_mass()
         com[i] = com[i] - box_l[i];
       }
       }
-
-  //com[i] =abs(fmod( (sum_of_distances[i] * (1.0/particles.size() )), box_l[i])); // take the modulo of the box_l in respective directions and divide by number of particles in aggregate
-//this one is working, but not for the periodic boundary condition   
-// com[i] =(sum_of_distances[i] * (1.0/particles.size() )); // take the modulo of the box_l in respective directions and divide by number of particles in aggregate
-    //com[i] =abs( ((reference_position[i] + sum_of_distances[i]) * (1.0/particles.size() ))/box_l[i]); // take the modulo of the box_l in respective directions and divide by number of particles in aggregate
-   // printf("center of mass is: [%f, %f, %f]");
    }
-
-
 //  printf("**********************************************************\n");
 //  printf("Cluster center of mass is: [%f,%f,%f].\n", com[0], com[1], com[2]);
 //  printf("**********************************************************\n");
-
   return com;
-
-
-
 }
 
 
 
 //Longest distance
+//std::vector<double> Cluster::calculate_longest_distance()
 double Cluster::calculate_longest_distance()
 {
-// !!Current implementation doesn't recalculate LD according to the 
-  double ld = 0.0; //the longest distance
-  double ld_vec[3] ={0,0,0}; //longest distance vector
-  double position[3] = {0,0,0}; //position of current particle
 //calculate com  
   std::vector<double> com; //center of mass
   com = calculate_cluster_center_of_mass();
 //get an array comarray from the vector com 
   double *comarray = &com[0]; 
 //compare the distance of each particle from the c_o_m to get the longest    
-  double relative_distance[3]={0.0};
+  double relative_distance[3]={0.0, 0.0, 0.0};
   double itParticle[3];
-
+  
+  double ld = 0.0; //the longest distance
   for (auto const& it2 : particles) { //iterate over particles within an aggregate
 //    printf ("it2 is: %d\n", it2);
-//    printf ("particle id at it2 is: %d\n", local_particles[particles[it2]]->p.identity);
+    printf ("particle id at it2 is: %d\n", local_particles[particles[it2]]->p.identity);
     for (int i=0; i!=3; ++i)
       itParticle[i]=local_particles[particles[it2]]->r.p[i];
     get_mi_vector(relative_distance, comarray, itParticle); //add current particle positions
-//    printf("Distance of the particle %d to the com is: [%f-%f=%f, %f-%f=%f, %f-%f=%f] and its absolute value is: %f\n", local_particles[particles[it2]]->p.identity,  comarray[0], itParticle[0], relative_distance[0], comarray[1],itParticle[1], relative_distance[1], comarray[2],itParticle[2], relative_distance[2], sqrt(sqrlen(relative_distance)));
-   // printf("Distance of the particle %d to the com is: [%f, %f, %f] or %f\n", it2,  relative_distance[0], relative_distance[1],  relative_distance[2], sqrt(sqrlen(relative_distance)));
-
+//    printf("relative Distance is: %f, %f, %f\n", relative_distance[0], relative_distance[1], relative_distance[2]);
        
-    if (ld < (sqrt(sqrlen(relative_distance)))) { //compare that distance with the longest distance
+    if (ld < (sqrt(sqrlen(relative_distance))))  //compare that distance with the longest distance
       ld=sqrt(sqrlen(relative_distance)); //save bigger value as longest distance - ld
-    }
+
+  printf("current ld is: %f\n", ld);
+//  printf("last ld is: %f\n", ld);
   }
-//  printf("*****************************\n");
-//  printf("The longest distance is: %f.\n", ld);
-//  printf("*****************************\n");
-  return ld; 
+  printf("last ld is: %f\n", ld);
+  printf("THEE ld is: %f\n", ld);
+  printf("*****************************\n");
+  printf("The longest distance is: %f\n", ld);
+  printf("*****************************\n");
+
+//  std::vector<double> ld_vec;
+//  ld_vec.push_back(ld);
+//  return ld_vec;
+
+  return ld;
 }
 
 
@@ -284,24 +277,16 @@ double Cluster::calculate_radius_of_gyration()
   com = calculate_cluster_center_of_mass();  
 // get array center of mass
   double *comarray = &com[0];
-
-//  std::vector<double> distances; 
-//  std::vector<double> distances2; 
-
-  double current_modul;
-  double current2;
   for (auto const& it3 : particles) {
 // calculate distance between com and pid and store in variable current  
     get_mi_vector(distance, comarray, local_particles[particles[it3]]->r.p);
-//    distances.push_back(distance);
 // calculate square length of this distance  
     distance2 += sqrlen(distance);
-//    distances2.push_back(distance2);
   }   
  
 // divide with number of particles 
   rg2 = distance2/particles.size(); 
-//return square root of it
+// return square root of it
   rg = sqrt(rg2);
 //  printf("*****************************\n");
 //  printf("The radius of gyration is: %f.\n", rg);
@@ -318,9 +303,9 @@ double Cluster::calculate_fractal_dimension()
   double relative_to_com[3]; //vector of the particle to the com
   double distance;    //distance of the particle from the center of the mass of the agglomerate
   int pid;            // particle ID
-//  calculate com of the aggregate
+// calculate com of the aggregate
   std::vector<double> com; //center of mass
-//  double com; //center of mass
+// double com; //center of mass
   com = calculate_cluster_center_of_mass();  
   double *comarray = &com[0];
   std::vector<double> distances; //list of distances 
@@ -330,19 +315,17 @@ double Cluster::calculate_fractal_dimension()
   
   int cluster_size = particles.size();
 
-//calculate Df using linear regression on the logarithms of diameters [__std::vector<double> diameters__] and num of particles [__std::vector<int> pcounts__] within the diameters
+// calculate Df using linear regression on the logarithms of diameters [__std::vector<double> diameters__] and num of particles [__std::vector<int> pcounts__] within the diameters
   std::vector<double> log_diameters;
   std::vector<double> log_pcounts;
 
 // calculate relative distance for each particle to the center of mass and store it into vector distances 
   for (auto const& it3 : particles) {
-//  for (int i=0; i<cluster_size; i++)
-  
 // calculate particle vector positions from the COM
     get_mi_vector(relative_to_com, comarray, local_particles[particles[it3]]->r.p); 
-//calculate particle distance from the COM 
+// calculate particle distance from the COM 
     distance = sqrlen(relative_to_com);
-//    printf("Particles distance is %f\n",distance );
+// printf("Particles distance is %f\n",distance );
     distances.push_back(sqrt(distance)); //add distance from the current particle to the com in the distances vectors
   }
   
@@ -353,41 +336,31 @@ double Cluster::calculate_fractal_dimension()
   while (k < particles.size()) 
   { 
     rad += 1;  //increase the radius for sigma=1
- //   distances_smaller_than_rad.clear();
     for (int i = 0; i < distances.size(); i ++) {
      if (distances[i] < rad) {
       distances_smaller_than_rad.push_back(distances[i]);
- //     printf ("distances are %f\n", distances[i]);
+// printf ("distances are %f\n", distances[i]);
      }
     }
     k = distances_smaller_than_rad.size(); 
     distances_smaller_than_rad.clear();
-//    printf("Number of particles within given rad %f:  %d\n", rad, k );
+// printf("Number of particles within given rad %f:  %d\n", rad, k );
     if (k > 0) 
     {
       pcounts.push_back(k); //append number of particles wihin given diameter
       diameters.push_back(rad*2.0); //diameters are taken as doubled counter rad=0,1,2,3,..,particles.size()
         
-      log_pcounts.push_back(log(k));
-      log_diameters.push_back(log(rad*2.0)); //save the logarithms of diameters and num of particles --> do it in a more fashionable way : maybe with map
+      log_pcounts.push_back(log(k)); //append log of pcounts
+      log_diameters.push_back(log(rad*2.0)); //append log of diameters
     }
 }
 
-//printf("pcounts  diameters\n");
-for (int i=0; i < diameters.size(); i++) {
-//  printf("%d	%f \n", pcounts[i], diameters[i]);
-//  printf("%f	%f \n", log_pcounts[i], log_diameters[i]);
-    
-}
-
 #ifdef GSL
-//usage: Function: int gsl_fit_linear (const double * x, const size_t xstride, const double * y, const size_t ystride, size_t n, double * c0, double * c1, double * cov00, double * cov01, double * cov11, double * sumsq) 
-//  df=1.0;
+// usage: Function: int gsl_fit_linear (const double * x, const size_t xstride, const double * y, const size_t ystride, size_t n, double * c0, double * c1, double * cov00, double * cov01, double * cov11, double * sumsq) 
   int n=pcounts.size();
   double c0, c1, cov00, cov01, cov11, sumsq;
   if (diameters.size() > 1) 
   {
-//   gsl_fit_linear (&(log_diameters[0]), 1, &(log_pcounts[0]), 1, n, &c0, &c1, &cov00, &cov01, &cov11, &sumsq);  
    gsl_fit_linear (&log_diameters.front(), 1, &log_pcounts.front(), 1, n, &c0, &c1, &cov00, &cov01, &cov11, &sumsq);  
   }
 
@@ -436,33 +409,42 @@ ClusterStructure& cluster_analysis() {
 
 
 //!!!!!!!!!!!!!!!!!!
+// Geometry analysis performed on all aggregates
 // com of all aggregates
-std::vector<std::vector<double> > ClusterStructure::centers_of_masses()
+std::vector<std::vector<double> > ClusterStructure::calculate_centers_of_masses()
 {
   std::vector<std::vector<double> > coms;
+  printf("COMS are:\n");
   for (auto it: clusters) {
-  //  std::vector<double> single_com;
-  //  single_com = Cluster::calculate_cluster_center_of_mass();
-  //  coms.push_back(single_com);
-   coms.push_back(it.second.calculate_cluster_center_of_mass());
+    std::vector<double> single_com;
+    single_com = it.second.calculate_cluster_center_of_mass();
+    coms.push_back(single_com);
+  // coms.push_back(it.second.calculate_cluster_center_of_mass());
+  //  printf("[%f, %f, %f]\n", single_com[0], single_com[1], single_com[2]);
+  printf("**********************************************************\n");
+  printf("Cluster centers of masses is: [%f,%f,%f].\n", single_com[0], single_com[1], single_com[2]);
+  printf("**********************************************************\n");
   }
-
   return coms;
 }
- 
+
+/* 
 // ld of all aggregates
-std::vector<double> ClusterStructure::longest_distances() 
+std::vector<double> ClusterStructure::calculate_longest_distances() 
 {
  std::vector<double> lds;
 
+ double temp;
  for (auto  it: clusters) {
-   lds.push_back(it.second.calculate_longest_distance());
+   temp = it.second.calculate_longest_distance();
+   lds.push_back(temp);
  } 
 return lds;
 }
-
+*/
+/*
 // rg of all aggregates
-std::vector<double> ClusterStructure::radii_of_gyration() 
+std::vector<double> ClusterStructure::calculate_radii_of_gyration() 
 {
  std::vector<double> rgs;
 
@@ -474,7 +456,7 @@ return rgs;
 
 
 // df of all aggregates
-std::vector<double> ClusterStructure::fractals_dimensions()
+std::vector<double> ClusterStructure::calculate_fractals_dimensions()
 {
  std::vector<double> dfs;
  for (auto  it: clusters) {
@@ -484,7 +466,7 @@ return dfs;
 }
 
 //!!!!!!!!!!!!!!!!!
-
+*/
 
 
 void ClusterStructure::set_criterion(NeighborCriterion* c) {

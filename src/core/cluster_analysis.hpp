@@ -30,10 +30,12 @@ class Cluster {
     std::vector<int> particles;
     // add a particle (Makes a copy of the original)
     void add_particle(const Particle& p);
+
     // calculate center of mass of the cluster
     std::vector<double> calculate_cluster_center_of_mass();
     // calculate longest distance
-    double calculate_longest_distance();
+    double calculate_longest_distance();  
+    //std::vector<double> calculate_longest_distance();  
     // calculate radius of gyration();
     double calculate_radius_of_gyration();
     // calculate fractal dimension
@@ -58,13 +60,13 @@ class ClusterStructure {
   // neighbors that already belong to different clusters)
   std::map<int,int> cluster_identities;
   // com for all aggregates
-  std::vector<std::vector<double> > centers_of_masses();
+  std::vector<std::vector<double> > calculate_centers_of_masses();
   // LD of all aggregates
-  std::vector<double> longest_distances(); 
+  std::vector<double> calculate_longest_distances(); 
   // rg of all aggregates
-  std::vector<double> radii_of_gyration(); 
+  std::vector<double> calculate_radii_of_gyration(); 
   // df of all aggregates
-  std::vector<double> fractals_dimensions();
+  std::vector<double> calculate_fractals_dimensions();
  
   // Clear data structures
   void clear();

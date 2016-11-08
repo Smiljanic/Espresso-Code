@@ -203,6 +203,7 @@ std::vector<double>  Cluster::calculate_cluster_center_of_mass()
     sum_of_distances[i] += relative_to_reference[i]+reference_position[i];
     }
 //    printf("sum of distances %d:  %f %f %f\n", it, sum_of_distances[0], sum_of_distances[1], sum_of_distances[2]);
+
   }
   for (int i = 0; i < 3; i ++) {
     com[i] = fmod((sum_of_distances[i])*(1.0/particles.size()), box_l[i]);    //divide by number of particles in aggregate
@@ -224,31 +225,27 @@ std::vector<double>  Cluster::calculate_cluster_center_of_mass()
 //Longest distance
 double Cluster::calculate_longest_distance()
 {
-//calculate com  
-  std::vector<double> com; //center of mass
-  com = calculate_cluster_center_of_mass();
-//get an array comarray from the vector com 
-  double *comarray = &com[0]; 
-//compare the distance of each particle from the c_o_m to get the longest    
   double relative_distance[3]={0.0, 0.0, 0.0};
-  double itParticle[3];
+  double partA[3], partB[3];
   
   double ld = 0.0; //the longest distance
-  for (int it2 : particles) { //iterate over particles within an aggregate
+  for (int it2a : particles) { //iterate over particles within an aggregate
 //    printf ("it2 is: %d\n", it2);
 //    printf ("particle it2 is: %d at the [%f %f %f]\n", local_particles[it2]->p.identity, local_particles[it2]->r.p[0], local_particles[it2]->r.p[1], local_particles[it2]->r.p[2]);
-    for (int i=0; i!=3; ++i)
-      itParticle[i]=local_particles[it2]->r.p[i];
-// caluclate vector  between com and it2-th particle, as function get_mi_vector() takes arrays as arguments, comarray is passed to the function  
-    get_mi_vector(relative_distance, comarray, itParticle); //add current particle positions
-    //get_mi_vector(relative_distance, &com, itParticle); //add current particle positions
-//    printf("relative Distance is: %f, %f, %f\n", relative_distance[0], relative_distance[1], relative_distance[2]);
+    for (int it2b : particles) { 
+      for (int i=0; i!=3; ++i) {
+        partA[i]=local_particles[it2a]->r.p[i];
+        partB[i]=local_particles[it2b]->r.p[i];
+      }
+// caluclate vector  between particle A and B  
+    get_mi_vector(relative_distance, partA, partB); //add current particle positions
+// printf("relative Distance is: %f, %f, %f\n", relative_distance[0], relative_distance[1], relative_distance[2]);
        
     if (ld < (sqrt(sqrlen(relative_distance))))  //compare that distance with the longest distance
       ld=sqrt(sqrlen(relative_distance)); //save bigger value as longest distance - ld
 
-//  printf("current ld is: %f\n", ld);
-//  printf("last ld is: %f\n", ld);
+//  printf("current distance and ld are: %f : %f\n", sqrt(sqrlen(relative_distance)), ld);
+    } 
   }
 //  printf("last ld is: %f\n", ld);
 // printf("*****************************\n");

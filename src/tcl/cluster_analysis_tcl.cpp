@@ -98,6 +98,8 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
       std::stringstream res;
       double ld, rg, df;
       res << "id	ld	rg	df\n";
+//      res << "#N	ld	rg	df\n";
+      int N;
       for (auto it : cluster_analysis().clusters) {
 //        res << it.first << " {";
         Cluster& cluster = it.second;
@@ -105,10 +107,11 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
          ld = cluster.calculate_longest_distance();
          rg = cluster.calculate_radius_of_gyration();
          df = cluster.calculate_fractal_dimension();
+//         N = sizeof(cluster);
 
         res << it.first << "	" << ld << "	"  <<  rg << "	" << df <<"\n";
       
-      //  res << it.first << " {" << com[0] << "," << com[1] << "," << com[2] << "}\n";
+//        res << it.first << " {" << com[0] << "," << com[1] << "," << com[2] << "}\n";
 
       }
       argc -= 1; argv += 1;
@@ -128,7 +131,7 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
         std::vector<double> com = cluster.calculate_cluster_center_of_mass();
         for (int pid : cluster.particles) 
           res << pid<<" " << "[" << local_particles[pid]->r.p[0] << "," << local_particles[pid]->r.p[1] << "," << local_particles[pid]->r.p[2] << "] ";
-        res << com[0] << "," << com[1] << "," << com[2] << "}\n";
+      //  res << com[0] << "," << com[1] << "," << com[2] << "}\n";
       }
       argc -= 1; argv += 1;
         Tcl_AppendResult(interp, res.str().c_str(), (char*) NULL);

@@ -108,7 +108,7 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
 
         res << it.first << "	" << ld << "	"  <<  rg << "	" << df <<"\n";
       
-        res << it.first << " {" << com[0] << "," << com[1] << "," << com[2] << "}\n";
+      //  res << it.first << " {" << com[0] << "," << com[1] << "," << com[2] << "}\n";
 
       }
       argc -= 1; argv += 1;

@@ -234,11 +234,11 @@ double Cluster::calculate_longest_distance()
   double itParticle[3];
   
   double ld = 0.0; //the longest distance
-  for (auto const& it2 : particles) { //iterate over particles within an aggregate
+  for (int it2 : particles) { //iterate over particles within an aggregate
 //    printf ("it2 is: %d\n", it2);
-    printf ("particle it2 is: %d at the [%f %f %f]\n", local_particles[particles[it2]]->p.identity, local_particles[it2]->r.p[0], local_particles[it2]->r.p[1], local_particles[it2]->r.p[2]);
+//    printf ("particle it2 is: %d at the [%f %f %f]\n", local_particles[it2]->p.identity, local_particles[it2]->r.p[0], local_particles[it2]->r.p[1], local_particles[it2]->r.p[2]);
     for (int i=0; i!=3; ++i)
-      itParticle[i]=local_particles[particles[it2]]->r.p[i];
+      itParticle[i]=local_particles[it2]->r.p[i];
 // caluclate vector  between com and it2-th particle, as function get_mi_vector() takes arrays as arguments, comarray is passed to the function  
     get_mi_vector(relative_distance, comarray, itParticle); //add current particle positions
     //get_mi_vector(relative_distance, &com, itParticle); //add current particle positions
@@ -247,13 +247,13 @@ double Cluster::calculate_longest_distance()
     if (ld < (sqrt(sqrlen(relative_distance))))  //compare that distance with the longest distance
       ld=sqrt(sqrlen(relative_distance)); //save bigger value as longest distance - ld
 
-  printf("current ld is: %f\n", ld);
+//  printf("current ld is: %f\n", ld);
 //  printf("last ld is: %f\n", ld);
   }
-  printf("last ld is: %f\n", ld);
-  printf("*****************************\n");
-  printf("The longest distance is: %f\n", ld);
-  printf("*****************************\n");
+//  printf("last ld is: %f\n", ld);
+// printf("*****************************\n");
+//  printf("The longest distance is: %f\n", ld);
+//  printf("*****************************\n");
 
   return ld;
 }
@@ -262,7 +262,7 @@ double Cluster::calculate_longest_distance()
 //Radius of gyration
 double Cluster::calculate_radius_of_gyration()
 {
-  double distance[3]={0.0};
+  double distance[3]={0.0, 0.0, 0.0};
   double distance2 = 0.0;
   double rg2 = 0.0; 
   double rg =0.0;;
@@ -275,7 +275,7 @@ double Cluster::calculate_radius_of_gyration()
   double *comarray = &com[0];
   for (auto const& it3 : particles) {
 // calculate distance between com and pid and store in variable current  
-    get_mi_vector(distance, comarray, local_particles[particles[it3]]->r.p);
+    get_mi_vector(distance, comarray, local_particles[it3]->r.p);
 // calculate square length of this distance  
     distance2 += sqrlen(distance);
   }   
@@ -318,7 +318,7 @@ double Cluster::calculate_fractal_dimension()
 // calculate relative distance for each particle to the center of mass and store it into vector distances 
   for (auto const& it3 : particles) {
 // calculate particle vector positions from the COM
-    get_mi_vector(relative_to_com, comarray, local_particles[particles[it3]]->r.p); 
+    get_mi_vector(relative_to_com, comarray, local_particles[it3]->r.p); 
 // calculate particle distance from the COM 
     distance = sqrlen(relative_to_com);
 // printf("Particles distance is %f\n",distance );

@@ -96,18 +96,19 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
     else if (ARG0_IS_S("geometry-all")) {
       std::cout << "\nClusters geometry analysis: \n";
       std::stringstream res;
+      double ld, rg, df;
       res << "id	ld	rg	df\n";
       for (auto it : cluster_analysis().clusters) {
 //        res << it.first << " {";
         Cluster& cluster = it.second;
         std::vector<double> com = cluster.calculate_cluster_center_of_mass();
-        double ld = cluster.calculate_longest_distance();
-        double rg = cluster.calculate_radius_of_gyration();
-        double df = cluster.calculate_fractal_dimension();
+         ld = cluster.calculate_longest_distance();
+         rg = cluster.calculate_radius_of_gyration();
+         df = cluster.calculate_fractal_dimension();
 
-        //res << com[0] << "," << com[1] << "," << com[2] << "}	" << "	" << ld << "	"  <<  rg << "	" << df <<"\n";
         res << it.first << "	" << ld << "	"  <<  rg << "	" << df <<"\n";
       
+        res << it.first << " {" << com[0] << "," << com[1] << "," << com[2] << "}\n";
 
       }
       argc -= 1; argv += 1;

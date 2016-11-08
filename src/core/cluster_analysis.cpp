@@ -250,7 +250,6 @@ double Cluster::calculate_longest_distance()
 //  printf("last ld is: %f\n", ld);
   }
   printf("last ld is: %f\n", ld);
-  printf("THEE ld is: %f\n", ld);
   printf("*****************************\n");
   printf("The longest distance is: %f\n", ld);
   printf("*****************************\n");

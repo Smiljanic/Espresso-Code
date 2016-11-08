@@ -35,7 +35,6 @@ class Cluster {
     std::vector<double> calculate_cluster_center_of_mass();
     // calculate longest distance
     double calculate_longest_distance();  
-    //std::vector<double> calculate_longest_distance();  
     // calculate radius of gyration();
     double calculate_radius_of_gyration();
     // calculate fractal dimension

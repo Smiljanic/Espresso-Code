@@ -82,7 +82,7 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
         res << "{"<<it.first<<" {";
         Cluster cluster = it.second;
         for (int pid : cluster.particles) {
-          res << pid<<" ";
+          res << pid<<" " << "[" << local_particles[pid]->r.p[0] << "," << local_particles[pid]->r.p[1] << "," << local_particles[pid]->r.p[2] << "] ";
         }
         res << "} } ";
       }
@@ -118,33 +118,37 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
 
 
 
-/* ///coms
-     else if (ARG0_IS_S("coms")) {
-      std::cout << "\nClusters centers of masses: \n";
+ ///coms
+     else if (ARG0_IS_S("com")) {
+      std::cout << "\nCluster center of mass: \n";
       std::stringstream res;
       for (auto it : cluster_analysis().clusters) {
         res << it.first << " {";
         Cluster& cluster = it.second;
         std::vector<double> com = cluster.calculate_cluster_center_of_mass();
-        std::vector<std::vector<double> > coms = cluster_structure::calculate_cluster_centers_of_masses();
+        for (int pid : cluster.particles) 
+          res << pid<<" " << "[" << local_particles[pid]->r.p[0] << "," << local_particles[pid]->r.p[1] << "," << local_particles[pid]->r.p[2] << "] ";
         res << com[0] << "," << com[1] << "," << com[2] << "}\n";
-        res << 0 << "," << 1 << "," << 2 << "}\n";
       }
       argc -= 1; argv += 1;
         Tcl_AppendResult(interp, res.str().c_str(), (char*) NULL);
       return TCL_OK;
     }
-*/
+
 
   
-/*
+
     else if (ARG0_IS_S("ld")) {
       std::cout << "\nCluster longest distance: \n";
       std::stringstream res;
       for (auto it : cluster_analysis().clusters) {
         res << it.first << " {";
         Cluster& cluster = it.second;
+        for (int pid : cluster.particles) 
+          res << pid<<" " << "[" << local_particles[pid]->r.p[0] << "," << local_particles[pid]->r.p[1] << "," << local_particles[pid]->r.p[2] << "] ";
         double ld = cluster.calculate_longest_distance();
+        for (int pid : cluster.particles) 
+          res << pid<<" " << "[" << local_particles[pid]->r.p[0] << "," << local_particles[pid]->r.p[1] << "," << local_particles[pid]->r.p[2] << "] ";
         res << ld << "}\n";
       }
       argc -= 1; argv += 1;
@@ -185,7 +189,7 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
     	Tcl_AppendResult(interp, res.str().c_str(), (char*) NULL);
       return TCL_OK;
     }
-*/
+
 
     else {
     	Tcl_AppendResult(interp, "Unknown argument.", (char*) NULL);

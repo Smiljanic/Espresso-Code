@@ -222,7 +222,6 @@ std::vector<double>  Cluster::calculate_cluster_center_of_mass()
 
 
 //Longest distance
-//std::vector<double> Cluster::calculate_longest_distance()
 double Cluster::calculate_longest_distance()
 {
 //calculate com  
@@ -237,10 +236,12 @@ double Cluster::calculate_longest_distance()
   double ld = 0.0; //the longest distance
   for (auto const& it2 : particles) { //iterate over particles within an aggregate
 //    printf ("it2 is: %d\n", it2);
-    printf ("particle id at it2 is: %d\n", local_particles[particles[it2]]->p.identity);
+    printf ("particle it2 is: %d at the [%f %f %f]\n", local_particles[particles[it2]]->p.identity, local_particles[it2]->r.p[0], local_particles[it2]->r.p[1], local_particles[it2]->r.p[2]);
     for (int i=0; i!=3; ++i)
       itParticle[i]=local_particles[particles[it2]]->r.p[i];
+// caluclate vector  between com and it2-th particle, as function get_mi_vector() takes arrays as arguments, comarray is passed to the function  
     get_mi_vector(relative_distance, comarray, itParticle); //add current particle positions
+    //get_mi_vector(relative_distance, &com, itParticle); //add current particle positions
 //    printf("relative Distance is: %f, %f, %f\n", relative_distance[0], relative_distance[1], relative_distance[2]);
        
     if (ld < (sqrt(sqrlen(relative_distance))))  //compare that distance with the longest distance
@@ -253,10 +254,6 @@ double Cluster::calculate_longest_distance()
   printf("*****************************\n");
   printf("The longest distance is: %f\n", ld);
   printf("*****************************\n");
-
-//  std::vector<double> ld_vec;
-//  ld_vec.push_back(ld);
-//  return ld_vec;
 
   return ld;
 }
@@ -427,7 +424,7 @@ std::vector<std::vector<double> > ClusterStructure::calculate_centers_of_masses(
   return coms;
 }
 
-/* 
+ 
 // ld of all aggregates
 std::vector<double> ClusterStructure::calculate_longest_distances() 
 {
@@ -440,8 +437,8 @@ std::vector<double> ClusterStructure::calculate_longest_distances()
  } 
 return lds;
 }
-*/
-/*
+
+
 // rg of all aggregates
 std::vector<double> ClusterStructure::calculate_radii_of_gyration() 
 {
@@ -465,7 +462,7 @@ return dfs;
 }
 
 //!!!!!!!!!!!!!!!!!
-*/
+
 
 
 void ClusterStructure::set_criterion(NeighborCriterion* c) {

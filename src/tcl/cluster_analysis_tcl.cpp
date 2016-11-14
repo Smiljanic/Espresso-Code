@@ -97,23 +97,26 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
       std::cout << "\nClusters geometry analysis: \n";
       std::stringstream res;
       double ld, rg, df;
-      res << "id	ld	rg	df\n";
-//      res << "#N	ld	rg	df\n";
-      int N;
+//      res << "id	ld	rg	df\n";
+      res << "#N	ld	rg	df\n";
+      int N = 0;
       for (auto it : cluster_analysis().clusters) {
 //        res << it.first << " {";
         Cluster& cluster = it.second;
         std::vector<double> com = cluster.calculate_cluster_center_of_mass();
-         ld = cluster.calculate_longest_distance();
-         rg = cluster.calculate_radius_of_gyration();
-         df = cluster.calculate_fractal_dimension();
-//         N = sizeof(cluster);
+        ld = cluster.calculate_longest_distance();
+        rg = cluster.calculate_radius_of_gyration();
+        df = cluster.calculate_fractal_dimension();
+//         N = sizeof(cluster); //returns 24 as size of an int=8 , pointer to begin of vector, to end, and end of reserved memory
+        N  = cluster.size_of_cluster();
+        res << N << "	" << ld << "	"  <<  rg << "	" << df <<"\n";
+       }
 
-        res << it.first << "	" << ld << "	"  <<  rg << "	" << df <<"\n";
+
+//        res << it.first << "	" << ld << "	"  <<  rg << "	" << df <<"\n";
       
 //        res << it.first << " {" << com[0] << "," << com[1] << "," << com[2] << "}\n";
 
-      }
       argc -= 1; argv += 1;
         Tcl_AppendResult(interp, res.str().c_str(), (char*) NULL);
       return TCL_OK;

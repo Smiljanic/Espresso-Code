@@ -31,6 +31,9 @@ class Cluster {
     // add a particle (Makes a copy of the original)
     void add_particle(const Particle& p);
 
+    // calculates number of elements of cluster
+    int size_of_cluster();
+
     // calculate center of mass of the cluster
     std::vector<double> calculate_cluster_center_of_mass();
     // calculate longest distance
@@ -47,6 +50,11 @@ void Cluster::add_particle(const Particle& p) {
  particles.push_back(p.p.identity);
 }
 
+// gives cluster size 
+int Cluster::size_of_cluster() 
+{
+    return particles.size();
+}
 
 
 class ClusterStructure {

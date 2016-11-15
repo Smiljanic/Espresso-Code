@@ -21,7 +21,7 @@
 #include "cluster_analysis.hpp"
 #include "parser.hpp"
 #include <sstream>
-
+#include <cstdio>
 int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, char **argv) 
 {
   // If no argumens are given, print status
@@ -94,12 +94,11 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
 //postprocessing  properties
 
     else if (ARG0_IS_S("geometry-all")) {
-      std::cout << "\nClusters geometry analysis: \n";
+//      std::cout << "\nClusters geometry analysis: \n";
       std::stringstream res;
-      double ld, rg, df;
-//      res << "id	ld	rg	df\n";
-      res << "#N	ld	rg	df\n";
       int N = 0;
+      double ld, rg, df;
+      res << "#N		com[x]		com[y]		com[z]		ld		rg		df\n";
       for (auto it : cluster_analysis().clusters) {
 //        res << it.first << " {";
         Cluster& cluster = it.second;
@@ -107,15 +106,10 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
         ld = cluster.calculate_longest_distance();
         rg = cluster.calculate_radius_of_gyration();
         df = cluster.calculate_fractal_dimension();
-//         N = sizeof(cluster); //returns 24 as size of an int=8 , pointer to begin of vector, to end, and end of reserved memory
+//      N = sizeof(cluster); //returns 24 as size of an int=8 , pointer to begin of vector, to end, and end of reserved memory
         N  = cluster.size_of_cluster();
-        res << N << "	" << ld << "	"  <<  rg << "	" << df <<"\n";
+        res << N << "		" << com[0]  << "		" << com[1] << "		" << com[2]  << "		" << ld << "		"  <<  rg  <<"		" << df <<"\n";
        }
-
-
-//        res << it.first << "	" << ld << "	"  <<  rg << "	" << df <<"\n";
-      
-//        res << it.first << " {" << com[0] << "," << com[1] << "," << com[2] << "}\n";
 
       argc -= 1; argv += 1;
         Tcl_AppendResult(interp, res.str().c_str(), (char*) NULL);
@@ -202,4 +196,4 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
 	    return TCL_ERROR;
     }
   return gather_runtime_errors(interp,TCL_OK);
-	}
+}

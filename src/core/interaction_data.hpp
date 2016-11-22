@@ -1136,9 +1136,15 @@ typedef struct {
   double Prefactor;
 } SinusoidalField;
 
-typedef struct {
-ConstraintApplied type;
-union {
+
+//<<<<<<< HEAD
+
+//typedef struct {
+//ConstraintApplied type;
+//union {
+//=======
+typedef union {
+//>>>>>>> com/com
     Constraint_wall wal;
     Constraint_sphere sph;
     Constraint_cylinder cyl;
@@ -1293,7 +1299,11 @@ void set_dipolar_method_local(DipolarInteraction method);
 #endif
 
 inline 
+<<<<<<< HEAD
 bool bond_exists(Particle* p, Particle* partner, int bond_type)
+=======
+bool bond_exists(const Particle* p, const Particle* partner, int bond_type)
+>>>>>>> com/com
 {
   // First check the bonds of p1
   if (p->bl.e) {

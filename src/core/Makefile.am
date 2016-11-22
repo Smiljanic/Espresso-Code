@@ -32,6 +32,7 @@ libEspresso_la_SOURCES = \
 	config-features.cpp \
   bond_breakage.cpp bond_breakage.hpp \
 	cells.cpp cells.hpp \
+  cluster_analysis.cpp cluster_analysis.hpp \
 	collision.cpp collision.hpp \
 	communication.cpp communication.hpp \
 	comfixed.cpp comfixed.hpp \

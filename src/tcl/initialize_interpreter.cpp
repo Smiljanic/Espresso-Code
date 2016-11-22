@@ -66,6 +66,7 @@
 #include "h5mdfile_tcl.hpp"
 #include "mpiio_tcl.hpp"
 #include "bond_breakage_tcl.hpp"
+#include "cluster_analysis_tcl.hpp"
 
 #ifdef TK
 #include <tk.h>
@@ -231,6 +232,7 @@ static void tcl_register_commands(Tcl_Interp* interp) {
 #ifdef COLLISION_DETECTION
   REGISTER_COMMAND("on_collision", tclcommand_on_collision);
 #endif
+  REGISTER_COMMAND("cluster_analysis", tclcommand_cluster_analysis);
   REGISTER_COMMAND("rotate_system", tclcommand_rotate_system);
   REGISTER_COMMAND("bond_breakage", tclcommand_bond_breakage);
   REGISTER_COMMAND("lees_edwards_offset", tclcommand_lees_edwards_offset);

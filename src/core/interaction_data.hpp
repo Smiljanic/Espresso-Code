@@ -1299,11 +1299,11 @@ void set_dipolar_method_local(DipolarInteraction method);
 #endif
 
 inline 
-<<<<<<< HEAD
-bool bond_exists(Particle* p, Particle* partner, int bond_type)
-=======
+//<<<<<<< HEAD
+//bool bond_exists(Particle* p, Particle* partner, int bond_type)
+//=======
 bool bond_exists(const Particle* p, const Particle* partner, int bond_type)
->>>>>>> com/com
+//>>>>>>> com/com
 {
   // First check the bonds of p1
   if (p->bl.e) {

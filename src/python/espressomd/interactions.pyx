@@ -580,23 +580,24 @@ class HarmonicBond(BondedInteraction):
         return "HARMONIC"
 
     def valid_keys(self):
-        return "k", "r_0", "r_cut"
+        return "k", "r_0", "r_cut", "breakable"
 
     def required_keys(self):
         return "k", "r_0"
 
     def set_default_params(self):
-        self._params = {"k'": 0., "r_0": 0., "r_cut": 0.}
+        self._params = {"k'": 0., "r_0": 0., "r_cut": 0., "breakable":False}
 
     def _get_params_from_es_core(self):
         return \
             {"k": bonded_ia_params[self._bond_id].p.harmonic.k,
              "r_0": bonded_ia_params[self._bond_id].p.harmonic.r,
-             "r_cut": bonded_ia_params[self._bond_id].p.harmonic.r_cut}
+             "r_cut": bonded_ia_params[self._bond_id].p.harmonic.r_cut,
+             "breakable": bonded_ia_params[self._bond_id].p.harmonic.breakable}
 
     def _set_params_in_es_core(self):
         harmonic_set_params(
-            self._bond_id, self._params["k"], self._params["r_0"], self._params["r_cut"])
+            self._bond_id, self._params["k"], self._params["r_0"], self._params["r_cut"],self._params["breakable"])
         self._params=self._get_params_from_es_core()
 
 

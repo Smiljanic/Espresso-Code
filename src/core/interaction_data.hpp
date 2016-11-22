@@ -641,6 +641,8 @@ typedef struct {
       double k;
       double r;
       double r_cut;
+      bool breakable;
+      int bond_id;
 } Harmonic_bond_parameters;
 
 #ifdef ROTATION

@@ -25,17 +25,19 @@
 #include "harmonic.hpp"
 #include "communication.hpp"
 
-int harmonic_set_params(int bond_type, double k, double r,double r_cut)
+int harmonic_set_params(int bond_type, double k, double r,double r_cut, bool breakable)
 {
   if(bond_type < 0)
     return ES_ERROR;
 
   make_bond_type_exist(bond_type);
 
+  bonded_ia_params[bond_type].type = BONDED_IA_HARMONIC;
   bonded_ia_params[bond_type].p.harmonic.k = k;
   bonded_ia_params[bond_type].p.harmonic.r = r;
   bonded_ia_params[bond_type].p.harmonic.r_cut = r_cut;
-  bonded_ia_params[bond_type].type = BONDED_IA_HARMONIC;
+  bonded_ia_params[bond_type].p.harmonic.bond_id = bond_type;
+  bonded_ia_params[bond_type].p.harmonic.breakable = breakable;
   bonded_ia_params[bond_type].num  = 1;
 
   /* broadcast interaction parameters */

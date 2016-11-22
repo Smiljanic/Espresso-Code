@@ -31,6 +31,7 @@ setmd box_l 10 10 10
 
 thermostat off
 setmd time_step 0.01
+setmd skin 0
 
 
 # Interface, default state
@@ -56,7 +57,12 @@ if { "[bond_breakage]" != "off" } {
 # We are (mis)-using a tabulated lj as bonded tabulated potential
 
 bond_breakage add print_queue_entry break_simple_pair_bond
-inter 0 tabulated bond lj1.tab 1
+
+
+proc test_for_bond { breakable_bond non_breakable_bond } {
+part delete
+eval "inter 0 $breakable_bond"
+puts "inter 0 $breakable_bond"
 part 0 pos 0 0 0
 part 1 pos 1 0 0 bond 0 0
 integrate 0 recalc_forces
@@ -75,11 +81,15 @@ if { "[part 1 print bond]" != "{ } " } {
 
 # Now test that a broken bond error is thrown, when the tabulated bond is
 # configured not to use the bond_breakage mechanism
-inter 0 tabulated bond lj1.tab 0
+eval "inter 0 $non_breakable_bond" 
 puts [inter]
 part 1 bond 0 0
 if {![catch {integrate 0 recalc_forces} err]} {
     error_exit "no exception was thrown at over-stretched bond, although requested"
 }
+}
 
+
+test_for_bond "harmonic 1 0 1.3 1" "harmonic 1 0 1.3"
+test_for_bond "tabulated bond lj1.tab 1" "tabulated bond lj1.tab 0"
 

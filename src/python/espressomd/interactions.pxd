@@ -105,6 +105,7 @@ cdef extern from "interaction_data.hpp":
         double k
         double r
         double r_cut
+        bool breakable
 
 #* Parameters for the harmonic dumbbell bond potential */
     ctypedef struct Harmonic_dumbbell_bond_parameters:
@@ -241,7 +242,7 @@ cdef extern from "interaction_data.hpp":
 cdef extern from "fene.hpp":
     int fene_set_params(int bond_type, double k, double drmax, double r0)
 cdef extern from "harmonic.hpp":
-    int harmonic_set_params(int bond_type, double k, double r, double r_cut)
+    int harmonic_set_params(int bond_type, double k, double r, double r_cut, bool breakable)
 cdef extern from "dihedral.hpp":
     int dihedral_set_params(int bond_type, int mult, double bend, double phase)
 cdef extern from "angle_harmonic.hpp":

@@ -47,8 +47,15 @@ int tclcommand_inter_parse_harmonic(Tcl_Interp *interp, int bond_type, int argc,
     Tcl_AppendResult(interp, "<r_cut> should be DOUBLE", (char *) NULL);
     return TCL_ERROR;
   }
+  
+  int breakable=0;
+  if (argc == 5) 
+    if (! ARG_IS_I(4, breakable))  {
+    Tcl_AppendResult(interp, "<breakable> should be int", (char *) NULL);
+    return TCL_ERROR;
+  }
 
-  CHECK_VALUE(harmonic_set_params(bond_type, k, r, r_cut), "bond type must be nonnegative");
+  CHECK_VALUE(harmonic_set_params(bond_type, k, r, r_cut,breakable), "bond type must be nonnegative");
 }
 
 int tclprint_to_result_harmonicIA(Tcl_Interp *interp, Bonded_ia_parameters *params)
@@ -61,6 +68,10 @@ int tclprint_to_result_harmonicIA(Tcl_Interp *interp, Bonded_ia_parameters *para
   Tcl_AppendResult(interp, buffer," ", (char *) NULL);
   if (params->p.harmonic.r_cut > 0.0) {
     Tcl_PrintDouble(interp, params->p.harmonic.r_cut, buffer);
+    Tcl_AppendResult(interp, buffer, (char *) NULL);
+  }
+  if (params->p.harmonic.breakable) {
+    Tcl_PrintDouble(interp, params->p.harmonic.breakable, buffer);
     Tcl_AppendResult(interp, buffer, (char *) NULL);
   }
   return TCL_OK;

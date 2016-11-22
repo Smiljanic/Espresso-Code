@@ -33,9 +33,11 @@
 #include "interaction_data.hpp"
 #include "particle_data.hpp"
 #include "random.hpp"
+#include "bond_breakage.hpp" 
+
 
 /// set the parameters for the harmonic potential
-int harmonic_set_params(int bond_type, double k, double r,double r_cut);
+int harmonic_set_params(int bond_type, double k, double r,double r_cut, bool breakable);
 
 /** Computes the HARMONIC pair force and adds this
     force to the particle forces (see \ref interaction_data.cpp). 
@@ -54,9 +56,22 @@ inline int calc_harmonic_pair_force(Particle *p1, Particle *p2, Bonded_ia_parame
   double dist = sqrt(dist2);
   double dr;
 
+  // Is a cutoff ratdius defined and are the particles
+  // further apart than that radius
   if ((iaparams->p.harmonic.r_cut > 0.0) &&
       (dist > iaparams->p.harmonic.r_cut)) 
-    return 1;
+  {
+    // If graceful bond breakage is off, return error
+    if (! iaparams->p.harmonic.breakable)
+    {
+      return 1;
+    }
+    else
+    {
+     // Queue for graceful bond breakage
+     bond_breakage().queue_breakage(iaparams->p.harmonic.bond_id, p1->p.identity,p2->p.identity);
+    }
+  }
 
   dr = dist - iaparams->p.harmonic.r;
   fac = -iaparams->p.harmonic.k * dr;
@@ -94,7 +109,9 @@ inline int harmonic_pair_energy(Particle *p1, Particle *p2, Bonded_ia_parameters
   double dist = sqrt(dist2);
 
   if ((iaparams->p.harmonic.r_cut > 0.0) && 
-      (dist > iaparams->p.harmonic.r_cut)) 
+      (dist > iaparams->p.harmonic.r_cut) &&
+      (! iaparams->p.harmonic.breakable)
+      ) 
     return 1;
 
   *_energy = 0.5*iaparams->p.harmonic.k*SQR(dist - iaparams->p.harmonic.r);

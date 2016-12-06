@@ -77,7 +77,8 @@ void ClusterStructure::add_pair(Particle& p1, Particle& p2) {
     runtimeErrorMsg() << "No cluster criterion defined"; 
     return;
   }
-  if (nc->are_neighbors(p1,p2) && (p1.p.isVirtual != 1) && !(p2.p.isVirtual != 1)) {
+  if (nc->are_neighbors(p1,p2) && (p1.p.isVirtual != 1) && (p2.p.isVirtual != 1)) {
+  //if (nc->are_neighbors(p1,p2)) {
      
      if // None belongs to a cluster
      ((!part_of_cluster(p1)) && (!part_of_cluster(p2)))

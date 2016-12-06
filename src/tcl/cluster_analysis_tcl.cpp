@@ -102,10 +102,10 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
         Cluster cluster = it.second;
         N  = cluster.size_of_cluster();
         for (int pid : cluster.particles) {
-          if (!(local_particles[pid]->p.isVirtual)) {
+         // if (!(local_particles[pid]->p.isVirtual)) {
             res << N << "	" << it.first << "	" << pid << "	" <<  local_particles[pid]->r.p[0] << "	" << local_particles[pid]->r.p[1] << "	" << local_particles[pid]->r.p[2] <<"\n";
           }
-        }
+        //}
       }
       argc -= 1; argv += 1;
     	Tcl_AppendResult(interp, res.str().c_str(), (char*) NULL);

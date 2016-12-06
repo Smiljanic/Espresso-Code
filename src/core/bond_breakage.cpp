@@ -66,7 +66,7 @@ delete_all_pair_bonds_local(
 
 void print_queue_entry(int t, int p1, int p2)
 {
-  printf("Bond breakage: Type=%d, id1=%d, id2=%d\n",t,p1,p2);
+//  printf("Bond breakage: Type=%d, id1=%d, id2=%d\n",t,p1,p2);
 }
 
 

@@ -56,7 +56,7 @@ inline int calc_harmonic_pair_force(Particle *p1, Particle *p2, Bonded_ia_parame
   double dist = sqrt(dist2);
   double dr;
 
-  // Is a cutoff ratdius defined and are the particles
+  // Is a cutoff radius defined and are the particles
   // further apart than that radius
   if ((iaparams->p.harmonic.r_cut > 0.0) &&
       (dist > iaparams->p.harmonic.r_cut)) 

@@ -91,6 +91,26 @@ int tclcommand_cluster_analysis(ClientData data, Tcl_Interp *interp, int argc, c
       return TCL_OK;
     }
 
+//print particles within given clusters
+
+    else if (ARG0_IS_S("particles-within-clusters")) {
+      std::stringstream res;
+      int N = 0;
+      res << "#N	clusterID	pID	com[x]          com[y]          com[z]\n";
+      for (auto it : cluster_analysis().clusters) {
+        Cluster cluster = it.second;
+        N  = cluster.size_of_cluster();
+        for (int pid : cluster.particles) {
+          res << N << "       " << it.first  << "	" << pid << "	" <<  local_particles[pid]->r.p[0] << "	" << local_particles[pid]->r.p[1] << "	" << local_particles[pid]->r.p[2] <<"\n";
+        }
+      }
+      argc -= 1; argv += 1;
+    	Tcl_AppendResult(interp, res.str().c_str(), (char*) NULL);
+      return TCL_OK;
+    }
+
+
+
 //postprocessing  properties
 
     else if (ARG0_IS_S("geometry-all")) {

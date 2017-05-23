@@ -36,6 +36,9 @@ class Cluster {
     *  @param dr:   increment for when constructing the discrete version of N(r)
     *  @param mean_sq_residual:  Mean square residual returned by the fit */
     double fractal_dimension(double dr, double& mean_sq_residual);
+    /** @biref: Calculate the vector between the farthest particles in the cluster,
+    *  which defines the main axis of the cluster */
+    Vector3d cluster_director();
 };
 
 

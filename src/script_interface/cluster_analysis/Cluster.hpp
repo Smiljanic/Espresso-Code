@@ -54,9 +54,13 @@ public:
       return std::vector<double>({df, mean_sq_residual});
     }
     if (method=="center_of_mass") {
-     return m_cluster->center_of_mass();
-    
+      return m_cluster->center_of_mass();
     }
+    if (method=="cluster_director") {
+      return m_cluster->cluster_director();
+    }
+
+
     return nullptr;
   }                              
   void set_cluster(std::shared_ptr<::ClusterAnalysis::Cluster> c) {

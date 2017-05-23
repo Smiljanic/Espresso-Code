@@ -130,5 +130,33 @@ double Cluster::fractal_dimension(double dr, double& mean_sq_residual) {
 #endif
 }
 
+//Cluster director
+Vector3d Cluster::cluster_director() 
+{
+  Vector3d cl_dir;
+
+  double ld=0.;
+  for (auto a=particles.begin();a!=particles.end();a++) { 
+    for (auto b=a;++b!=particles.end();) {
+      double dist[3];
+      get_mi_vector(dist, local_particles[*a]->r.p,local_particles[*b]->r.p);
+       
+      // Larger than previous largest distance?
+      if (ld < sqrt(sqrlen(dist))) {
+        ld=sqrt(sqrlen(dist)); //save bigger value as largest distance - ld
+    	for (int i=0;i<3;i++){
+	  cl_dir[i]=dist[i];
+	}
+
+	//memcpy(&cl_dir.at(0), &dist.at(0), dist.size());
+	//cl_dir.assign(dist.begin(),dist.end());
+	//cl_dir=dist; //save the vector of the longest distance
+      }
+    }
+  }
+  return cl_dir;
+}
+
+
 
 }

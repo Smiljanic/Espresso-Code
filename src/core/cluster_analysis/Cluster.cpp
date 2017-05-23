@@ -130,31 +130,33 @@ double Cluster::fractal_dimension(double dr, double& mean_sq_residual) {
 #endif
 }
 
-//Cluster director
-Vector3d Cluster::cluster_director() 
+//Max radius of a particle from the com 
+double Cluster::max_radius() 
 {
-  Vector3d cl_dir;
+  double max_rad;
+  Vector3d com=center_of_mass();
+  double temp[3];
 
-  double ld=0.;
+  double mr=0.;
   for (auto a=particles.begin();a!=particles.end();a++) { 
-    for (auto b=a;++b!=particles.end();) {
       double dist[3];
-      get_mi_vector(dist, local_particles[*a]->r.p,local_particles[*b]->r.p);
+      //get_mi_vector_noconst(dist, local_particles[*a]->r.p, com);
+      get_mi_vector(dist, local_particles[*a]->r.p, com.begin());
        
       // Larger than previous largest distance?
-      if (ld < sqrt(sqrlen(dist))) {
-        ld=sqrt(sqrlen(dist)); //save bigger value as largest distance - ld
+      if (mr < sqrt(sqrlen(dist))) {
+        mr=sqrt(sqrlen(dist)); //save bigger value as maximum radous
     	for (int i=0;i<3;i++){
-	  cl_dir[i]=dist[i];
+	  temp[i]=dist[i];
 	}
 
-	//memcpy(&cl_dir.at(0), &dist.at(0), dist.size());
-	//cl_dir.assign(dist.begin(),dist.end());
-	//cl_dir=dist; //save the vector of the longest distance
+	//memcpy(&cl_dir.at(0), &dist.at(0), dist.size()); 
+	//max_rad.assign(dist.begin(),dist.end()); 
+	//max_rad=dist;    //save the vector of the longest distance
       }
     }
-  }
-  return cl_dir;
+  
+  return sqrt(sqrlen(temp));
 }
 
 

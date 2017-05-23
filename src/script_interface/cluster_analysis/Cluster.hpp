@@ -56,8 +56,8 @@ public:
     if (method=="center_of_mass") {
       return m_cluster->center_of_mass();
     }
-    if (method=="cluster_director") {
-      return m_cluster->cluster_director();
+    if (method=="max_radius") {
+      return m_cluster->max_radius();
     }
 
 

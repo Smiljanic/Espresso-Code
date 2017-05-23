@@ -38,7 +38,7 @@ class Cluster {
     double fractal_dimension(double dr, double& mean_sq_residual);
     /** @biref: Calculate the vector between the farthest particles in the cluster,
     *  which defines the main axis of the cluster */
-    Vector3d cluster_director();
+    double max_radius();
 };
 
 

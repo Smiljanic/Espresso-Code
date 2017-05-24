@@ -155,7 +155,7 @@ double Cluster::max_radius()
 	//max_rad=dist;    //save the vector of the longest distance
       }
     }
-  printf("cluster maximus radius is: %d\n",sqrt(sqrlen(temp))); 
+  printf("cluster maximum radius is: %d\n",sqrt(sqrlen(temp))); 
   return sqrt(sqrlen(temp));
 }
 

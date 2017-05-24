@@ -77,7 +77,7 @@ double Cluster::radius_of_gyration() {
 // calculate square length of this distance  
     sum_sq_dist += sqrlen(distance);
   }   
- 
+  max_radius(); 
   return sqrt(sum_sq_dist/particles.size());
 }
 
@@ -142,7 +142,7 @@ double Cluster::max_radius()
       double dist[3];
       //get_mi_vector_noconst(dist, local_particles[*a]->r.p, com);
       get_mi_vector(dist, local_particles[*a]->r.p, com.begin());
-       
+      printf("dist is: %f, %f, %f\n", dist[0], dist[1], dist[2]); 
       // Larger than previous largest distance?
       if (mr < sqrt(sqrlen(dist))) {
         mr=sqrt(sqrlen(dist)); //save bigger value as maximum radous
@@ -155,7 +155,7 @@ double Cluster::max_radius()
 	//max_rad=dist;    //save the vector of the longest distance
       }
     }
-  
+  printf("cluster maximus radius is: %d\n",sqrt(sqrlen(temp))); 
   return sqrt(sqrlen(temp));
 }
 

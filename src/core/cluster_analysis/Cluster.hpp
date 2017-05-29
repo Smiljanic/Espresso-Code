@@ -39,6 +39,11 @@ class Cluster {
     /** @biref: Calculate the vector between the farthest particles in the cluster,
     *  which defines the main axis of the cluster */
     double max_radius();
+    /** @brief Calculate inertial tensor of the cluster */
+    void inertial_tensor(double , double, double, double, double, double);
+
+    /** @brief Calculate eigenvectors - principal axes and eigenvalues of the inertial tensor */
+    void principal_axes(double, double, double, double, double, double); 
 };
 
 

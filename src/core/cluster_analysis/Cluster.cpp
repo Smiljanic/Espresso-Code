@@ -179,12 +179,7 @@ std::vector<int> Cluster::particle_ids_in_spherical_shell(double r_min, double r
 return shell_particles;
 };
 
-
-
-
-
-
-
+// Elements of cluster's inertial tensor are caclulated 
 void Cluster::inertial_tensor(double Ixx, double Iyy, double Izz, double Ixy, double Ixz, double Iyz)
 {
   //com = calculate_COM(agg)
@@ -222,47 +217,5 @@ void Cluster::principal_axes(double Ixx, double Iyy, double Izz, double Ixy, dou
   // caclulate eigenvectors with calc_eigenvector_3x3() (see utils.hpp for more details)
 
 }
-
-
-
-void Cluster::inertial_tensor(double Ixx, double Iyy, double Izz, double Ixy, double Ixz, double Iyz)
-{
-  //com = calculate_COM(agg)
-  //Vector3d com=center_of_mass();
-  Vector3d com {0.0, 1.0,0.0};
-  printf("%f, %f, %f, %f, %f, %f\n", Ixx, Iyy, Izz, Ixy, Ixz, Iyz);
-  
-  for (auto a=particles.begin();a!=particles.end();a++) {
-    Ixx += pow((local_particles[*a]->r.p[1]-com[1]),2)+pow((local_particles[*a]->r.p[2]-com[1]),2); 
-    Iyy += pow((local_particles[*a]->r.p[0]-com[0]),2)+pow((local_particles[*a]->r.p[2]-com[1]),2); 
-    Izz += pow((local_particles[*a]->r.p[0]-com[0]),2)+pow((local_particles[*a]->r.p[1]-com[1]),2); 
-
-    Ixy += (local_particles[*a]->r.p[0]-com[0])*(local_particles[*a]->r.p[1]-com[1]);
-    Ixz += (local_particles[*a]->r.p[0]-com[0])*(local_particles[*a]->r.p[2]-com[2]);
-    Iyz += (local_particles[*a]->r.p[1]-com[1])*(local_particles[*a]->r.p[2]-com[2]);
-  }
-}
-
-void Cluster::principal_axes(double Ixx, double Iyy, double Izz, double Ixy, double Ixz, double Iyz)
-{
-
-  Ixx = 0.0, Iyy = 0.0, Izz = 0.0, Ixy = 0.0, Ixz = 0.0, Iyz = 0.0;
-  inertial_tensor(Ixx, Iyy, Izz, Ixy, Ixz, Iyz);
-  double xArray [] = {Ixx, -Ixy, -Ixz}; 
-  double yArray [] = {-Ixy, Iyy, -Iyz}; 
-  double zArray [] = {-Ixz, -Iyz, Izz}; 
-  
-  double tensor_array_1d[] = {Ixx, -Ixy, -Ixz, -Ixy, Iyy, -Iyz, -Ixz, -Iyz, Izz}; 
-  double *tensor_array_2d[] = {xArray,yArray,zArray}; 
-  
-  // calculate eigenvalue with calc_eigenvalues_3x3() (see utils.hpp for more details)
-  double eigValue[] = {0.0, 0.0,0.0};
-  //calc_eigenvalues_3x3(tensor_array_2d, eigValue);
-
-  // caclulate eigenvectors with calc_eigenvector_3x3() (see utils.hpp for more details)
-
-}
-
-
 
 }

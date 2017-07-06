@@ -59,6 +59,12 @@ public:
     if (method=="max_radius") {
       return m_cluster->max_radius();
     }
+    if (method=="particle_ids_in_spherical_shells") {
+      double r_min;
+      double r_max;
+      return m_cluster->particles_in_shell;
+      //return std::vector<int>particle_ids_in_sphericl_shells(r_min=None,r_max=None);
+    }
 
 
     return nullptr;

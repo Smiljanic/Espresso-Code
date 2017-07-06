@@ -172,6 +172,7 @@ std::vector<int> Cluster::particle_ids_in_spherical_shell(double r_min, double r
 	if (norm_dist>r_min and norm_dist<r_max) 
 	{
 	    shell_particles.push_back(norm_dist);
+	    particles_in_shell.push_back(norm_dist);
 	}    
     } 
 	

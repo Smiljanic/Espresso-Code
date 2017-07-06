@@ -21,7 +21,7 @@ class Cluster {
     std::vector<int> particles;
 
     /** @brief Ids of the particles in the cluster shell */
-    //std::vector<int> particles_in_shell;
+    std::vector<int> particles_in_shell;
 
     /** @brief add a particle to the cluster */
     void add_particle(const Particle& p) {

@@ -29,10 +29,13 @@ class Cluster(ScriptInterfaceHelper):
         Return value: (fractal_dimension, mean_square_residual)
     max_radius():
 	Returns the largest distance of a particle measured from the center of mass
+<<<<<<< HEAD
    
     particles_id_in_spherical_shell():
 	Returns vector of particles that are between r_max and r_min form the cluster's com
 
+=======
+>>>>>>> 60a2048634a8318ed51b7ac035c9fd97db1edf07
     """
 
 

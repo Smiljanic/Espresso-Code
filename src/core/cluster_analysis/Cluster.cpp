@@ -155,9 +155,34 @@ double Cluster::max_radius()
 	//max_rad=dist;    //save the vector of the longest distance
       }
     }
-  
   return sqrt(sqrlen(temp));
 }
+
+// Iterates over particles in a cluster and checks if they belong to the spherical shell
+// defined by r_min and r_max; If so, appends them to the vector of particle IDs */
+std::vector<int> Cluster::particles_ids_in_spherical_shell(double r_min, double r_max)
+{
+    Vector3d com=center_of_mass();
+    std::vector<int>shell_particles;
+
+    for (auto a=particles.begin();a!=particles.end();a++) 
+    {
+        double dist[3];    // vector distance of the current particle to the cluster's com
+ 	double norm_dist;  // scalar distance  of the current particle to the cluster's com
+	get_mi_vector(dist, local_particles[*a]->r.p, com.begin());
+	norm_dist=sqrt(sqrlen(dist));
+	if (norm_dist>r_min and norm_dist<r_max) 
+	{
+	    shell_particles.push_back(norm_dist);
+	}    
+    } 
+	
+return shell_particles;
+};
+
+
+
+
 
 
 

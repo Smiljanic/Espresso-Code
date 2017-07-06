@@ -23,6 +23,16 @@ class Cluster {
     void add_particle(const Particle& p) {
          particles.push_back(p.p.identity);
     }
+    /** @brief Ids of the particles in the spherical 
+    *   shell defined by r_min and r_max */
+    std::vector<int> particles_ids_in_spherical_shell(
+	double r_min, double r_max);
+
+    /** @brief Ids of all particles in the corresponding
+    *   spherical shells*/
+    //std::map<int,std::shared_ptr<Cluster>>  particles_ids_in_all_spherical_shells();
+
+    
     /** @brief Calculate the center of mass of the cluster */
     Vector3d center_of_mass();
     /** @brief Longest distance between any combination of two particles */

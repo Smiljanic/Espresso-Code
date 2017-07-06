@@ -183,8 +183,8 @@ return shell_particles;
 void Cluster::inertial_tensor(double Ixx, double Iyy, double Izz, double Ixy, double Ixz, double Iyz)
 {
   //com = calculate_COM(agg)
-  //Vector3d com=center_of_mass();
-  Vector3d com {0.0, 1.0,0.0};
+  Vector3d com=center_of_mass();
+  //Vector3d com {0.0, 1.0,0.0};
   printf("%f, %f, %f, %f, %f, %f\n", Ixx, Iyy, Izz, Ixy, Ixz, Iyz);
   
   for (auto a=particles.begin();a!=particles.end();a++) {
@@ -212,9 +212,8 @@ void Cluster::principal_axes(double Ixx, double Iyy, double Izz, double Ixy, dou
   
   // calculate eigenvalue with calc_eigenvalues_3x3() (see utils.hpp for more details)
   double eigValue[] = {0.0, 0.0,0.0};
-  //calc_eigenvalues_3x3(tensor_array_2d, eigValue);
+  calc_eigenvalues_3x3(tensor_array_1d, eigValue);
 
-  // caclulate eigenvectors with calc_eigenvector_3x3() (see utils.hpp for more details)
 
 }
 

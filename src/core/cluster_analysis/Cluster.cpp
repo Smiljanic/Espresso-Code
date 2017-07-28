@@ -85,7 +85,7 @@ double Cluster::radius_of_gyration() {
 double Cluster::fractal_dimension(double dr, double& mean_sq_residual) {
 #ifdef GSL
   Vector3d com = center_of_mass();  
-// calculate Df using linear regression on the logarithms of diameters [__std::vector<double> diameters__] and num of particles [__std::vector<int> pcounts__] within the diameters
+  // calculate Df using linear regression on the logarithms of diameters [__std::vector<double> diameters__] and num of particles [__std::vector<int> pcounts__] within the diameters
   
   std::vector<double> distances;
 
@@ -102,26 +102,31 @@ double Cluster::fractal_dimension(double dr, double& mean_sq_residual) {
   const int cluster_size=particles.size();
   std::vector<double> log_diameters;
   std::vector<double> log_pcounts;
+  std::vector<double> log_radogs;
+
   while (particles_in_sphere < cluster_size) 
   { 
-
     // Count particles in the sphere
     particles_in_sphere=0;
     for (double d: distances) {
      if (d <= rad) particles_in_sphere+=1;
-    }
+    //}
     if (particles_in_sphere > 0) 
     {
+
       log_pcounts.push_back(log(particles_in_sphere)); 
       log_diameters.push_back(log(rad*2.0));
+      //log_radogs.push_back(sqrt(distances[particles_in_sphere]*distances[particles_in_sphere])/particles_in_sphere);
+      log_radogs.push_back(log(sqrt(d*d)/particles_in_sphere));
     }
     rad += dr;  //increase the radius
+  }
   }
 
 // usage: Function: int gsl_fit_linear (const double * x, const size_t xstride, const double * y, const size_t ystride, size_t n, double * c0, double * c1, double * cov00, double * cov01, double * cov11, double * sumsq) 
   const int n=log_pcounts.size();
   double c0, c1, cov00, cov01, cov11, sumsq;
-  gsl_fit_linear (&log_diameters.front(), 1, &log_pcounts.front(), 1, n, &c0, &c1, &cov00, &cov01, &cov11, &sumsq);  
+  gsl_fit_linear (&log_radogs.front(), 1, &log_pcounts.front(), 1, n, &c0, &c1, &cov00, &cov01, &cov11, &sumsq);  
   mean_sq_residual =sumsq/log_diameters.size();
   return c1;
 #else
@@ -147,10 +152,6 @@ double Cluster::max_radius()
     	for (int i=0;i<3;i++){
 	  temp[i]=dist[i];
 	}
-
-	//memcpy(&cl_dir.at(0), &dist.at(0), dist.size()); 
-	//max_rad.assign(dist.begin(),dist.end()); 
-	//max_rad=dist;    //save the vector of the longest distance
       }
     }
   return sqrt(sqrlen(temp));
@@ -165,17 +166,16 @@ std::vector<int> Cluster::particle_ids_in_spherical_shell(double r_min, double r
 
     for (auto a=particles.begin();a!=particles.end();a++) 
     {
-        double dist[3];    // vector distance of the current particle to the cluster's com
- 	double norm_dist;  // scalar distance  of the current particle to the cluster's com
-	get_mi_vector(dist, local_particles[*a]->r.p, com.begin());
-	norm_dist=sqrt(sqrlen(dist));
-	if (norm_dist>r_min and norm_dist<r_max) 
-	{
-	    shell_particles.push_back(norm_dist);
-	    particles_in_shell.push_back(norm_dist);
-	}    
+      double dist[3];    // vector distance of the current particle to the cluster's com
+ 	    double norm_dist;  // scalar distance  of the current particle to the cluster's com
+      get_mi_vector(dist, local_particles[*a]->r.p, com.begin());
+      norm_dist=sqrt(sqrlen(dist));
+      if (norm_dist>r_min and norm_dist<r_max) 
+      {
+        shell_particles.push_back(norm_dist);
+        particles_in_shell.push_back(norm_dist);
+      }    
     } 
-	
 return shell_particles;
 };
 

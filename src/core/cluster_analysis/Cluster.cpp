@@ -2,7 +2,7 @@
 #include "partCfg.hpp" 
 #include "grid.hpp"
 #ifdef GSL
-  #include "gsl/gsl_fit.h"
+#include "gsl/gsl_fit.h"
 #endif
 #include "Vector.hpp"
 #include <vector>
@@ -75,16 +75,15 @@ double Cluster::radius_of_gyration() {
 // calculate square length of this distance  
     sum_sq_dist += sqrlen(distance);
   }   
- 
   return sqrt(sum_sq_dist/particles.size());
 }
 
 
 
 double Cluster::fractal_dimension(double dr, double& mean_sq_residual) {
-#ifdef GSL
+//#ifdef GSL
   Vector3d com = center_of_mass();  
-// calculate Df using linear regression on the logarithms of diameters [__std::vector<double> diameters__] and num of particles [__std::vector<int> pcounts__] within the diameters
+  // calculate Df using linear regression on the logarithms of diameters [__std::vector<double> diameters__] and num of particles [__std::vector<int> pcounts__] within the diameters
   
   std::vector<double> distances;
 
@@ -101,32 +100,124 @@ double Cluster::fractal_dimension(double dr, double& mean_sq_residual) {
   const int cluster_size=particles.size();
   std::vector<double> log_diameters;
   std::vector<double> log_pcounts;
+  std::vector<double> log_radogs;
+
   while (particles_in_sphere < cluster_size) 
   { 
-
     // Count particles in the sphere
     particles_in_sphere=0;
     for (double d: distances) {
      if (d <= rad) particles_in_sphere+=1;
-    }
+    //}
     if (particles_in_sphere > 0) 
     {
+
       log_pcounts.push_back(log(particles_in_sphere)); 
       log_diameters.push_back(log(rad*2.0));
+      //log_radogs.push_back(sqrt(distances[particles_in_sphere]*distances[particles_in_sphere])/particles_in_sphere);
+      log_radogs.push_back(log(sqrt(d*d)/particles_in_sphere));
     }
     rad += dr;  //increase the radius
+  }
   }
 
 // usage: Function: int gsl_fit_linear (const double * x, const size_t xstride, const double * y, const size_t ystride, size_t n, double * c0, double * c1, double * cov00, double * cov01, double * cov11, double * sumsq) 
   const int n=log_pcounts.size();
   double c0, c1, cov00, cov01, cov11, sumsq;
-  gsl_fit_linear (&log_diameters.front(), 1, &log_pcounts.front(), 1, n, &c0, &c1, &cov00, &cov01, &cov11, &sumsq);  
+  gsl_fit_linear (&log_radogs.front(), 1, &log_pcounts.front(), 1, n, &c0, &c1, &cov00, &cov01, &cov11, &sumsq);  
   mean_sq_residual =sumsq/log_diameters.size();
+ 
+// pint Df values
+
+  printf("%f\n", c1);
+
   return c1;
-#else
-  runtimeErrorMsg()<< "GSL (gnu scientific library) is required for fractal dimension calculation.";
-#endif
+//#else
+//  runtimeErrorMsg()<< "GSL (gnu scientific library) is required for fractal dimension calculation.";
+//#endif
 }
 
+//Max radius of a particle from the com 
+double Cluster::max_radius() 
+{
+  double max_rad;
+  Vector3d com=center_of_mass();
+  double temp[3];
+
+  double mr=0.;
+  for (auto a=particles.begin();a!=particles.end();a++) { 
+      double dist[3];
+      //get_mi_vector_noconst(dist, local_particles[*a]->r.p, com);
+      get_mi_vector(dist, local_particles[*a]->r.p, com.begin());
+      // Larger than previous largest distance?
+      if (mr < sqrt(sqrlen(dist))) {
+        mr=sqrt(sqrlen(dist)); //save bigger value as maximum radous
+    	for (int i=0;i<3;i++){
+	  temp[i]=dist[i];
+	}
+      }
+    }
+  return sqrt(sqrlen(temp));
+}
+
+// Iterates over particles in a cluster and checks if they belong to the spherical shell
+// defined by r_min and r_max; If so, appends them to the vector of particle IDs */
+std::vector<int> Cluster::particle_ids_in_spherical_shell(double r_min, double r_max)
+{
+    Vector3d com=center_of_mass();
+    std::vector<int>shell_particles;
+
+    for (auto a=particles.begin();a!=particles.end();a++) 
+    {
+      double dist[3];    // vector distance of the current particle to the cluster's com
+ 	    double norm_dist;  // scalar distance  of the current particle to the cluster's com
+      get_mi_vector(dist, local_particles[*a]->r.p, com.begin());
+      norm_dist=sqrt(sqrlen(dist));
+      if (norm_dist>r_min and norm_dist<r_max) 
+      {
+        shell_particles.push_back(norm_dist);
+        particles_in_shell.push_back(norm_dist);
+      }    
+    } 
+return shell_particles;
+};
+
+// Elements of cluster's inertial tensor are caclulated 
+void Cluster::inertial_tensor(double Ixx, double Iyy, double Izz, double Ixy, double Ixz, double Iyz)
+{
+  //com = calculate_COM(agg)
+  Vector3d com=center_of_mass();
+  //Vector3d com {0.0, 1.0,0.0};
+  printf("%f, %f, %f, %f, %f, %f\n", Ixx, Iyy, Izz, Ixy, Ixz, Iyz);
+  
+  for (auto a=particles.begin();a!=particles.end();a++) {
+    Ixx += pow((local_particles[*a]->r.p[1]-com[1]),2)+pow((local_particles[*a]->r.p[2]-com[1]),2); 
+    Iyy += pow((local_particles[*a]->r.p[0]-com[0]),2)+pow((local_particles[*a]->r.p[2]-com[1]),2); 
+    Izz += pow((local_particles[*a]->r.p[0]-com[0]),2)+pow((local_particles[*a]->r.p[1]-com[1]),2); 
+
+    Ixy += (local_particles[*a]->r.p[0]-com[0])*(local_particles[*a]->r.p[1]-com[1]);
+    Ixz += (local_particles[*a]->r.p[0]-com[0])*(local_particles[*a]->r.p[2]-com[2]);
+    Iyz += (local_particles[*a]->r.p[1]-com[1])*(local_particles[*a]->r.p[2]-com[2]);
+  }
+}
+
+void Cluster::principal_axes(double Ixx, double Iyy, double Izz, double Ixy, double Ixz, double Iyz)
+{
+
+  Ixx = 0.0, Iyy = 0.0, Izz = 0.0, Ixy = 0.0, Ixz = 0.0, Iyz = 0.0;
+  inertial_tensor(Ixx, Iyy, Izz, Ixy, Ixz, Iyz);
+  double xArray [] = {Ixx, -Ixy, -Ixz}; 
+  double yArray [] = {-Ixy, Iyy, -Iyz}; 
+  double zArray [] = {-Ixz, -Iyz, Izz}; 
+  
+  double tensor_array_1d[] = {Ixx, -Ixy, -Ixz, -Ixy, Iyy, -Iyz, -Ixz, -Iyz, Izz}; 
+  double *tensor_array_2d[] = {xArray,yArray,zArray}; 
+  
+  // calculate eigenvalue with calc_eigenvalues_3x3() (see utils.hpp for more details)
+  double eigValue[] = {0.0, 0.0,0.0};
+  calc_eigenvalues_3x3(tensor_array_1d, eigValue);
+
+
+}
 
 }

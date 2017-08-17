@@ -19,6 +19,10 @@ class Cluster {
   public: 
     /** @brief Ids of the particles in the cluster */
     std::vector<int> particles;
+
+    /** @brief Ids of the particles in the cluster shell */
+    std::vector<int> particles_in_shell;
+
     /** @brief add a particle to the cluster */
     void add_particle(const Particle& p) {
          particles.push_back(p.p.identity);
@@ -36,6 +40,21 @@ class Cluster {
     *  @param dr:   increment for when constructing the discrete version of N(r)
     *  @param mean_sq_residual:  Mean square residual returned by the fit */
     double fractal_dimension(double dr, double& mean_sq_residual);
+    /** @biref: Calculate the vector between the farthest particles in the cluster,
+    *  which defines the main axis of the cluster */
+    double max_radius();
+    /** @brief Calculate inertial tensor of the cluster */
+    void inertial_tensor(double , double, double, double, double, double);
+
+    /** @brief Calculate eigenvectors - principal axes and eigenvalues of the inertial tensor */
+    void principal_axes(double, double, double, double, double, double); 
+    /** @brief Ids of the particles in the spherical shell defined by r_min and r_max */
+    std::vector<int> particle_ids_in_spherical_shell(double r_min, double r_max);
+
+    /** @brief Ids of all particles in the corresponding
+    *   spherical shells*/
+    //std::map<int,std::shared_ptr<Cluster>>  particles_ids_in_all_spherical_shells();
+
 };
 
 

@@ -27,10 +27,19 @@ class Cluster(ScriptInterfaceHelper):
         N(r) in a sphere of radius r by c*r^d, where d is the fractal dimensoin.
         dr: increment for the radius when sampling N(r)
         Return value: (fractal_dimension, mean_square_residual)
+    max_radius():
+	Returns the largest distance of a particle measured from the center of mass
+   
+    particles_id_in_spherical_shell():
+	Returns vector of particles that are between r_max and r_min form the cluster's com
+
     """
+
+
     _so_name = "ClusterAnalysis::Cluster"
     _so_bind_methods = ("particle_ids", "size", "longest_distance",
-                        "radius_of_gyration", "fractal_dimension", "center_of_mass")
+                        "radius_of_gyration", "fractal_dimension", "center_of_mass", "max_radius",
+			"particle_ids_in_spherical_shell")
 
     def particles(self):
         return ParticleSlice(self.particle_ids())

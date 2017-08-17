@@ -278,21 +278,19 @@ int vs_relate_to(int part_num, int relate_to)
 {
     // Get the data for the particle we act on and the one we wnat to relate
     // it to.
-    Particle  p_current,p_relate_to;
-    if ((get_particle_data(relate_to,&p_relate_to)!=ES_OK) || 
-        (get_particle_data(part_num,&p_current)!=ES_OK)) {
+    auto p_current = get_particle_data(part_num);
+    auto p_relate_to = get_particle_data(relate_to);
+    if (!p_current || !p_relate_to) {
         ostringstream msg;
         msg <<"Could not retrieve particle data for the given id";
         runtimeError(msg);
       return ES_ERROR;
     }
-
+    
     double quat[4];
     double l;
-    calculate_vs_relate_to_params(p_current,p_relate_to,l,quat);
+    calculate_vs_relate_to_params(*(p_current.get()),*(p_relate_to.get()),l,quat);
     
-    free_particle(&p_relate_to);
-    free_particle(&p_current);
 
     // Set the particle id of the particle we want to relate to, the distnace
     // and the relative orientation

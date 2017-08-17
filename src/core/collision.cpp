@@ -204,24 +204,6 @@ void prepare_collision_queue()
 }
 
 
-inline bool bond_exists(const Particle* const p, const Particle* const partner, int bond_type)
-{
-  // First check the bonds of p1
-  if (p->bl.e) {
-    int i = 0;
-    while(i < p->bl.n) {
-      int size = bonded_ia_params[p->bl.e[i]].num;
-      
-      if (p->bl.e[i] == bond_type &&
-          p->bl.e[i + 1] == partner->p.identity) {
-        // There's a bond, already. Nothing to do for these particles
-        return true;
-      }
-      i += size + 1;
-    }
-  }
-  return false;
-}
 
 
 inline void queue_collision(int part1,int part2) {
@@ -236,7 +218,6 @@ inline void queue_collision(int part1,int part2) {
     collision_queue[number_of_collisions-1].pp1 = part1;
     collision_queue[number_of_collisions-1].pp2 = part2;
     
-    TRACE(printf("%d: Added to queue: Particles %d and %d at %lf %lf %lf\n",this_node,part1,part2,point_of_collision[0],point_of_collision[1],point_of_collision[2]));
 }
 
 inline bool glue_to_surface_criterion(const Particle* const p1, const Particle* const p2) {
@@ -749,18 +730,15 @@ void handle_collisions ()
   int new_highest_pid;
   MPI_Reduce(&vs_to_be_created, &new_highest_pid,1,MPI_INT, MPI_SUM,0,comm_cart);
   new_highest_pid-=1;
-  printf("node: %d, new_highest_pid: %d\n",this_node, new_highest_pid);
 
   // On the head node, call added_particle, before any particles are created
   if (this_node==0) {
     for (int i=max_seen_particle+1;i<=new_highest_pid;i++) {
       added_particle(i);
-      printf("added_particle(%d)\n",i);
     }
   }
 
   
-  printf("Node: %d, vs_to_be_created: %d, first_local_pid_to_use: %d\n",this_node, vs_to_be_created,first_local_pid_to_use);
 
   
       
@@ -805,7 +783,6 @@ void handle_collisions ()
     }
       } // Loop over all collisions in the queue
     } // are we in one of the vs_based methods
-    printf("Node %d: end of vs based methods\n");
 #endif //defined VIRTUAL_SITES_RELATIVE
   
 

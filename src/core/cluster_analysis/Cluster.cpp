@@ -128,6 +128,11 @@ double Cluster::fractal_dimension(double dr, double& mean_sq_residual) {
   double c0, c1, cov00, cov01, cov11, sumsq;
   gsl_fit_linear (&log_radogs.front(), 1, &log_pcounts.front(), 1, n, &c0, &c1, &cov00, &cov01, &cov11, &sumsq);  
   mean_sq_residual =sumsq/log_diameters.size();
+ 
+// pint Df values
+
+  printf("%f\n", c1);
+
   return c1;
 //#else
 //  runtimeErrorMsg()<< "GSL (gnu scientific library) is required for fractal dimension calculation.";

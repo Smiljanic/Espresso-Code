@@ -1,7 +1,7 @@
 #include "particle_data.hpp"
 #include "grid.hpp"
 #ifdef GSL
-  #include "gsl/gsl_fit.h"
+#include "gsl/gsl_fit.h"
 #endif
 #include "Vector.hpp"
 #include <vector>
@@ -83,7 +83,7 @@ double Cluster::radius_of_gyration() {
 
 
 double Cluster::fractal_dimension(double dr, double& mean_sq_residual) {
-#ifdef GSL
+//#ifdef GSL
   Vector3d com = center_of_mass();  
   // calculate Df using linear regression on the logarithms of diameters [__std::vector<double> diameters__] and num of particles [__std::vector<int> pcounts__] within the diameters
   
@@ -129,9 +129,9 @@ double Cluster::fractal_dimension(double dr, double& mean_sq_residual) {
   gsl_fit_linear (&log_radogs.front(), 1, &log_pcounts.front(), 1, n, &c0, &c1, &cov00, &cov01, &cov11, &sumsq);  
   mean_sq_residual =sumsq/log_diameters.size();
   return c1;
-#else
-  runtimeErrorMsg()<< "GSL (gnu scientific library) is required for fractal dimension calculation.";
-#endif
+//#else
+//  runtimeErrorMsg()<< "GSL (gnu scientific library) is required for fractal dimension calculation.";
+//#endif
 }
 
 //Max radius of a particle from the com 

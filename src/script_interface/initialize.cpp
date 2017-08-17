@@ -30,6 +30,7 @@
 #include "observables/initialize.hpp" 
 #include "correlators/initialize.hpp" 
 #include "lbboundaries/initialize.hpp"
+#include "collision_detection/initialize.hpp"
 
 #include "ParallelScriptInterface.hpp"
 #include "VariantTester.hpp"
@@ -49,6 +50,9 @@ void initialize() {
   Correlators::initialize();
   LBBoundaries::initialize();
   PairCriteria::initialize();
+
+  CollisionDetection::initialize();
+ 
 
   ScriptInterface::register_new<Testing::VariantTester>("Testing::VariantTester");
 }

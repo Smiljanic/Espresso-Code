@@ -46,6 +46,39 @@ Vector3d Cluster::center_of_mass()
 }
 
 
+//Center of mass of an aggregate
+Vector3d Cluster::center_of_mass_subcluster(std::vector<double> &subcl_partcicle_ids) 
+{
+ Vector3d com{};
+  
+  // The distances between the particles "folded", such that all distances
+  // are smaller than box_l/2 in a periodic system. The 1st particle
+  // of the cluster is arbitrarily chosen as reference.
+  
+  Vector3d reference_position=folded_position(partCfg[particles[subcl_partcicle_ids[0]]]);
+  Vector3d dist_to_reference;
+  double total_mass=0.;
+  for (int pid : subcl_partcicle_ids)  //iterate over all particle ids within a cluster
+  {
+    const Vector3d folded_pos=folded_position(partCfg[pid]);
+    get_mi_vector(dist_to_reference, folded_pos, reference_position); //add current particle positions
+    com = com + dist_to_reference *partCfg[pid].p.mass;
+    total_mass += partCfg[pid].p.mass;
+  }
+
+  // Normalize by numer of particles
+  com = com * 1./total_mass;
+
+  // Re-add reference position
+  com = com +reference_position;
+
+  // Fold into simulation box
+  
+  for (int i = 0; i < 3; i ++) {
+    com[i] = fmod(com[i],box_l[i]);
+  }
+  return com;
+}
 
 double Cluster::longest_distance() {
   double ld=0.;
@@ -80,20 +113,43 @@ double Cluster::radius_of_gyration() {
 }
 
 
+double Cluster::radius_of_gyration_subcluster(std::vector<double> &subcl_partcicle_ids) {
+  // Center of mass
+  Vector3d com=center_of_mass_subcluster(subcl_partcicle_ids);
+  double sum_sq_dist=0.;
+  for (auto const pid : particles) {
+    double distance[3];
+    get_mi_vector(distance, com, partCfg[pid].r.p);
+// calculate square length of this distance  
+    sum_sq_dist += sqrlen(distance);
+  }   
+ 
+  return sqrt(sum_sq_dist/particles.size());
+}
 
 double Cluster::fractal_dimension(double dr, double& mean_sq_residual) {
 #ifdef GSL
   Vector3d com = center_of_mass();  
 // calculate Df using linear regression on the logarithms of diameters [__std::vector<double> diameters__] and num of particles [__std::vector<int> pcounts__] within the diameters
-  
+
+  // current com and rg
+  Vector3d current_com;
+  double current_rg;
+
   std::vector<double> distances;
+  std::vector<double> all_ids;
+  std::vector<double> temp_ids;
+
 
   for (auto const& it : particles) {
     double dist[3];
     get_mi_vector(dist, com.begin(), partCfg[it].r.p); 
     distances.push_back(sqrt(sqrlen(dist))); //add distance from the current particle to the com in the distances vectors
+    // all_ids.push_back(partCfg[it].r.identity);
+    all_ids.push_back(int(it));
   }
-  
+
+
   // Increment radius in steps of dr and count particles within a sphere of that radius
   // Stop, when the sphere contains all particles of the cluster
   double rad = 0.0;
@@ -107,12 +163,22 @@ double Cluster::fractal_dimension(double dr, double& mean_sq_residual) {
     // Count particles in the sphere
     particles_in_sphere=0;
     for (double d: distances) {
-     if (d <= rad) particles_in_sphere+=1;
+     for (int i: all_ids) {
+      if (d <= rad) 
+        {
+        particles_in_sphere+=1;
+        temp_ids.push_back(i);
+        }
+      }
     }
+
+    // here caclulate Rg of the subcluster: particles ids are stored in 
+    current_com=center_of_mass_subcluster(temp_ids);
+    current_rg=radius_of_gyration_subcluster(temp_ids);
     if (particles_in_sphere > 0) 
     {
       log_pcounts.push_back(log(particles_in_sphere)); 
-      log_diameters.push_back(log(rad*2.0));
+      log_diameters.push_back(log(current_rg*2.0)); // this is not correct, rg should be instead of subcluster radii
     }
     rad += dr;  //increase the radius
   }

@@ -30,8 +30,8 @@ class Cluster {
     /** @brief Calculate radius of gyration of the cluster */
     double radius_of_gyration();
     /** @brief functions to calculate com and rg of a part of a cluster */
-    Vector3d center_of_mass_subcluster(std::vector<double>& subcl_partcicle_ids);
-    double radius_of_gyration_subcluster(std::vector<double>& subcl_partcicle_ids);
+    Vector3d center_of_mass_subcluster(std::vector<int>& subcl_partcicle_ids);
+    double radius_of_gyration_subcluster(std::vector<int>& subcl_partcicle_ids);
     /** @brief Calculate the fractal dimension 
     *  N(r) via r^d, where N(r) counts the number of particles in a sphere
     *  of radius n, and d denotes the fractal dimension.

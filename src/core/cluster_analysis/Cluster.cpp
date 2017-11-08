@@ -1,5 +1,5 @@
 #include "particle_data.hpp"
-#include "partCfg.hpp" 
+#include "partCfg_global.hpp" 
 #include "grid.hpp"
 #ifdef GSL
   #include "gsl/gsl_fit.h"
@@ -27,15 +27,15 @@ Vector3d Cluster::center_of_mass_subcluster(std::vector<int> &subcl_partcicle_id
   // are smaller than box_l/2 in a periodic system. The 1st particle
   // of the cluster is arbitrarily chosen as reference.
   
-  Vector3d reference_position=folded_position(partCfg[subcl_partcicle_ids[0]]);
+  Vector3d reference_position=folded_position(partCfg()[particles[0]]);
   Vector3d dist_to_reference;
   double total_mass=0.;
   for (int pid : subcl_partcicle_ids)  //iterate over all particle ids within a cluster
   {
-    const Vector3d folded_pos=folded_position(partCfg[pid]);
+    const Vector3d folded_pos=folded_position(partCfg()[pid]);
     get_mi_vector(dist_to_reference, folded_pos, reference_position); //add current particle positions
-    com = com + dist_to_reference *partCfg[pid].p.mass;
-    total_mass += partCfg[pid].p.mass;
+    com = com + dist_to_reference *partCfg()[pid].p.mass;
+    total_mass += partCfg()[pid].p.mass;
   }
 
   // Normalize by numer of particles
@@ -57,7 +57,7 @@ double Cluster::longest_distance() {
   for (auto a=particles.begin();a!=particles.end();a++) { 
     for (auto b=a;++b!=particles.end();) {
       double dist[3];
-      get_mi_vector(dist, partCfg[*a].r.p,partCfg[*b].r.p);
+      get_mi_vector(dist, partCfg()[*a].r.p,partCfg()[*b].r.p);
        
       // Larger than previous largest distance?
       if (ld < sqrt(sqrlen(dist))) {
@@ -81,7 +81,7 @@ double Cluster::radius_of_gyration_subcluster(std::vector<int> &subcl_partcicle_
   double sum_sq_dist=0.;
   for (auto const pid : particles) {
     double distance[3];
-    get_mi_vector(distance, com, partCfg[pid].r.p);
+    get_mi_vector(distance, com, partCfg()[pid].r.p);
 // calculate square length of this distance  
     sum_sq_dist += sqrlen(distance);
   }   
@@ -113,7 +113,7 @@ double Cluster::fractal_dimension(double dr, double& mean_sq_residual) {
 
   for (auto const& it : particles) {
     double dist[3];
-    get_mi_vector(dist, com.begin(), partCfg[it].r.p); 
+    get_mi_vector(dist, com.begin(), partCfg()[it].r.p); 
     distances.push_back(sqrt(sqrlen(dist))); //add distance from the current particle to the com in the distances vectors
     // all_ids.push_back(partCfg[it].r.identity);
   }

@@ -75,18 +75,18 @@ double Cluster::radius_of_gyration() {
 }
 
 
-double Cluster::radius_of_gyration_subcluster(std::vector<int> &subcl_partcicle_ids) {
+double Cluster::radius_of_gyration_subcluster(std::vector<int> &subcl_particle_ids) {
   // Center of mass
-  Vector3d com=center_of_mass_subcluster(subcl_partcicle_ids);
+  Vector3d com=center_of_mass_subcluster(subcl_particle_ids);
   double sum_sq_dist=0.;
-  for (auto const pid : particles) {
+  for (auto const pid : subcl_particle_ids) {
     double distance[3];
     get_mi_vector(distance, com, partCfg()[pid].r.p);
 // calculate square length of this distance  
     sum_sq_dist += sqrlen(distance);
   }   
  
-  return sqrt(sum_sq_dist/particles.size());
+  return sqrt(sum_sq_dist/subcl_particle_ids.size());
 }
 
 template <typename T>
@@ -125,8 +125,15 @@ double Cluster::fractal_dimension(double dr, double& mean_sq_residual) {
   std::vector<int> subcluster_ids;
   std::vector<double> log_pcounts;
   std::vector<double> log_diameters;
+  double last_dist=0;
   for (auto const idx : particle_indices) {
     subcluster_ids.push_back(particles[idx]);
+    if (distances[idx]<last_dist+dr)
+      continue;
+      
+    last_dist=distances[idx];
+    if (subcluster_ids.size()==1) 
+      continue;
     double current_rg=radius_of_gyration_subcluster(subcluster_ids);
     log_pcounts.push_back(log(subcluster_ids.size())); 
     log_diameters.push_back(log(current_rg*2.0)); // this is not correct, rg should be instead of subcluster radii

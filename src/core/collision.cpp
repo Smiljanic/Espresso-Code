@@ -26,6 +26,7 @@
 #include "collision.hpp"
 #include "interaction_data.hpp" 
 #include "initialize.hpp"
+#include "rotation.hpp"
 
 
 
@@ -44,14 +45,11 @@ typedef struct {
   int pp2; // 2nd particle id
 } collision_struct;
 
-// During force calculation, colliding particles are recorded in thequeue
+// During force calculation, colliding particles are recorded in the queue
 // The queue is processed after force calculation, when it is save to add
 // particles
-static collision_struct *collision_queue = 0;
-static collision_struct *gathered_queue = 0;
+static std::vector<collision_struct> local_collision_queue;
 
-// Number of collisions recoreded in the queue
-static int number_of_collisions, total_collisions;
 
 /// Parameters for collision detection
 Collision_parameters collision_params = { 0, };
@@ -197,86 +195,19 @@ bool validate_collision_parameters()
 }
 
 //* Allocate memory for the collision queue /
-void prepare_collision_queue()
+void prepare_local_collision_queue()
 {
- TRACE(printf("%d: Prepare_collision_queue()\n",this_node));
-  number_of_collisions=0;
+  local_collision_queue.clear();
 }
 
 
 
 
-inline void queue_collision(int part1,int part2) {
-
-    //Get memory for the new entry in the collision queue
-    number_of_collisions++;
-    if (number_of_collisions==1)
-      collision_queue = (collision_struct *) malloc(number_of_collisions*sizeof(collision_struct));
-    else
-      collision_queue = (collision_struct *) realloc (collision_queue,number_of_collisions*sizeof(collision_struct));
-    // Save the collision      
-    collision_queue[number_of_collisions-1].pp1 = part1;
-    collision_queue[number_of_collisions-1].pp2 = part2;
-    
+void queue_collision(const int part1,const int part2) {
+   local_collision_queue.push_back({part1,part2});
 }
 
-inline bool glue_to_surface_criterion(const Particle* const p1, const Particle* const p2) {
-    return  (
-       ((p1->p.type==collision_params.part_type_to_be_glued)
-       && (p2->p.type ==collision_params.part_type_to_attach_vs_to))
-      ||
-       ((p2->p.type==collision_params.part_type_to_be_glued)
-       && (p1->p.type ==collision_params.part_type_to_attach_vs_to)));
-}
 
-// Detect a collision between the given particles.
-// Add it to the queue in case virtual sites should be added at the point of collision
-void detect_collision(const Particle* const p1, const Particle* const p2, const double& dist_betw_part)
-{
-
-  if (dist_betw_part > collision_params.distance)
-    return;
-
-  //TRACE(printf("%d: particles %d and %d within bonding distance %lf\n", this_node, p1->p.identity, p2->p.identity, dist_betw_part));
-  // If we are in the glue to surface mode, check that the particles
-  // are of the right type
-  if (collision_params.mode & COLLISION_MODE_GLUE_TO_SURF)
-    if (!glue_to_surface_criterion(p1,p2))
-       return;
-   
-
-      
-#ifdef VIRTUAL_SITES_RELATIVE
-  // Ignore virtual particles
-  if ((p1->p.isVirtual) || (p2->p.isVirtual))
-    return;
-#endif
-
-
-  // Check, if there's already a bond between the particles
-  if (bond_exists(p1,p2, collision_params.bond_centers))
-    return;
-  
-  if (bond_exists(p2,p1, collision_params.bond_centers))
-    return;
-
-
-  TRACE(printf("%d: no previous bond, binding\n", this_node));
-
-  /* If we're still here, there is no previous bond between the particles,
-     we have a new collision */
-
-  
-
-  // do not create bond between ghost particles
-  if (p1->l.ghost && p2->l.ghost) {
-     TRACE(printf("Both particles %d and %d are ghost particles", p1->p.identity, p2->p.identity));
-     return;
-  }
-  queue_collision(p1->p.identity,p2->p.identity);
-
-  
-}
 
 /** @brief Calculate position of vs for GLUE_TO_SURFACE mode 
 *    Reutnrs id of particle to bind vs to */
@@ -292,13 +223,13 @@ int glue_to_surface_calc_vs_pos(const Particle* const p1, const Particle* const 
     if ((p1->p.type==collision_params.part_type_to_be_glued)
        && (p2->p.type ==collision_params.part_type_to_attach_vs_to))
     { 
-	       c = collision_params.dist_glued_part_to_vs/dist_betw_part;
+	       c = 1 -collision_params.dist_glued_part_to_vs/dist_betw_part;
          bind_vs_to_pid=p2->p.identity;
     }
     else if ((p2->p.type==collision_params.part_type_to_be_glued)
           && (p1->p.type ==collision_params.part_type_to_attach_vs_to))
     { 
-	       c = -collision_params.dist_glued_part_to_vs/dist_betw_part;
+	       c = collision_params.dist_glued_part_to_vs/dist_betw_part;
          bind_vs_to_pid=p1->p.identity;
     }
     else
@@ -306,7 +237,7 @@ int glue_to_surface_calc_vs_pos(const Particle* const p1, const Particle* const 
          throw std::runtime_error("This should never be thrown. Bug.");
     }
     for (int i=0;i<3;i++) {
-       pos[i] = p1->r.p[i] - vec21[i] * c;
+       pos[i] = p2->r.p[i] +vec21[i] * c;
     }
    return bind_vs_to_pid;
 }
@@ -326,20 +257,19 @@ void bind_at_point_of_collision_calc_vs_pos(const Particle* const p1, const Part
 
 // Considers three particles for three_particle_binding and performs
 // the binding if the criteria are met //
-void coldet_do_three_particle_bond(Particle* p, Particle* p1, Particle* p2)
+void coldet_do_three_particle_bond(Particle& p, Particle& p1, Particle& p2)
 {
   double vec21[3];
   // If p1 and p2 are not closer or equal to the cutoff distance, skip
   // p1:
-  get_mi_vector(vec21,p->r.p,p1->r.p);
+  get_mi_vector(vec21,p.r.p,p1.r.p);
   if (sqrt(sqrlen(vec21)) > collision_params.distance)
     return;
   // p2:
-  get_mi_vector(vec21,p->r.p,p2->r.p);
+  get_mi_vector(vec21,p.r.p,p2.r.p);
   if (sqrt(sqrlen(vec21)) > collision_params.distance)
     return;
 
-  //TRACE(printf("%d: checking three particle bond %d %d %d\n", this_node, p1->p.identity, p->p.identity, p2->p.identity));
 
   // Check, if there already is a three-particle bond centered on p 
   // with p1 and p2 as partners. If so, skip this triplet.
@@ -347,22 +277,21 @@ void coldet_do_three_particle_bond(Particle* p, Particle* p1, Particle* p2)
  
   // Iterate over existing bonds of p
 
-  if (p->bl.e) {
+  if (p.bl.e) {
     int b = 0;
-    while (b < p->bl.n) {
-      int size = bonded_ia_params[p->bl.e[b]].num;
+    while (b < p.bl.n) {
+      int size = bonded_ia_params[p.bl.e[b]].num;
 
-      //TRACE(printf("%d:--1-- checking bond of type %d and length %d of particle %d\n", this_node, p->bl.e[b], bonded_ia_params[p->bl.e[b]].num, p->p.identity));
  
       if (size==2) {
         // Check if the bond type is within the range used by the collision detection,
-        if ((p->bl.e[b] >= collision_params.bond_three_particles) & (p->bl.e[b] <=collision_params.bond_three_particles + collision_params.three_particle_angle_resolution)) {
+        if ((p.bl.e[b] >= collision_params.bond_three_particles) & (p.bl.e[b] <=collision_params.bond_three_particles + collision_params.three_particle_angle_resolution)) {
           // check, if p1 and p2 are the bond partners, (in any order)
           // if yes, skip triplet
           if (
-              ((p->bl.e[b+1]==p1->p.identity) && (p->bl.e[b+2] ==p2->p.identity))
+              ((p.bl.e[b+1]==p1.p.identity) && (p.bl.e[b+2] ==p2.p.identity))
               ||
-              ((p->bl.e[b+1]==p2->p.identity) && (p->bl.e[b+2] ==p1->p.identity))
+              ((p.bl.e[b+1]==p2.p.identity) && (p.bl.e[b+2] ==p1.p.identity))
               )
             return;
         } // if bond type 
@@ -373,7 +302,6 @@ void coldet_do_three_particle_bond(Particle* p, Particle* p1, Particle* p2)
     } // bond loop
   } // if bond list defined
 
-  //TRACE(printf("%d: proceeding to install three particle bond %d %d %d\n", this_node, p1->p.identity, p->p.identity, p2->p.identity));
 
   // If we are still here, we need to create angular bond
   // First, find the angle between the particle p, p1 and p2
@@ -381,14 +309,14 @@ void coldet_do_three_particle_bond(Particle* p, Particle* p1, Particle* p2)
   
   double vec1[3],vec2[3];
   /* vector from p to p1 */
-  get_mi_vector(vec1, p->r.p, p1->r.p);
+  get_mi_vector(vec1, p.r.p, p1.r.p);
   // Normalize
   double dist2 = sqrlen(vec1);
   double d1i = 1.0 / sqrt(dist2);
   for(int j=0;j<3;j++) vec1[j] *= d1i;
   
   /* vector from p to p2 */
-  get_mi_vector(vec2, p->r.p, p2->r.p);
+  get_mi_vector(vec2, p.r.p, p2.r.p);
   // normalize
   dist2 = sqrlen(vec2);
   double d2i = 1.0 / sqrt(dist2);
@@ -416,30 +344,9 @@ void coldet_do_three_particle_bond(Particle* p, Particle* p1, Particle* p2)
   // First, fill bond data structure
   int bondT[3];
   bondT[0] = bond_id;
-  bondT[1] = p1->p.identity;
-  bondT[2] = p2->p.identity;
-  local_change_bond(p->p.identity, bondT, 0);
-}
-
-// If activated, throws an exception for each collision which can be
-// parsed by the script interface
-void handle_exception_throwing_for_single_collision(int i)
-{
-    if (collision_params.exception_on_collision) {
-
-      int id1, id2;
-      if (collision_queue[i].pp1 > collision_queue[i].pp2) {
-	id1 = collision_queue[i].pp2;
-	id2 = collision_queue[i].pp1;
-      }
-      else {
-	id1 = collision_queue[i].pp1;
-	id2 = collision_queue[i].pp2;
-      }
-      std::ostringstream msg;
-      msg << "collision between particles " << id1 << " and " <<id2;
-      runtimeError(msg);
-    }
+  bondT[1] = p1.p.identity;
+  bondT[2] = p2.p.identity;
+  local_change_bond(p.p.identity, bondT, 0);
 }
 
 #ifdef VIRTUAL_SITES_RELATIVE
@@ -454,16 +361,12 @@ void place_vs_and_relate_to_particle(const int current_vs_pid, const double* con
     memmove(local_particles[current_vs_pid]->r.p,pos,3*sizeof(double));
 	  local_vs_relate_to(current_vs_pid,relate_to);
 	  
-	  (local_particles[current_vs_pid])->p.isVirtual=1;
-	  #ifdef ROTATION_PER_PARTICLE
-	    (local_particles[relate_to])->p.rotation=14;
-	  #endif
-	  (local_particles[current_vs_pid])->p.type=collision_params.vs_particle_type;
-    on_particle_change();
+	  (local_particles[max_seen_particle])->p.isVirtual=1;
+	  (local_particles[max_seen_particle])->p.type=collision_params.vs_particle_type;
 }
 
 
-void bind_at_poc_create_bond_between_vs(const int current_vs_pid, const int i)
+void bind_at_poc_create_bond_between_vs(const int current_vs_pid, const collision_struct& c)
 {
    int bondG[3];
 
@@ -478,8 +381,8 @@ void bind_at_poc_create_bond_between_vs(const int current_vs_pid, const int i)
    case 2: {
      // Create 1st bond between the virtual particles
      bondG[0] = collision_params.bond_vs;
-     bondG[1] = collision_queue[i].pp1;
-     bondG[2] = collision_queue[i].pp2;
+     bondG[1] = c.pp1;
+     bondG[2] = c.pp2;
      local_change_bond(current_vs_pid-1,   bondG, 0);
      local_change_bond(current_vs_pid-2, bondG, 0);
      break;
@@ -487,34 +390,44 @@ void bind_at_poc_create_bond_between_vs(const int current_vs_pid, const int i)
   }
 }
 
-void glue_to_surface_bind_vs_to_pp1(const int current_vs_pid, const int i)
+void glue_to_surface_bind_part_to_vs(const Particle* const p1, const Particle* const p2, const int vs_pid_plus_one, const collision_struct& c)
 {
 	 int bondG[3];
          // Create bond between the virtual particles
          bondG[0] = collision_params.bond_vs;
-         bondG[1] = current_vs_pid-1;
-         local_change_bond(collision_queue[i].pp1, bondG, 0);
-	 local_particles[collision_queue[i].pp1]->p.type=collision_params.part_type_after_glueing;
+         bondG[1] = vs_pid_plus_one-1;
+         if (p1->p.type == collision_params.part_type_after_glueing) {
+           local_change_bond(p1->p.identity, bondG, 0);
+         }
+         else
+         {
+           local_change_bond(p2->p.identity, bondG, 0);
+         }
 }
 
 #endif
 
-void gather_collision_queue(int* counts)
+std::vector<collision_struct> gather_global_collision_queue()
 {
+    std::vector<collision_struct> res;
+    
     int displacements[n_nodes];                   // offsets into collisions
   
     // Initialize number of collisions gathered from all processors
+    int counts[n_nodes];
     for (int a=0;a<n_nodes;a++)
         counts[a]=0;
     
     // Total number of collisions
-    MPI_Allreduce(&number_of_collisions, &total_collisions, 1, MPI_INT, MPI_SUM, comm_cart);
+    int total_collisions;
+    int tmp=local_collision_queue.size();
+    MPI_Allreduce(&tmp, &total_collisions, 1, MPI_INT, MPI_SUM, comm_cart);
     
     if (total_collisions==0)
-      return;
+      return std::move(res);
 
     // Gather number of collisions
-    MPI_Allgather(&number_of_collisions, 1, MPI_INT, counts, 1, MPI_INT, comm_cart);
+    MPI_Allgather(&tmp, 1, MPI_INT, counts, 1, MPI_INT, comm_cart);
 
     // initialize displacement information for all nodes
     displacements[0]=0;
@@ -527,64 +440,63 @@ void gather_collision_queue(int* counts)
     for (int k=0; k<n_nodes; k++)
        byte_counts[k]=counts[k]*sizeof(collision_struct);
     
-    TRACE(printf("counts [%d] = %d and number of collisions = %d and diplacements = %d and total collisions = %d\n", this_node, counts[this_node], number_of_collisions, displacements[this_node], total_collisions));
-    
     // Allocate mem for the new collision info
-    gathered_queue = (collision_struct *) malloc(total_collisions * sizeof(collision_struct));
+    
+    res.resize(total_collisions);
 
     // Gather collision informtion from all nodes and send it to all nodes
-    MPI_Allgatherv(collision_queue, byte_counts[this_node], MPI_BYTE, gathered_queue, byte_counts, displacements, MPI_BYTE, comm_cart);
+    MPI_Allgatherv(&(local_collision_queue[0]), byte_counts[this_node], MPI_BYTE, &(res[0]), byte_counts, displacements, MPI_BYTE, comm_cart);
 
-    return;
+    return std::move(res);
 }
 
 
 // this looks in all local particles for a particle close to those in a 
 // 2-particle collision. If it finds them, it performs three particle binding
-void three_particle_binding_full_search()
+void three_particle_binding_full_search(const std::vector<collision_struct> &gathered_queue)
 {
-  Cell *cell;
-  Particle *p, *p1, *p2;
-  // first iterate over cells, get one of the cells and find how many particles in this cell
-  for (int c=0; c<local_cells.n; c++) {
-      cell=local_cells.cell[c];
-      // iterate over particles in the cell
-      for (int a=0; a<cell->n; a++) {
-          p=&cell->part[a];
-          // for all p:
-          for (int ij=0; ij<total_collisions; ij++) {
-              p1=local_particles[gathered_queue[ij].pp1];
-              p2=local_particles[gathered_queue[ij].pp2];
+  // Only works on one node.
+  if (n_nodes!=1) {
+    runtimeErrorMsg() << "Collision detection three particle binding: The full search scheme only works on a single core. Please use domain decomposition in parallel simulations.";
+    return;
+  }
   
-  		   // Check, whether p is equal to one of the particles in the
-  		   // collision. If so, skip
-  		   if ((p->p.identity ==p1->p.identity) || ( p->p.identity == p2->p.identity)) {
-  		     continue;
-  		   }
-  
-             // The following checks, 
-  		 // if the particle p is closer that the cutoff from p1 and/or p2.
-  		 // If yes, three particle bonds are created on all particles
-  		 // which have two other particles within the cutoff distance,
-  		 // unless such a bond already exists
-  		 
-  		 // We need all cyclical permutations, here 
-  		 // (bond is placed on 1st particle, order of bond partners
-  		 // does not matter, so we don't neet non-cyclic permutations):
-             coldet_do_three_particle_bond(p,p1,p2);
-             coldet_do_three_particle_bond(p1,p,p2);
-             coldet_do_three_particle_bond(p2,p,p1);
-  
-         }
-     }
- }
+  // Iterate over all local particles
+  for (auto &p : local_cells.particles()) {
+    // And all pairs of particles in the collision queue
+    for (auto &c : gathered_queue) {
+      Particle* p1 = local_particles[c.pp1];
+      Particle* p2 = local_particles[c.pp2];
+
+      // Check, whether p is equal to one of the particles in the
+      // collision. If so, skip
+      if ((p.p.identity == p1->p.identity) ||
+          (p.p.identity == p2->p.identity)) {
+        continue;
+      }
+
+      // The following checks,
+      // if the particle p is closer that the cutoff from p1 and/or p2.
+      // If yes, three particle bonds are created on all particles
+      // which have two other particles within the cutoff distance,
+      // unless such a bond already exists
+
+      // We need all cyclical permutations, here
+      // (bond is placed on 1st particle, order of bond partners
+      // does not matter, so we don't neet non-cyclic permutations):
+      coldet_do_three_particle_bond(p, *p1, *p2);
+      coldet_do_three_particle_bond(*p1, p, *p2);
+      coldet_do_three_particle_bond(*p2, p, *p1);
+    }
+  }
 }
+
 
 
 // Goes through the collision queue and for each pair in it
 // looks for a third particle by using the domain decomposition
 // cell system. If found, it performs three particle binding
-void three_particle_binding_domain_decomposition()
+void three_particle_binding_domain_decomposition(const std::vector<collision_struct> &gathered_queue)
 {
   // We have domain decomposition
     
@@ -593,13 +505,13 @@ void three_particle_binding_domain_decomposition()
     
   // Iterate over collision queue
 
-  for (int id=0;id<total_collisions;id++) {
+  for (auto& c : gathered_queue) {
 
-      // Get first cell Idx
-      if ((local_particles[gathered_queue[id].pp1] != NULL) && (local_particles[gathered_queue[id].pp2] != NULL)) {
+      // If we have both particles, at least as ghosts, Get the corresponding cell indices
+      if ((local_particles[c.pp1] != NULL) && (local_particles[c.pp2] != NULL)) {
 
-        Particle* p1=local_particles[gathered_queue[id].pp1];
-        Particle* p2=local_particles[gathered_queue[id].pp2];
+        Particle* p1=local_particles[c.pp1];
+        Particle* p2=local_particles[c.pp2];
         dd_position_to_cell_indices(p1->r.p,cellIdx[0]);
         dd_position_to_cell_indices(p2->r.p,cellIdx[1]);
 
@@ -627,7 +539,6 @@ void three_particle_binding_domain_decomposition()
   	                      // Check, whether p is equal to one of the particles in the
   	                      // collision. If so, skip
   	                      if ((P->p.identity ==p1->p.identity) || (P->p.identity == p2->p.identity)) {
-                          //TRACE(printf("same particle\n"));
   		                continue;
   	                      }
 
@@ -641,26 +552,19 @@ void three_particle_binding_domain_decomposition()
                         // (bond is placed on 1st particle, order of bond partners
   	                      // does not matter, so we don't need non-cyclic permutations):
 
-                        if (P->l.ghost) {
-                          //TRACE(printf("%d: center particle is ghost: %d\n", this_node, P->p.identity));
-                          continue;
-                        }
-                        //TRACE(printf("%d: LOOP: %d Handling collision of particles FIRST CONFIGURATION %d %d %d\n", this_node, id, p1->p.identity, P->p.identity, p2->p.identity));
-                        coldet_do_three_particle_bond(P,p1,p2);
-
-                        if (p1->l.ghost) {
-                          //TRACE(printf("%d: center particle is ghost: %d\n", this_node, p1->p.identity));
-                          continue;
+                        if (!P->l.ghost) {
+                          coldet_do_three_particle_bond(*P,*p1,*p2);
                         }
 
-                        coldet_do_three_particle_bond(p1,P,p2);
-
-                        if (p2->l.ghost) {
-                          //TRACE(printf("%d: center particle is ghost: %d\n", this_node, p2->p.identity));
-                          continue;
+                        if (!p1->l.ghost) {
+                          coldet_do_three_particle_bond(*p1,*P,*p2);
                         }
 
-  	                      coldet_do_three_particle_bond(p2,P,p1);
+
+                        if (!p2->l.ghost) {
+  	                  coldet_do_three_particle_bond(*p2,*P,*p1);
+                        }
+
 
                      } // loop over particles in this cell
 
@@ -678,83 +582,72 @@ void three_particle_binding_domain_decomposition()
 void handle_collisions ()
 {
 
-  TRACE(printf("%d: handle_collisions: number of collisions in queue %d\n",this_node,number_of_collisions));  
-
   if (collision_params.exception_on_collision) {
-    for (int i=0;i<number_of_collisions;i++) {
-      handle_exception_throwing_for_single_collision(i);
+    for (auto& c : local_collision_queue) {
+      runtimeWarningMsg() << "Collision between particles "<<std::min(c.pp1,c.pp2) <<" and "<<std::max(c.pp1,c.pp2);
     } 
   }
     
     
   if (bind_centers()) 
   {
-    for (int i=0;i<number_of_collisions;i++) {
-      // put the bond to the physical particle; at least one partner always is
-      int primary =collision_queue[i].pp1;
-      int secondary = collision_queue[i].pp2;
-      if (local_particles[collision_queue[i].pp1]->l.ghost) {
-        primary = collision_queue[i].pp2;
-        secondary = collision_queue[i].pp1;
-        TRACE(printf("%d: particle-%d is ghost", this_node, collision_queue[i].pp1));
+    for (auto& c : local_collision_queue) {
+      // put the bond to the non-ghost particle; at least one partner always is
+      if (local_particles[c.pp1]->l.ghost) {
+        std::swap(c.pp1,c.pp2);
       }
       int bondG[2];
       bondG[0]=collision_params.bond_centers;
-      bondG[1]=secondary;
-      local_change_bond(primary, bondG, 0);
-      TRACE(printf("%d: Adding bond %d->%d\n",this_node, primary,secondary));
+      bondG[1]=c.pp2;
+      local_change_bond(c.pp1, bondG, 0);
     }
   }
 
+// Virtual sites based collision schemese 
 #ifdef VIRTUAL_SITES_RELATIVE
   if ((collision_params.mode & COLLISION_MODE_VS) || (collision_params.mode & COLLISION_MODE_GLUE_TO_SURF)) {
-  // If one of the collision modes is active which places virtual sites, we go over the queue to handle them
-  
-  // Number of vs to create on this node based on length of collision queue
-  int vs_to_be_created;
-  if (collision_params.mode & COLLISION_MODE_VS)
-    vs_to_be_created=2*number_of_collisions;
-  else
-    if (collision_params.mode & COLLISION_MODE_GLUE_TO_SURF)
-      vs_to_be_created=number_of_collisions;
-    else
-      throw std::runtime_error("Unexpected collision mode");
-  int first_local_pid_to_use;
-  if (this_node==0) {
-    vs_to_be_created+=max_seen_particle+1;
-    first_local_pid_to_use=max_seen_particle+1;
-  }
-  MPI_Exscan(&vs_to_be_created, &first_local_pid_to_use,1,MPI_INT, MPI_SUM,comm_cart);
-  
-  // Communicate highest particle id after vs creation to head node
-  int new_highest_pid;
-  MPI_Reduce(&vs_to_be_created, &new_highest_pid,1,MPI_INT, MPI_SUM,0,comm_cart);
-  new_highest_pid-=1;
+  // Gather the global collision queue, because only one node hsa a collision across node boundaries in its cueue.
+  // The other node might still have to change particle properties on its non-ghost particle
+  auto gathered_queue = gather_global_collision_queue();
 
-  // On the head node, call added_particle, before any particles are created
-  if (this_node==0) {
-    for (int i=max_seen_particle+1;i<=new_highest_pid;i++) {
-      added_particle(i);
+  // Sync max_seen_part
+  int tmp;
+  MPI_Allreduce(&max_seen_particle, &tmp, 1, MPI_INT, MPI_MAX, comm_cart);
+  max_seen_particle=tmp;
+  
+  // Make sure, the local_particles array is long enough
+  realloc_local_particles(max_seen_particle);
+  
+  int current_vs_pid=max_seen_particle+1;
+
+
+
+
+  // Iterate over global collision queue
+  for (auto& c: gathered_queue) {
+
+  // Get particle pointers
+  Particle* const p1=local_particles[c.pp1];
+  Particle* const p2=local_particles[c.pp2];
+
+  // If we have none of the two partic;es, only increase the counter for the next id to use
+  if (p1==NULL and p2==NULL) {
+    if (collision_params.mode & COLLISION_MODE_VS)
+    {
+      added_particle(current_vs_pid);
+      current_vs_pid++;
     }
+    // For glue to surface, we have only one vs
+    added_particle(current_vs_pid);
+    current_vs_pid++;
+
   }
-
-  
-
-  
-      
-
-   int current_vs_pid=first_local_pid_to_use;
-    for (int i=0;i<number_of_collisions;i++) {
-	// Create virtual site(s) 
-  const int primary=collision_queue[i].pp1;
-  const int secondary=collision_queue[i].pp2;
-  const Particle* const p1=local_particles[primary];
-  const Particle* const p2=local_particles[secondary];
+  else
+  { // We have at least one
   
   // Calculate initial position for new vs, which is in the local node's domain
   // Vs is moved afterwards and resorted after all collision s are handled
   // Use position of non-ghost colliding particle.
-
   double initial_pos[3];
   if (p1->l.ghost)
     memmove(initial_pos,p2->r.p,3*sizeof(double));
@@ -767,72 +660,87 @@ void handle_collisions ()
 	{
    double pos1[3],pos2[3];
 
-   bind_at_point_of_collision_calc_vs_pos(p1,p2,pos1,pos2);
-	 place_vs_and_relate_to_particle(current_vs_pid,pos1,primary,initial_pos);
-   current_vs_pid++;
-	 place_vs_and_relate_to_particle(current_vs_pid,pos2,secondary,initial_pos);
-   current_vs_pid++;
-   bind_at_poc_create_bond_between_vs(current_vs_pid,i);
+   // Enable rotation on the particles to which vs will be attached
+	 p1->p.rotation=ROTATION_X | ROTATION_Y | ROTATION_Z;
+	 p2->p.rotation=ROTATION_X | ROTATION_Y | ROTATION_Z;
+   
+   // The vs placement is done by the node on which p1 is non-ghost
+   if (! p1->l.ghost) {
+     bind_at_point_of_collision_calc_vs_pos(p1,p2,pos1,pos2);
+	   place_vs_and_relate_to_particle(current_vs_pid,pos1,c.pp1,initial_pos);
+     current_vs_pid++;
+	   place_vs_and_relate_to_particle(current_vs_pid,pos2,c.pp2,initial_pos);
+     current_vs_pid++;
+     bind_at_poc_create_bond_between_vs(current_vs_pid,c);
+   }
+   else
+   { // Just update the books
+        added_particle(current_vs_pid);
+        current_vs_pid++;
+        
+        added_particle(current_vs_pid);
+        current_vs_pid++;
+   }
 	}
 	if (collision_params.mode & COLLISION_MODE_GLUE_TO_SURF) {
       double pos[3];
       const int pid=glue_to_surface_calc_vs_pos(p1,p2,pos);
-      place_vs_and_relate_to_particle(current_vs_pid,pos,pid,initial_pos);
-      current_vs_pid++;
-      glue_to_surface_bind_vs_to_pp1(current_vs_pid,i);
+	    
+      // Change type of partilce being attached, to make it inert
+      if (p1->p.type==collision_params.part_type_to_be_glued) {
+         p1->p.type=collision_params.part_type_after_glueing;
+      }
+      if (p2->p.type==collision_params.part_type_to_be_glued) {
+         p2->p.type=collision_params.part_type_after_glueing;
+      }
+      
+      // Vs placement happens on the node that has p1
+      if (!p1->l.ghost) {
+        place_vs_and_relate_to_particle(current_vs_pid,pos,pid,initial_pos);
+        current_vs_pid++;
+      } 
+      else 
+      { // Just update the books
+        added_particle(current_vs_pid);
+        current_vs_pid++;
+      }  
+      glue_to_surface_bind_part_to_vs(p1,p2,current_vs_pid,c);
+      
     }
       } // Loop over all collisions in the queue
+
+      // If any node had a collision, all nodes need to do on_particle_change
+      // and resort
+
+      if (gathered_queue.size()>0) {
+        on_particle_change();
+        announce_resort_particles();
+      }
+     } // total_collision>0
     } // are we in one of the vs_based methods
 #endif //defined VIRTUAL_SITES_RELATIVE
   
 
+  
   // three-particle-binding part
-
-
   if (collision_params.mode & (COLLISION_MODE_BIND_THREE_PARTICLES)) {
-  int counts[n_nodes];
-  gather_collision_queue(counts);
+  auto gathered_queue = gather_global_collision_queue();
 
-    if (counts[this_node]>0) {
 
       // If we don't have domain decomposition, we need to do a full sweep over all
       // particles in the system. (slow)
       if (cell_structure.type!=CELL_STRUCTURE_DOMDEC) {
-        three_particle_binding_full_search();
+        three_particle_binding_full_search(gathered_queue);
     } // if cell structure != domain decomposition
     else
     {
-      three_particle_binding_domain_decomposition();
+      three_particle_binding_domain_decomposition(gathered_queue);
     } // If we have doamin decomposition
 
-   } // if number of collisions of this node > 0
        
-       if (total_collisions>0)
-         free(gathered_queue);
-       total_collisions = 0;
  } // if TPB
 
-  // If a collision method is active which places particles, resorting might be needed
-  TRACE(printf("%d: Resort particles is %d\n",this_node,resort_particles));
-  if (collision_params.mode & (COLLISION_MODE_VS | COLLISION_MODE_GLUE_TO_SURF))
-  {
-    // NOTE!! this has to be changed to total_collisions, once parallelization
-    // is implemented
-
-    if (number_of_collisions >0)
-    {
-      on_particle_change();
-    }
-    announce_resort_particles();
-  }
-  
-  // Reset the collision queue
-  if (number_of_collisions>0)
-    free(collision_queue);
-  
-  number_of_collisions = 0;
-
-
+ local_collision_queue.clear();
 }
 
 #endif

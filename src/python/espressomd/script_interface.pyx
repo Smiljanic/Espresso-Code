@@ -111,6 +111,9 @@ cdef class PScriptInterface(object):
         cdef vector[Variant] vec
         cdef PObjectId oid
 
+        if value is None:
+            return Variant()
+
         # The order is important, the object character should
         # be preserved even if the PScriptInterface derived class
         # is iterable.
@@ -141,6 +144,8 @@ cdef class PScriptInterface(object):
         cdef int type = value.which()
         cdef shared_ptr[ScriptInterfaceBase] ptr
 
+        if < int > type == <int > NONE:
+            return None
         if < int > type == <int > BOOL:
             return get[bool](value)
         if < int > type == <int > INT:
@@ -217,7 +222,7 @@ class ScriptInterfaceHelper(PScriptInterface):
             try:
                 return self.__dict__[attr]
             except KeyError:
-                raise AttributeError
+                raise AttributeError("Class %s does not have attribute %s" % (self.__class__.__name__,attr))
 
     def __setattr__(self, attr, value):
         if attr in self._valid_parameters():
@@ -242,7 +247,6 @@ class ScriptInterfaceHelper(PScriptInterface):
 
 # Map from script object names to corresponding python classes
 _python_class_by_so_name ={}
-
 
 def script_interface_register(c):
     """Decorator used to register script interface classes

@@ -21,6 +21,7 @@
 cmake_minimum_required(VERSION 3.0)
 include(FeatureSummary)
 project(ESPResSo)
+include(cmake/FindPythonModule.cmake)
 
 enable_language(CXX)
 
@@ -111,7 +112,7 @@ if (WITH_CUDA)
     else()
       set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -O3")
     endif()
-    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode=arch=compute_20,code=sm_20 -gencode=arch=compute_30,code=sm_30 -gencode=arch=compute_50,code=sm_50")
+    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode=arch=compute_30,code=sm_30 -gencode=arch=compute_52,code=sm_52 -gencode=arch=compute_52,code=compute_52")
     list(APPEND CUDA_NVCC_FLAGS "-std=c++11")
     if (CUDA_VERSION VERSION_LESS "8.0" AND CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "5.0")
       list(APPEND CUDA_NVCC_FLAGS "-D_MWAITXINTRIN_H_INCLUDED -D_FORCE_INLINES")
@@ -143,6 +144,8 @@ if (WITH_PYTHON)
     set(CYTHON_FLAGS "-3" CACHE STRING "Flags used by the Cython compiler during all build types.")
   endif()
 endif(WITH_PYTHON)
+find_python_module(enum REQUIRED)
+
 
 
 find_package(FFTW3)

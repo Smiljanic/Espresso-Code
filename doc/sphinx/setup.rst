@@ -1,6 +1,8 @@
 Setting up the system
 =====================
 
+.. _Setting global variables in Python:
+
 Setting global variables in Python
 ----------------------------------
 
@@ -10,10 +12,7 @@ Global system variables can be read and set in Python simply by accessing the
 attribute of the corresponding Python object. Those variables that are already
 available in the Python interface are listed in the following.
 
-The system class
-~~~~~~~~~~~~~~~~
-
-    * :py:attr:`~espressomd.system.System.box_l`
+* :py:attr:`~espressomd.system.System.box_l`
 
     (float[3]) Simulation box lengths of the cuboid box used by |es|.
     Note that if you change the box length during the simulation, the folded
@@ -22,7 +21,7 @@ The system class
     box. If you want to scale the positions, use the command
     :py:func:`~espressomd.system.System.change_volume_and_rescale_particles`
 
-    * :py:attr:`~espressomd.system.System.periodicity`
+* :py:attr:`~espressomd.system.System.periodicity`
 
     (int[3]) Specifies periodicity for the three directions. If the feature
     PARTIAL\_PERIODIC is set, |es| can be instructed to treat some
@@ -35,32 +34,32 @@ The system class
     this direction. In this case for keeping particles in the simulation box
     a constraint has to be set.
 
-    * :py:attr:`~espressomd.system.System.time_step`
-    
+* :py:attr:`~espressomd.system.System.time_step`
+
     (float) Time step for MD integration.
 
-    * :py:attr:`~espressomd.system.System.time`
+* :py:attr:`~espressomd.system.System.time`
 
     (float) The simulation time.
 
-    * :py:attr:`~espressomd.system.System.min_global_cut`
+* :py:attr:`~espressomd.system.System.min_global_cut`
 
     (float) Minimal total cutoff for real space. Effectively, this plus the
     :py:attr:`~espressomd.cellsystem.CellSystem.skin` is the minimally possible cell size. Espresso typically determines
     this value automatically, but some algorithms, virtual sites, require
     you to specify it manually.
 
-    * :py:attr:`~espressomd.system.System.max_cut_bonded`
+* :py:attr:`~espressomd.system.System.max_cut_bonded`
 
     *read-only* Maximal cutoff of bonded real space interactions.
 
-    * :py:attr:`~espressomd.system.System.max_cut_nonbonded`
-    
+* :py:attr:`~espressomd.system.System.max_cut_nonbonded`
+
     *read-only* Maximal cutoff of bonded real space interactions.
 
 
 Accessing module states
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 Some variables like or are no longer directly available as attributes.
 In these cases they can be easily derived from the corresponding Python
@@ -76,7 +75,7 @@ or by calling the corresponding ``get_state`` methods like::
     
     gamma_rot = espressomd.System().thermostat.get_state()[0][’gamma_rotation’]
 
-.. _thermostat:
+.. _\`\`thermostat\`\`\: Setting up the thermostat:
 
 ``thermostat``: Setting up the thermostat
 -----------------------------------------
@@ -114,6 +113,8 @@ above zero and set it to :math:`-2\sigma` or :math:`2\sigma`
 respectively. In all three cases the distribution is made such that the
 second moment of the distribution is the same and thus results in the
 same temperature.
+
+.. _Langevin thermostat:
 
 Langevin thermostat
 ~~~~~~~~~~~~~~~~~~~
@@ -199,7 +200,7 @@ Dissipative Particle Dynamics (DPD)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. todo::
-    this is not implemented yet
+    this is not yet implemented in the python interface.
 
 The DPD thermostat can be invoked by the function:
 :py:attr:`~espressomd.thermostat.Thermostat.set_dpd`
@@ -213,7 +214,8 @@ Thermostat DPD
 ^^^^^^^^^^^^^^
 
 .. todo::
-    this is not implemented yet
+    this is not yet implemented in the python interface.
+
 
 thermostat dpd
 
@@ -301,7 +303,7 @@ Transverse DPD thermostat
 '''''''''''''''''''''''''
 
 .. todo::
-    This is not yet implemted for the pyton interface
+    This is not yet implemted for the python interface
 
 This is an extension of the above standard DPD thermostat
 :cite:`junghans2008`, which dampens the degrees of freedom
@@ -323,7 +325,7 @@ momentum.
 Interaction DPD
 ^^^^^^^^^^^^^^^
 .. todo::
-    This is not yet implemted for the pyton interface
+    This is not yet implemted for the python interface
 
 thermostat inter\_dpd
 
@@ -347,7 +349,7 @@ By default the fixed particles are ignored
 Other DPD extensions
 ^^^^^^^^^^^^^^^^^^^^
 .. todo::
-    This is not yet implemted for the pyton interface
+    This is not yet implemted for the python interface
 
 
 The features ``DPD_MADD_RED`` or ``DPD_MADD_IN`` make the friction constant mass dependent:
@@ -394,7 +396,7 @@ Be aware that this feature is neither properly examined for all systems
 nor is it maintained regularly. If you use it and notice strange
 behaviour, please contribute to solving the problem.
 
-.. _nemd:
+.. _\`\`nemd\`\`\: Setting up non-equilibirum MD:
 
 ``nemd``: Setting up non-equilibrium MD
 ---------------------------------------
@@ -604,166 +606,137 @@ device id.
 Creating bonds when particles collide
 -------------------------------------
 
-.. todo::
-    This is not yet implemented for the python interface. 
 
-Please cite  when using dynamic bonding.
+Please cite :cite:`espresso2` when using dynamic bonding.
 
-on\_collision on\_collision off on\_collision bind\_centers
-on\_collision bind\_at\_point\_of\_collision on\_collision
-glue\_to\_surface on\_collision bind\_three\_particles
-
-With the help of the feature , bonds between particles can be created
+With the help of this feature, bonds between particles can be created
 automatically during the simulation, every time two particles collide.
 This is useful for simulations of chemical reactions and irreversible
-adhesion processes.
+adhesion processes. Both, sliding and non-sliding contacts can be created.
 
-Two methods of binding are available:
 
--  adds a bonded interaction between the colliding particles at the
-   first collision. This leads to the distance between the particles
-   being fixed, the particles can, however still slide around each
-   other.
+The collision detection is controlled via the :py:espressomd.system.System.collision_detection` property, which is an instance of the class :class:espressomd.collision_detection.CollisionDetection`.
 
-   The parameters are as follows: is the distance at which the bond is
-   created. denotes a pair bond and is the type of the bond created
-   between the colliding particles. Particles that are already bound by
-   a bond of this type do not get a new bond, in order to avoid creating
-   multiple bonds.
+Several modes are available for different types of binding.
 
--  prevents sliding of the particles at the contact. This is achieved by
-   creating two virtual sites at the point of collision. They are
-   rigidly connected to the colliding particles, respectively. A bond is
-   then created between the virtual sites, or an angular bond between
-   the two real particles and the virtual particles. In the latter case,
-   the virtual particles are the centers of the angle potentials
-   (particle 2 in the description of the angle potential, see
-   [sec:angle]). Due to the rigid connection between each of the
-   particles in the collision and its respective virtual site, a sliding
-   at the contact point is no longer possible. See the documentation on
-   rigid bodies for details. In addition to the bond between the virtual
-   sites, the bond between the colliding particles is also created. You
-   can either use a real bonded interaction to prevent wobbling around
-   the point of contact or you can use a virtual bond to prevent
-   additional force contributions, at the expense of RATTLE, see
-   [sec:rattle].
+* "bind_centers": adds a pair-bond between two particles at their first collision. By making the bonded interaction `sitff` enough, the particles can be held together after the collision. Note that the particles can still slide on each others' surface, as the pair bond is not directional. This mode is set up as follows::
+    import espressomd
+    from espressomd.interactions import HarmonicBond
+    
+    system=espressomd.System()
+    bond_centers=HarmonicBond(k=1000,r_0=<CUTOFF>)
+    system.bonded_inter.add(bond_centers)
+    system.collision_detection.set_params(mode="bind_centers",distance=<CUTOFF>, bond_centers=bond_centers)
+  
+  The parameters are as follows:
+  
+    * `distance` is the distance between two particles at which the binding is triggered. This cutoff distance, `<CUTOFF>` in the example above, is typically chosen slightly larger than the particle diameter. It is also a good choice for the equilibrium length of the bond.
+    * `bond_centers` is the bonded interaction (an instance of :class:espressomd.interactions.BondedInteraction`) to be created between the particles. No guarantees are made regarding which of the two colliding particles gets the bond. Once there is a bond of this type on any of the colliding particles, no further binding occurs for this pair of particles.
 
-   The parameters and are the same as for the method. determines the
-   type of the bond created between the virtual sites (if applicable),
-   and can be either a pair or a triple (angle) bond. If it is a pair
-   bond, it connects the two virtual particles, otherwise it constraints
-   the angle between the two real particles around the virtual ones.
-   denotes the particle type of the virtual sites created at the point
-   of collision (if applicable). Be sure not to define a short-ranged
-   interaction for this particle type, as two particles will be
-   generated in the same place.
+* "bind_at_point_of_collision": this mode prevents sliding of the colliding particles at the contact. This is achieved by
+  creating two virtual sites at the point of collision. They are
+  rigidly connected to the colliding particles, respectively. A bond is
+  then created between the virtual sites, or an angular bond between
+  the two colliding particles and the virtual particles. In the latter case,
+  the virtual particles are the centers of the angle potentials
+  (particle 2 in the description of the angle potential (see :ref:`Bond-angle interactions`).
+  Due to the rigid connection between each of the
+  particles in the collision and its respective virtual site, a sliding
+  at the contact point is no longer possible. See the documentation on
+  :ref:`Rigid arrangements of particles` for details. In addition to the bond between the virtual
+  sites, the bond between the colliding particles is also created, i.e., the "bind_at_point_of_collision" mode implicitly includes the "bind_centers" mode. You
+  can either use a real bonded interaction to prevent wobbling around
+  the point of contact or you can use :class:`espressomd.interactions.Virtual` which acts as a marker, only.
+  The method is setup as follows::
+     
+     system.collision_detection.set_params(mode="bind_at_point_of_collision", distance=<CUTOFF>, bond_centers=<BOND_CENTERS>, bond_vs=<BOND_VS>, part_type_vs=<PART_TYPE_VS>, vs_placement=<VS_PLACEMENT>)
 
--  is used to fix a particle of type onto the surface of a particle of
-   type . This is achieved by creating a virtual site (particle type )
-   which is rigidly connected to the particle of . A bond of type is
-   then created between the virtual site and the particle of .
-   Additionally, a bond of type between the colliding particles is also
-   created. After the collision, the particle of type is changed to type
-   .
+  
+  The parameters `distance` and `bond_centers` have the same meaning as in the `bind_centers` mode. The remaining parameters are as follows:
+    
+    * `bond_vs` is the bond to be added between the two virtual sites created on collision. This is either a pair-bond with an equilibrium length matching the distance between the virtual sites, or an angle bond fully stretched in its equilibrium configuration.
+    * `part_type_vs` is the particle type assigned to the virtual sites created on collision. In nearly all cases, no non-bonded interactions should be defined for this particle type.
+    * `vs_placement` controls, where on the line connecting the centers of the colliding particles, the virtual sites are placed. A value of 0 means that the virtual sites are placed at the same position as the colliding particles on which they are based. A value of 0.5 will result in the virtual sites being placed ad the mid-point between the two colliding particles. A value of 1 will result the virtual site associated to the first colliding particle to be placed at the position of the second colliding particle. In most cases, 0.5, is a good choice. Then, the bond connecting the virtual sites should have an equilibrium length of zero.
 
--  allows for the creation of agglomerates which maintain their shape
-   similarly to those create by the method. The present approach works
-   without virtual sites. Instead, for each two-particle collision, the
-   surrounding is searched for a third particle. If one is found,
-   angular bonds are placed on each of the three particles in addition
-   to the distance based bonds between the particle centers. The id of
-   the angular bonds is determined from the angle between the particles.
-   Zero degrees corresponds to bond id , whereas 180 degrees corresponds
-   to bond id +. This method das not depend on the particles’ rotational
-   degrees of freedom being integrated. Virtual sites are also not
-   required, and the method is implemented to run on more than one cpu
-   core.
+* "glue_to_surface": This mode is used to irreversibly attach small particles to the surface of a big particle. It is asymmetric in that several small particles can be bound to a big particle. The small particles can change type after collision to make them `inert`. On collision, a single virtual site is placed and related to the big particle. Then, a bond (`bond_centers`) connects the big and the small particle. A second bond (`bond_vs`) connects the virtual site and the small particle. Further required parameters are:
+  
+  * `part_type_to_attach_vs_to`: Type of the particle to which the virtual site is attached, i.e., the `big` particle.
+  * `part_type_to_be_glued`: Type of the particle bound to the virtual site (the `small` particle).
+  * `part_type_after_glueing`: The type assigned to the particle bound to the virtual site (`small` particle) after the collision.
+  * `part_type_vs`: Particle type assigned to the virtual site created during the collision.
+  * `distance_glued_particle_to_vs`: Distance of the virtual site to the particle being bound to it (`small` particle).
 
-The code can throw an exception (background error) in case two particles
-collide for the first time, if the keyword is added to the invocation.
-In conjunction with the command of Tcl, this can be used to intercept
-the collision:
+
+
+
+- "bind_three_particles" allows for the creation of agglomerates which maintain their shape
+  similarly to those create by the mode "bind_at_point_of_collision". The present approach works
+  without virtual sites. Instead, for each two-particle collision, the
+  surrounding is searched for a third particle. If one is found,
+  angular bonds are placed on each of the three particles in addition
+  to the distance based bonds between the particle centers. 
+  The angular bonds being added are determined from the angle between the particles.
+  This method has not depend on the particles’ rotational
+  degrees of freedom being integrated. Virtual sites are also not
+  required.
+  The method, along with the corresponding bonds are setup as follows::
+        
+        n_anlge_bonds=181 # 0 to 180 degrees in one degree steps
+        for i in range(0,res,1):
+           self.s.bonded_inter[i]=Angle_Harmonic(bend=1,phi0=float(i)/(res-1)*np.pi)
+        
+        # Create the bond passed to bond_centers here and add it to the system
+        
+        self.s.collision_detection.set_params(mode="bind_three_particles",bond_centers=<BOND_CENTERS>,bond_three_particles=0,three_particle_binding_angle_resolution=res,distance=<CUTOFF>)
+
+  Important: The bonds for the angles are mapped via their numerical bond ids. In this example, ids from 0 to 180 are used. All other bonds required for the simulation need to be added to the system after those bonds. In particular, this applies to the bonded interaction passed via `bond_centers` 
+
 
 The following limitations currently apply for the collision detection:
+* No distinction is currently made between different particle types for the `bind_centers` method.
+* The “bind at point of collision” and "glue to surface"  approaches require the feature `VIRTUAL_SITES_RELATIVE` to be activated in `myconfig.hpp`.
 
--  The method is currently limited to simulations with a single cpu
-
--  No distinction is currently made between different particle types
-
--  The “bind at point of collision” approach requires the feature
-
--  The “bind at point of collision” approach cannot handle collisions
-   between virtual sites
+* The “bind at point of collision” approach cannot handle collisions
+  between virtual sites
 
 Catalytic Reactions
 -------------------
 
-With the help of the feature ``CATALYTIC_REACTIONS``, one can define three particle types to
-act as reactant (e.g. :math:`H_2O_2`), catalyzer (e.g. platinum), and
-products (e.g. :math:`O_2` and :math:`H_2O`). Using these reaction
-categories, we model the following chemical reaction system which is not
-thermodynamically consistent but rather intended to simulate active
-swimmers and their propulsion:
+With the help of the feature ``CATALYTIC_REACTIONS``, one can define three particle types to act as reactant (e.g. :math:`\mathrm{H_2 O_2}`), catalyzer (e.g. platinum), and product (e.g. :math:`\mathrm{O_2}` and :math:`\mathrm{H_2 O}`). The current setup allows one to simulate active swimmers and their chemical propulsion.
+
+For a Janus swimmer consisting of platinum on one hemisphere and gold on the other hemisphere, both surfaces catalytically induce a reaction. We assume an initial abundance of hydrogen peroxide and absence of products, so that back (recombination) reactions seldomly occur at the surface. A typical model for the propulsion of such a particle assumes
 
 .. math::
 
-   \begin{aligned}
-   rt & \rightleftharpoons & pr ; \\
-   rt & \xrightarrow{ct} & pr.\end{aligned}
+    \begin{aligned}
+      \mathrm{H_2 O_2} &\xrightarrow{\text{Pt}} \mathrm{2 H^{+} + 2 e^{-} + O_2} \\
+      \mathrm{2 H^{+} + 2 e^{-} + H_2 O_2} &\xrightarrow{\text{Au}} \mathrm{2 H_2 O}
+    \end{aligned}
 
-The first line indicates that there is a reversible chemical reaction in
-the bulk that converts the reactant particles () into product ()
-particles, leading to an equilibrium state. This reaction is intended to
-artificially recover the reactant () particles in this model. In the
-case of :math:`H_2O_2` this is artificial since it does not
-spontaneously build up if oxygen is dissolved in water. The second line
-indicates that in the vicinity of a catalyst () the forward reaction
-takes place, i.e., conversion of reactants into products. Of course the
-decompositon of a reactand into a product also takes place if there is
-no catalyst (since a catalyst has no effect on the chemical equilibrium)
-however the reaction is much faster than normally in the presence of a
-catalyst and the normal decomposition is neglected since it takes place
-so slowly. This is correct chemistry for waterperoxide since it
-spontaneously decomposes almost completely and much faster in the
-presence of a catalyst.
-
-The equilibrium reaction is described by the equilibrium constant
-
-.. math:: K_{\text{eq}} = \frac{k_{\text{eq,+}}}{k_{\text{eq,-}}} = \frac{[pr]}{[rt]},
-
-with :math:`[rt]` and :math:`[pr]` the reactant and product
-concentration and :math:`k_{\mathrm{eq},\pm}` the forward and
-backward reaction rate constants, respectively. The rate constants that
-specify the change in concentration for the equilibrium and catalytic
-reaction are given by
+That is, catalytic surfaces induce a reactions that produce charged species by consuming hydrogen peroxide. It is the change in distribution of charged species that leads to motion of the swimmer, a process refered to as self-electrophoresis. A minimal model for this would be
 
 .. math::
 
-   \begin{aligned}
-   \frac{d[rt]}{dt} & = & k_{\text{eq,-}}[pr] - k_{\text{eq,+}}[rt] ; \\
-   \frac{d[pr]}{dt} & = & k_{\text{eq,+}}[rt] - k_{\text{eq,-}}[pr] ; \\
-   -\frac{d[rt]}{dt} \;\; = \;\; \frac{d[pt]}{dt} & = & k_{\text{ct}}[rt] ,\end{aligned}
+    \begin{aligned}
+      A &\xrightarrow{C^{+}} B \\
+      B &\xrightarrow{C^{-}} A
+    \end{aligned}
 
- respectively.
+where on the upper half of the catalyst :math:`C^{+}` a species :math:`A` is converted into :math:`B`, and on the lower half :math:`C^{-}` the opposite reaction takes place. Note that when :math:`A` and :math:`B` are charged, this reaction conserves charge, provided the rates are equal.
 
-In the current |es| implementation we assume :math:`k_{\text{eq,+}} =
-k_{\text{eq,-}} \equiv k\_eq` and therefore :math:`K_{\text{eq}}=1`. The
-user can specify :math:`k\_eq \ge 0` and
-:math:`k\_ct \equiv k_{\text{ct}} >
-0`. The former rate constant is applied to all reactant and product
-particles in the system, whereas the latter is applied only to the
-reactant particles in the vicinity of a catalyst particle. Reactant
-particles that have a distance of or less to at least one catalyzer
-particle are therefore converted into product particles with rate
-constant :math:`k\_eq + k\_ct`. The conversion of particles is done
-stochastically on the basis of the relevant rate constant ( :math:`\ge`
-0):
+In |es| the orientation of a catalyzer particle is used to define hemispheres; half spaces going through the particle's center. The reaction region is bounded by the *reaction range*: :math:`r`. Inside the reaction range, we react only rectant-product pairs. The particles in a pair are swapped from hemisphere to another with a rate prescribed by
 
-.. math:: \label{eq:rate} P_{\text{cvt}} = 1 - \exp \left( - k  \Delta t  \right) ,
+.. math::
 
-with :math:`P_{\text{cvt}}` the probability of the conversion and
-:math:`\Delta t` the integration time step. If the equilibrium rate
-constant is not specified it is assumed that = 0.
+    P_{\text{move}} = 1 - \mathrm{e}^{-k_{\mathrm{ct}}\,\Delta t} ,
+
+with the reaction rate :math:`k_{\mathrm{ct}}` and the simulation time step :math:`\Delta t`. A pair may be swapped only once per MD time step, to avoid a no-net-effect situation. That is, we allow an exchange move only when the following conditions are met:
+
+1. Both partners of the reactant-product pair have to reside within the reaction range.
+2. The product has to reside in the upper half-space of the reaction range.
+3. The reactant has to reside in the lower half-space of the reaction range.
+
+Self-propulsion is achieved by imposing an interaction asymmetry between the partners of a swapped pair. That is, the heterogeneous distribution of chemical species induced by the swapping leads to a net force on the particle, counter balanced by friction.
 
 To set up the system for catalytic reactions the class :class:`espressomd.reaction.Reaction`
 can be used.::
@@ -774,7 +747,7 @@ can be used.::
 
     # setting up particles etc
 
-    r = Reaction(product_type = 1, reactant_type = 2, catalyzer_type = 0, ct_range = 2, ct_rate=0.2, eq_rate=0)
+    r = Reaction(product_type=1, reactant_type=2, catalyzer_type=0, ct_range=2, ct_rate=0.2, eq_rate=0)
     r.start()
     r.stop()
 
@@ -782,10 +755,10 @@ can be used.::
 
 * the first invocation of ``Reaction``, in the above example,  defines a
   reaction with particles of type number 2 as reactant, type 0 as catalyzer and
-  type 1 as product [#1]_. The catalytic reaction rate constant is given by :math:`ct\_rate^2`
+  type 1 as product [#1]_. The catalytic reaction rate constant is given by :math:`\mathrm{ct\_rate}`
   [#2]_ and to override the default rate constant for the equilibrium reaction
   ( = 0), one can specify it by as ``eq_rata``.  By default each reactant particle is checked
-  against each catalyst particle (``react_once =False``). However, when creating
+  against each catalyst particle (``react_once=False``). However, when creating
   smooth surfaces using many catalyst particles, it can be desirable to let the
   reaction rate be independent of the surface density of these particles. That
   is, each particle has a likelihood of reacting in the vicinity of the surface
@@ -793,7 +766,7 @@ can be used.::
   *not* according to :math:`P_{\text{cvt}} = 1 - \exp \left( - n k\Delta t
   \right)`, with :math:`n` the number of local catalysts. To accomplish this,
   each reactant is considered only once each time step by using the option
-  ``react_once = True`` . The reaction command is set up such that the different
+  ``react_once=True`` . The reaction command is set up such that the different
   properties may be influenced individually.
 
 *  ``r.stop()`` disables the reaction. Note that at the moment, there can
@@ -801,15 +774,10 @@ can be used.::
 
 *  ``print r``  returns the current reaction parameters.
 
-The Python interface has some modified capabilities with respect to the
-TCL interface. For example, you can alter parameters using the
-``r.setup()`` method of the reaction instance. The reaction mechanism can
-be inhibited and restarted using ``r.stop()`` and ``r.start()``.
-
-In future versions of the capabilities of the feature may be generalized
+In future versions of |es| the capabilities of the ``CATALYTIC_REACTIONS`` feature may be generalized
 to handle multiple reactant, catalyzer, and product types, as well as
 more general reaction schemes. Other changes may involve merging the
-current implementation with the feature.
+current implementation with the ``COLLISION_DETECTION`` feature.
 
 .. _galilei_transform: 
 
@@ -820,7 +788,7 @@ The following class :class:`espressomd.galilei.GalileiTransform` may be useful
 in effecting the velocity of the system.::
     
     system = espressomd.System()
-    gt = system.galilei()
+    gt = system.galilei
 
 Particle motion and rotation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

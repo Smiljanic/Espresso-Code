@@ -47,7 +47,7 @@ if LB_BOUNDARIES or LB_BOUNDARIES_GPU:
 from .ekboundaries import EKBoundaries
 
 IF COLLISION_DETECTION == 1:
-    from .collision_detection import CollisionDetection,CollisionMode
+    from .collision_detection import CollisionDetection
 
 import sys
 import random  # for true random numbers from os.urandom()
@@ -56,6 +56,8 @@ cimport tuning
 
 setable_properties = ["box_l", "min_global_cut", "periodicity", "time",
                       "time_step", "timings"]
+IF LEES_EDWARDS == 1:
+    setable_properties.append("lees_edwards_offset")
 
 cdef bool _system_created = False
 
@@ -86,7 +88,7 @@ cdef class System(object):
         ekboundaries
         collision_detection
         __seed
-
+        cuda_init_handle
 
     def __init__(self):
         global _system_created
@@ -109,9 +111,14 @@ cdef class System(object):
             if LB_BOUNDARIES or LB_BOUNDARIES_GPU:
                 self.lbboundaries = LBBoundaries()
                 self.ekboundaries = EKBoundaries()
+            IF COLLISION_DETECTION==1:
+                self.collision_detection = CollisionDetection()
+            IF CUDA:
+                self.cuda_init_handle = cuda_init.CudaInitHandle()
             _system_created = True
         else:
-            raise RuntimeError("You can only have one instance of the system class at a time.")
+            raise RuntimeError(
+                "You can only have one instance of the system class at a time.")
 
     # __getstate__ and __setstate__ define the pickle interaction
     def __getstate__(self):
@@ -138,7 +145,7 @@ cdef class System(object):
                         "Box length must be > 0 in all directions")
                 box_l[i] = _box_l[i]
 
-            mpi_bcast_parameter(0)
+            mpi_bcast_parameter(FIELD_BOXL)
 
         def __get__(self):
             return np.array([box_l[0], box_l[1], box_l[2]])
@@ -182,6 +189,9 @@ cdef class System(object):
             return periodicity
 
     property time:
+        """
+        Set the time in the simulation 
+        """
         def __set__(self, double _time):
             if _time < 0:
                 raise ValueError("Simulation time must be >= 0")
@@ -194,6 +204,9 @@ cdef class System(object):
             return sim_time
 
     property smaller_time_step:
+        """
+        Setting this property to a positive integer value turns on the multi-timestepping algorithm. The ratio :attr:`espressomd.system.System.time_step`/:attr:`espressomd.system.System.smaller_time_step` must be an integer.
+        """
         def __set__(self, double _smaller_time_step):
             IF MULTI_TIMESTEP:
                 global smaller_time_step
@@ -205,6 +218,9 @@ cdef class System(object):
             return smaller_time_step
 
     property time_step:
+        """
+        Sets the time step for the integrator. 
+        """
         def __set__(self, double _time_step):
             IF LB:
                 global lbpar
@@ -259,9 +275,17 @@ cdef class System(object):
             return min_global_cut
 
     def _get_PRNG_state_size(self):
+        """
+        Returns the state of the pseudo random number generator.
+        """
+        
         return get_state_size_of_generator()
 
     def set_random_state_PRNG(self):
+        """
+        Sets the state of the pseudo random number generator using real random numbers.
+        """
+        
         _state_size_plus_one = self._get_PRNG_state_size() + 1
         states = string_vec(n_nodes)
         rng = random.SystemRandom()  # true RNG that uses os.urandom()
@@ -274,6 +298,10 @@ cdef class System(object):
         mpi_random_set_stat(states)
 
     property seed:
+        """
+        Sets the seed of the pseudo random number with a list of seeds which is as long as the number of used nodes.
+        """
+        
         def __set__(self, _seed):
             cdef vector[int] seed_array
             self.__seed = _seed
@@ -297,8 +325,9 @@ cdef class System(object):
             return self.__seed
 
     property random_number_generator_state:
-        # sets the random number generator state in the core. this is of
-        # interest for deterministic checkpointing
+        """Sets the random number generator state in the core. this is of interest for deterministic checkpointing
+        """
+        
         def __set__(self, rng_state):
             _state_size_plus_one = self._get_PRNG_state_size() + 1
             if(len(rng_state) == n_nodes * _state_size_plus_one):
@@ -314,71 +343,70 @@ cdef class System(object):
             rng_state = map(int, (mpi_random_get_stat().c_str()).split())
             return rng_state
 
-    def change_volume_and_rescale_particles(d_new, dir="xyz"):
-        """Change box size and rescale particle coordinates
-           change_volume_and_rescale_particles(d_new, dir="xyz")
-           d_new: new length, dir=coordinate tow work on, "xyz" for isotropic.
+    IF LEES_EDWARDS == 1:
+        property lees_edwards_offset:
+        # defines the lees edwards offset
+            def __set__(self, double _lees_edwards_offset):
+
+                if isinstance(_lees_edwards_offset, float):
+                    global lees_edwards_offset
+                    lees_edwards_offset = _lees_edwards_offset
+                    #new_offset = _lees_edwards_offset
+                    mpi_bcast_parameter(FIELD_LEES_EDWARDS_OFFSET)
+
+                else:
+                    raise ValueError("Wrong # of args! Usage: lees_edwards_offset { new_offset }")
+
+            def __get__(self):
+        # global lees_edwards_offset
+                return lees_edwards_offset
+
+    def change_volume_and_rescale_particles(self, d_new, dir="xyz"):
+        """Change box size and rescale particle coordinates.
+
+        Parameters:
+        -----------
+        d_new : float
+                new box length
+        dir : str, optional
+              coordinate to work on, ``"x"``, ``"y"``, ``"z"`` or ``"xyz"`` for isotropic.
+              Isotropic assumes a cubic box.
         """
 
         if d_new < 0:
             raise ValueError("No negative lengths")
         if dir == "xyz":
-            d_new = d_new**(1. / 3.)
             rescale_boxl(3, d_new)
-        elif dir == "x":
+        elif dir == "x" or dir == 0:
             rescale_boxl(0, d_new)
-        elif dir == "y":
+        elif dir == "y" or dir == 1:
             rescale_boxl(1, d_new)
-        elif dir == "z":
+        elif dir == "z" or dir == 2:
             rescale_boxl(2, d_new)
         else:
             raise ValueError(
-                'Usage: changeVolume { <V_new> | <L_new> { "x" | "y" | "z" | "xyz" } }')
+                'Usage: change_volume_and_rescale_particles(<L_new>, [{ "x" | "y" | "z" | "xyz" }])')
 
     def volume(self):
-        """Return box volume"""
+        """
+        Return box volume of the cuboid box
+        """
+        
         return self.box_l[0] * self.box_l[1] * self.box_l[2]
 
     def distance(self, p1, p2):
-        """Return the distance between the particles, respecting periodic boundaries"""
-        cdef double[3] res, a, b
-        a = p1.pos
-        b = p2.pos
-        get_mi_vector(res, a, b)
+        """Return the scalar distance between the particles, respecting periodic boundaries.
+
+        """
+        res = self.distance_vec(p1, p2)
         return np.sqrt(res[0]**2 + res[1]**2 + res[2]**2)
 
-    def tune_skin(self, min=None, max=None, tol=None, int_steps=None):
-        """Tunes the skin by running measuring the time for int_steps
-           integration steps and bisecting in the interval min..max upt ot an
-           interval of tol."""
-
-        tuning.tune_skin(min, max, tol, int_steps)
-        return self.skin
-
-    def volume(self):
-        """Return box volume."""
-
-        return self.box_l[0] * self.box_l[1] * self.box_l[2]
-
-    def distance(self, p1, p2):
-        """Return the scalar distance between the particles, respecting periodic boundaries."""
-        res=self.distance_vec(p1,p2)
-        return np.sqrt(res[0]**2 + res[1]**2 + res[2]**2)
-    
     def distance_vec(self, p1, p2):
-        """Return the distance vector between the particles, respecting periodic boundaries."""
+        """Return the distance vector between the particles, respecting periodic boundaries.
 
+        """
         cdef double[3] res, a, b
         a = p1.pos
         b = p2.pos
-        get_mi_vector(res, b,a)
-        return np.array((res[0],res[1],res[2]))
-
-
-# lbfluid=lb.DeviceList()
-IF CUDA == 1:
-    cu = cuda_init.CudaInitHandle()
-    """Cuda Init Handle.
-    Used to list or select cuda devices
-    Also see :class:`espressomd.cuda_init.CudaInitHandle`
-    """
+        get_mi_vector(res, b, a)
+        return np.array((res[0], res[1], res[2]))

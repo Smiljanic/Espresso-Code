@@ -29,6 +29,12 @@
 #include "particle_data.hpp"
 #include "thermostat.hpp"
 #include "utils.hpp"
+#include "Vector.hpp"
+
+
+constexpr const int ROTATION_X =2;
+constexpr const int ROTATION_Y =4;
+constexpr const int ROTATION_Z =8;
 
 /*************************************************************
  * Functions                                                 *
@@ -51,6 +57,9 @@ void convert_initial_torques();
 void convert_omega_body_to_space(Particle *p, double *omega);
 void convert_torques_body_to_space(Particle *p, double *torque);
 
+
+Vector3d convert_vector_body_to_space(const Particle& p, const Vector3d& v);
+
 /** convert velocity form the lab-fixed coordinates
     to the body-fixed frame */
 void convert_vel_space_to_body(Particle *p, double *vel_body);
@@ -69,7 +78,14 @@ inline void convert_quat_to_quatu(double quat[4], double quatu[3]) {
 }
 
 /** Multiply two quaternions */ 
-void multiply_quaternions(const double a[4], const double b[4], double result[4]);
+inline void multiply_quaternions(const double a[4], const double b[4], double result[4])
+{
+ // Formula from http://www.j3d.org/matrix_faq/matrfaq_latest.html
+ result[0] = a[0]*b[0] - a[1]*b[1] - a[2]*b[2] - a[3]*b[3];
+ result[1] = a[0] * b[1] + a[1] * b[0] + a[2] * b[3] - a[3] * b[2];
+ result[2] = a[0] * b[2] + a[2] * b[0] + a[3] * b[1] - a[1] * b[3]; 
+ result[3] = a[0] * b[3] + a[3] * b[0] + a[1] * b[2] - a[2] * b[1];
+}
 
 /** Convert director to quaternions */
 int convert_quatu_to_quat(double d[3], double quat[4]);

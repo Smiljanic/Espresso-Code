@@ -195,7 +195,7 @@ void calculate_vs_relate_to_params(const Particle& p_current, const Particle& p_
     l=sqrt(sqrlen(d));
     if (l>min_global_cut) {
         ostringstream msg;
-        msg << "Warning: The distance between virtual and non-virtual particle (" << l << ") is\nlarger than the minimum global cutoff (" << min_global_cut << "). This may lead to incorrect simulations\nunder certain conditions. Use \"setmd min_global_cut\" to increase the minimum cutoff.\n";
+        msg << "Warning: The distance between virtual and non-virtual particle (" << l << ") is\nlarger than the minimum global cutoff (" << min_global_cut << "). This may lead to incorrect simulations\nunder certain conditions. Set the \"System()\" class property \"min_global_cut\" to\nincrease the minimum cutoff.\n";
         runtimeWarning(msg);
     }
 
@@ -284,7 +284,6 @@ int vs_relate_to(int part_num, int relate_to)
     double l;
     calculate_vs_relate_to_params(*(p_current.get()),*(p_relate_to.get()),l,quat);
     
-
     // Set the particle id of the particle we want to relate to, the distnace
     // and the relative orientation
     if (set_particle_vs_relative(part_num, relate_to, l, quat) == ES_ERROR) {

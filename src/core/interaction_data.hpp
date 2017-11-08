@@ -218,8 +218,8 @@ typedef struct {
   double LJGEN_shift;
   double LJGEN_offset;
   double LJGEN_capradius;
-  int LJGEN_a1;
-  int LJGEN_a2;
+  double LJGEN_a1;
+  double LJGEN_a2;
   double LJGEN_b1;
   double LJGEN_b2;
   double LJGEN_lambda;
@@ -972,8 +972,15 @@ int virtual_set_params(int bond_type);
 void set_dipolar_method_local(DipolarInteraction method);
 #endif
 
-inline 
-bool bond_exists(const Particle* p, const Particle* partner, int bond_type)
+
+/** @brief Checks if particle has a pair bond with a given partner  
+*  Note that bonds are stored only on one of the two particles in Espresso
+* 
+* @param P
+* @param p          particle on which the bond may be stored
+* @param partner    bond partner 
+* @param bond_type  numerical bond type */ 
+inline bool bond_exists(const Particle* const p, const Particle* const partner, int bond_type)
 {
   // First check the bonds of p1
   if (p->bl.e) {

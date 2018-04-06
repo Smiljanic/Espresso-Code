@@ -34,6 +34,19 @@
 int thermo_switch = THERMO_OFF;
 /** Temperature */
 double temperature = 0.0;
+// Grid points for external flow field
+int size=65;
+int TOTALSIZE=274625;
+
+//printf("memory allocation for velocity components\n");
+double * velu;
+//printf("VEL_U memory allocation for velocity components\n");
+double * velv;
+//printf("VEL_V memory allocation for velocity components\n");
+double * velw;
+//printf("VEL_W memory allocation for velocity components\n");
+
+
 
 using Thermostat::GammaType;
 
@@ -94,6 +107,37 @@ double nptiso_pref4;
 void thermo_init_langevin() {
   langevin_pref1 = -langevin_gamma / time_step;
   langevin_pref2 = sqrt(24.0 * temperature / time_step * langevin_gamma);
+
+/**Gizem Inci's implementation of the DNS flow field data */
+
+velu = (double *)malloc(size*size*size*sizeof(double));
+velv = (double *)malloc(size*size*size*sizeof(double));
+velw = (double *)malloc(size*size*size*sizeof(double));
+    // Open and Read binary data
+    FILE *fp, *fq, *fr;
+
+    fp = fopen("u.dat", "rb");
+    fq = fopen("v.dat", "rb");
+    fr = fopen("w.dat", "rb");
+
+  //printf("Files Should be Opened\n"); 
+ 
+    if (!fp) {printf("Unable to open u_velocity file!");}
+    else if (!fq) {printf("Unable to open v_velocity file!");}
+    else if (!fr) {printf("Unable to open w_velocity file!");}
+
+      //printf("we have data now assign it\n"); 
+
+    fread(velu, sizeof(double), TOTALSIZE, fp);
+//printf("vel_u variables should be initialized\n");
+    fread(velv, sizeof(double), TOTALSIZE, fq);
+    fread(velw, sizeof(double), TOTALSIZE, fr);
+
+fclose(fp);
+fclose(fq);
+fclose(fr);
+
+
   ;
 
 #ifdef MULTI_TIMESTEP

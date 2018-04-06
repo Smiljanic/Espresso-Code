@@ -37,6 +37,9 @@
 #include "dpd.hpp"
 #include "virtual_sites.hpp"
 #include "Vector.hpp"
+#include "stdio.h"
+#include "stdlib.h"
+#include "string.h"
 
 /** \name Thermostat switches*/
 /************************************************************/
@@ -97,6 +100,17 @@ extern double nptiso_gammav;
 extern int ghmc_nmd;
 /** Phi parameter for GHMC partial momenum update step */
 extern double ghmc_phi;
+
+/** Variables for external flow field (GI implementation)*/
+extern double * velu;
+extern double * velv;
+extern double * velw;
+extern int size;
+extern int TOTALSIZE;
+#define veluu(i,j,k) (velu[size*size*i + size*j + k])
+#define velvv(i,j,k) (velv[size*size*i + size*j + k])
+#define velww(i,j,k) (velu[size*size*i + size*j + k])
+
 
 /************************************************
  * functions
@@ -183,6 +197,107 @@ inline void thermo_convert_vel_space_to_body(Particle *p, double *vel_space,
                 A[2 + 3 * 2] * vel_space[2];
 }
 #endif // ROTATION
+
+
+/** Gizem Inci's implementation of the function for handling fluid velocity:
+linear interpolation of the velocity acting on the each particle.*/
+
+inline void fluid_velocity(Particle *p, double vfxyz[3]){
+
+    // Velocity values at the corners of the grid surrounding the point
+    double u000,u100,u010,u001,u101,u011,u110,u111;
+    double v000,v100,v010,v001,v101,v011,v110,v111;
+    double w000,w100,w010,w001,w101,w011,w110,w111;
+    
+    // distance between 2 grid points.
+    // 0.0981747704 comes from the DNS_Dataset and it should change with changing box dimension
+    double incr = 0.0981747704*box_l[0]/6.283185306;
+    //int size = SIZE;
+    int i,j,k;
+
+
+    // Initialize all parameters
+    vfxyz[0]=0; vfxyz[1]=0; vfxyz[2]=0;
+    u000 = 0; u100 = 0; u010 = 0; u001 = 0; u101 = 0; u011 = 0; u110 = 0; u111 = 0;
+    v000 = 0; v100 = 0; v010 = 0; v001 = 0; v101 = 0; v011 = 0; v110 = 0; v111 = 0;
+    w000 = 0; w100 = 0; w010 = 0; w001 = 0; w101 = 0; w011 = 0; w110 = 0; w111 = 0;
+
+
+    //printf("particle:%d position: %e, %e, %e, NOW CALCULATE GRID POINTS \n",p->p.identity, p->r.p[0], p->r.p[1], p->r.p[2]);
+
+    // 8 vertices of the grid that surrounds the point
+    int x0 = p->r.p[0]/incr;
+    int x1 = x0+1;
+    
+    int y0 = p->r.p[1]/incr;
+    int y1 = y0+1;
+    
+    int z0 = p->r.p[2]/incr;
+    int z1 = z0+1;
+
+    //printf("position places, %d, %d, %d, %d, %d, %d\n", x0, x1, y0, y1, z0, z1);
+    //printf("%d:particle:%d position: %e, %e, %e position places: %d, %d, %d, %d, %d, %d\n",this_node, p->p.identity, p->r.p[0], p->r.p[1], p->r.p[2], x0, x1, y0, y1, z0, z1);
+
+    // Find the weights for each dimension
+    double wx = (p->r.p[0]-(x0*incr))/incr;
+    double wy = (p->r.p[1]-(y0*incr))/incr;
+    double wz = (p->r.p[2]-(z0*incr))/incr;
+
+    if (p->r.p[0]>box_l[0]) {
+     x0=0;
+     x1=1;
+    }
+
+    if (p->r.p[1]>box_l[1]) {
+     y0=0;
+     y1=1;
+    }
+
+    if (p->r.p[2]>box_l[2]) {
+     z0=0;
+     z1=1;
+    }
+
+    // Look up the values of the 8 points of the grid
+    
+    // HERE I,J,K VALUES ARE IN REVERSE ORDER IN ORDER TO MAINTAIN THE CORRECT CONFIGURATION !!!
+    // DOUBLE CHECK WHEN THE DNS DATASET CHANGED
+    
+    u000 = veluu(z0,x0,y0);
+    u100 = veluu(z1,x0,y0);
+    u010 = veluu(z0,x1,y0);
+    u001 = veluu(z0,x0,y1);
+    u101 = veluu(z1,x0,y1);
+    u011 = veluu(z0,x1,y1);
+    u110 = veluu(z1,x1,y0);
+    u111 = veluu(z1,x1,y1);
+    
+    v000 = velvv(z0,x0,y0);
+    v100 = velvv(z1,x0,y0);
+    v010 = velvv(z0,x1,y0);
+    v001 = velvv(z0,x0,y1);
+    v101 = velvv(z1,x0,y1);
+    v011 = velvv(z0,x1,y1);
+    v110 = velvv(z1,x1,y0);
+    v111 = velvv(z1,x1,y1);
+    
+    w000 = velww(z0,x0,y0);
+    w100 = velww(z1,x0,y0);
+    w010 = velww(z0,x1,y0);
+    w001 = velww(z0,x0,y1);
+    w101 = velww(z1,x0,y1);
+    w011 = velww(z0,x1,y1);
+    w110 = velww(z1,x1,y0);
+    w111 = velww(z1,x1,y1);
+
+    // Compute the velocity components u, v, w at point   
+    vfxyz[0] = u000*(1-wx)*(1-wy)*(1-wz)+u100*wx*(1-wy)*(1-wz)+u010*(1-wx)*wy*(1-wz)+u001*(1-wx)*(1-wy)*wz+u101*wx*(1-wy)*wz+u011*(1-wx)*wy*wz+u110*wx*wy*(1-wz)+u111*wx*wy*wz;
+    vfxyz[1] = v000*(1-wx)*(1-wy)*(1-wz)+v100*wx*(1-wy)*(1-wz)+v010*(1-wx)*wy*(1-wz)+v001*(1-wx)*(1-wy)*wz+v101*wx*(1-wy)*wz+v011*(1-wx)*wy*wz+v110*wx*wy*(1-wz)+v111*wx*wy*wz;
+    vfxyz[2] = w000*(1-wx)*(1-wy)*(1-wz)+w100*wx*(1-wy)*(1-wz)+w010*(1-wx)*wy*(1-wz)+w001*(1-wx)*(1-wy)*wz+w101*wx*(1-wy)*wz+w011*(1-wx)*wy*wz+w110*wx*wy*(1-wz)+w111*wx*wy*wz;
+
+    //printf("%e %e %e %e %e %e \n",p->r.p[0], p->r.p[1], p->r.p[2], vfxyz[0], vfxyz[1], vfxyz[2]);
+}
+
 
 /** locally defined funcion to find Vx. In case of LEES_EDWARDS, that is
    relative to the LE shear frame

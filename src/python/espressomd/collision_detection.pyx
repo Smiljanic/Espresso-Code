@@ -103,6 +103,12 @@ class CollisionDetection(ScriptInterfaceHelper):
         if not ("collision_probability" in kwargs):
             kwargs["collision_probability"]=1.0
 
+        if not ("collision_probability_first" in kwargs):
+            kwargs["collision_probability"]=1.0
+        
+        if not ("collision_probability_second" in kwargs):
+            kwargs["collision_probability"]=1.0
+
         #if not ("collision_probability_vs_distance" in kwargs):
         #    kwargs["collision_probability_vs_distance"]=[]
         

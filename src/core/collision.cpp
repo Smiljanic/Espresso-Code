@@ -50,6 +50,8 @@
 typedef struct {
   int pp1; // 1st particle id
   int pp2; // 2nd particle id
+  std::string pp1_type; // 1st CG-particle type
+  std::string pp2_type; // 1st CG-particle type
 } collision_struct;
 
 
@@ -136,6 +138,13 @@ bool validate_collision_parameters() {
   if (collision_params.collision_probability_vs_distance.size()>0 && collision_params.collision_probability<1) {
     runtimeErrorMsg() << "collision_params.collision_probability_vs_distance.size() : "<< collision_params.collision_probability_vs_distance.size() << "and probability : "<< collision_params.collision_probability;
     runtimeErrorMsg() << "Collision probability can be either single value or a distance dependent vector. "; 
+    return false;
+  }
+
+
+  if ((collision_params.collision_probability_vs_distance.size()>0 && collision_params.collision_probability_first_vs_distance.size()>0) || (collision_params.collision_probability_vs_distance.size()>0 && collision_params.collision_probability_first_vs_distance.size()>0)) {
+    runtimeErrorMsg() << "collision_params.collision_probability_vs_distance.size() : "<< collision_params.collision_probability_vs_distance.size() << "and probability for the first particle type : "<< collision_params.collision_probability_first_vs_distance.size() << " and probability for the second particle type : "<< collision_params.collision_probability_second_vs_distance.size();
+    runtimeErrorMsg() << "Collision probability can be either given for the identical clusters or for each particle type separately as a distance dependent vector indicated with words 'first' and 'second'. "; 
     return false;
   }
 
@@ -704,6 +713,21 @@ double interpolate_collision_probability(double x) {
 } 
 
 
+/** @brief Interpolate the first collision probability value between xMin and xMax for the given x-distance from the cluster's center of mass */
+double interpolate_first_collision_probability(double x) {
+  double invstepsize=(collision_params.collision_probability_first_vs_distance.size()-1)/(collision_params.probability_first_dist_max-collision_params.probability_first_dist_min);
+  assert(x<=collision_params.probability_first_dist_max);
+  return Utils::linear_interpolation(collision_params.collision_probability_first_vs_distance, invstepsize, collision_params.probability_first_dist_min, x);
+} 
+
+
+/** @brief Interpolate the second collision probability value between xMin and xMax for the given x-distance from the cluster's center of mass */
+double interpolate_second_collision_probability(double x) {
+  double invstepsize=(collision_params.collision_probability_second_vs_distance.size()-1)/(collision_params.probability_second_dist_max-collision_params.probability_second_dist_min);
+  assert(x<=collision_params.probability_second_dist_max);
+  return Utils::linear_interpolation(collision_params.collision_probability_second_vs_distance, invstepsize, collision_params.probability_second_dist_min, x);
+} 
+
 // Handle the collisions stored in the queue
 void handle_collisions ()
 {
@@ -734,10 +758,10 @@ void handle_collisions ()
          return false;
       }),local_collision_queue.end());
 
-  // Test for precomputed distance dependent collision probabilities. Remove collisions which tht are within tMin fro particles that are closer than the distMin
+  // Test for precomputed distance dependent collision probabilities. Remove collisions which are within tMin fro particles that are closer than the distMin
   // and queue them in the ignore_pair_queue
-       if (collision_params.collision_probability_vs_distance.size()>0 and (collision_params.probability_dist_max-collision_params.probability_dist_min > std::numeric_limits<double>::epsilon())) { 
-  
+      if (collision_params.collision_probability_vs_distance.size()>0 and (collision_params.probability_dist_max-collision_params.probability_dist_min > std::numeric_limits<double>::epsilon())) 
+      { 
       local_collision_queue.erase(std::remove_if(
       local_collision_queue.begin(), local_collision_queue.end(),
       [](collision_struct &c) {
@@ -768,7 +792,68 @@ void handle_collisions ()
          }
          return false;
        }), local_collision_queue.end());
-    }
+      }
+
+
+  // Test for precomputed distance dependent collision probabilities, among different particles. Remove collisions which are within tMin from particles that are closer than the distMin
+  // and queue them in the ignore_pair_queue
+      if ((collision_params.collision_probability_first_vs_distance.size()>0 && collision_params.collision_probability_second_vs_distance.size()>0) && 
+          (collision_params.probability_first_dist_max-collision_params.probability_first_dist_min > std::numeric_limits<double>::epsilon()) && 
+          (collision_params.probability_second_dist_max-collision_params.probability_second_dist_min > std::numeric_limits<double>::epsilon()) ) { 
+  
+      local_collision_queue.erase(std::remove_if(
+      local_collision_queue.begin(), local_collision_queue.end(),
+      [](collision_struct &c) {
+
+         double xCurrentVec[3];
+         get_mi_vector(xCurrentVec, local_particles[c.pp1]->r.p, local_particles[c.pp2]->r.p);
+         double xCurrent= sqrt(sqrlen(xCurrentVec));
+         double interpolatedFirstProbability=interpolate_first_collision_probability(xCurrent);
+         double interpolatedSecondProbability=interpolate_second_collision_probability(xCurrent);
+         // at current distance between particles pp1 and pp2, xCurrent, interpolated tabulated collision probability is interpolatedProbability
+
+         Particle *const p1 = local_particles[c.pp1];
+         Particle *const p2 = local_particles[c.pp2];
+         std::pair<double,double>timeAndDist;
+         timeAndDist=predict_min_distance_between_particles(p1, p2);
+         double tMin=timeAndDist.first;
+         double distMin=timeAndDist.second;
+    
+         if (timeAndDist.first<0){
+           queue_ignore_pair(sim_time+collision_params.ignore_time, c.pp1,c.pp2);
+           return true;
+         }         
+         double random_probability=d_random();
+         // Implementation that checks if pp1_type==pp2_typ - in that case colliding particles are identical, if not, both probability vectors have to get interpolated
+         //    based on the particle types
+         
+         if(c.pp1_type!= c.pp2_type){     
+           if (random_probability>=interpolatedFirstProbability*interpolatedSecondProbability) {
+             queue_ignore_pair(sim_time+collision_params.ignore_time, c.pp1,c.pp2);
+             return true;
+            } 
+            else {
+              if (c.pp1_type=="first" && c.pp2_type=="first") {
+                if (random_probability>=interpolatedFirstProbability) {
+                  queue_ignore_pair(sim_time+collision_params.ignore_time, c.pp1,c.pp2);
+                  return true;
+                  }
+                else {   
+                  if (random_probability>=interpolatedSecondProbability) {
+                  queue_ignore_pair(sim_time+collision_params.ignore_time, c.pp1,c.pp2);
+                  return true;
+                  }
+                }
+              }
+            }
+          }  
+          return false;
+          }), local_collision_queue.end() );
+      }
+                   
+
+
+
 
 
 

@@ -54,7 +54,13 @@ public:
       {"ignore_time",collision_params.ignore_time},
       {"collision_probability_vs_distance",collision_params.collision_probability_vs_distance},
       {"probability_dist_min",collision_params.probability_dist_min},
-      {"probability_dist_max",collision_params.probability_dist_max}
+      {"probability_dist_max",collision_params.probability_dist_max},
+      {"collision_probability_first_vs_distance",collision_params.collision_probability_first_vs_distance},
+      {"collision_probability_second_vs_distance",collision_params.collision_probability_first_vs_distance},
+      {"probability_first_dist_min",collision_params.probability_dist_min},
+      {"probability_first_dist_max",collision_params.probability_dist_max},
+      {"probability_second_dist_min",collision_params.probability_dist_min},
+      {"probability_second_dist_max",collision_params.probability_dist_max}
     });
   };
   Variant call_method(const std::string& name, const VariantMap& params) override {

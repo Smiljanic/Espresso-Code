@@ -48,8 +48,12 @@ public:
         bond_three_particles(-1),
         collision_probability(1.),
         ignore_time(0.),
-        probability_dist_min(0),
-        probability_dist_max(0)
+        probability_dist_min(0.),
+        probability_dist_max(0.),
+        probability_first_dist_min(0.),
+        probability_first_dist_max(0.),
+        probability_second_dist_min(0.),
+        probability_second_dist_max(0.)
         {};
 
   /// collision handling mode, a combination of constants COLLISION_MODE_*
@@ -97,6 +101,19 @@ public:
   double probability_dist_min;
   /** Maximum distance for probability interpolation */
   double probability_dist_max;
+
+  /** Precalculated collision probabilities (per shell) for the first coarsened particle in the colliding pair */
+  std::vector<double> collision_probability_first_vs_distance;
+  /** Precalculated collision probabilities (per shell) for the second coarsened particle */
+  std::vector<double> collision_probability_second_vs_distance;
+  /** Minimum distance for the first particle probability interpolation */
+  double probability_first_dist_min;
+  /** Maximum distance for the first particle probability interpolation */
+  double probability_first_dist_max;
+  /** Minimum distance for the second particle probability interpolation */
+  double probability_second_dist_min;
+  /** Maximum distance for the second particle probability interpolation */
+  double probability_second_dist_max;
 };
 /// Parameters for collision detection
 extern Collision_parameters collision_params;

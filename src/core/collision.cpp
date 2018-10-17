@@ -622,6 +622,7 @@ inline std::pair<double, double> predict_min_distance_between_particles(const Pa
   double tMin=(-B)/(2.*A);
   double closestDist=sqrt(A*pow(tMin,2)+B*tMin+C);
   
+  printf("ignoreTime: %f\n", tMin);
   return {tMin,closestDist};
 }
 
@@ -631,7 +632,8 @@ inline std::pair<double, double> predict_min_distance_between_particles(const Pa
 inline bool collision_prediction(const Particle *const p1, const Particle *const p2){
   std::pair<double,double>timeAndDist;
   timeAndDist=predict_min_distance_between_particles(p1, p2);
-
+  printf("ignoreTime: %f\n", timeAndDist.first);
+  
   return (timeAndDist.second <= collision_params.distance and timeAndDist.first > 0); 
 }
 

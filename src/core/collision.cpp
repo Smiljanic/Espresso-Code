@@ -687,7 +687,7 @@ void handle_collisions ()
          double xCurrentVec[3];
          get_mi_vector(xCurrentVec, local_particles[c.pp1]->r.p, local_particles[c.pp2]->r.p);
          double xCurrent= sqrt(sqrlen(xCurrentVec));
-         double interpolatedProbability=interpolate_collision_probability(xCurrent);
+         // double interpolatedProbability=interpolate_collision_probability(xCurrent);
          // at current distance between particles pp1 and pp2, xCurrent, interpolated tabulated collision probability is interpolatedProbability
 
          Particle *const p1 = local_particles[c.pp1];
@@ -696,9 +696,11 @@ void handle_collisions ()
          timeAndDist=predict_min_distance_between_particles(p1, p2);
          double tMin=timeAndDist.first;
          double distMin=timeAndDist.second;
+         double interpolatedProbability=interpolate_collision_probability(distMin);
     
          if (timeAndDist.first<0){
-           queue_ignore_pair(sim_time+collision_params.ignore_time, c.pp1,c.pp2);
+           //queue_ignore_pair(sim_time+collision_params.ignore_time, c.pp1,c.pp2);
+           queue_ignore_pair(sim_time+2*tMin, c.pp1,c.pp2);
            return true;
          }         
          double random_probability=d_random();
